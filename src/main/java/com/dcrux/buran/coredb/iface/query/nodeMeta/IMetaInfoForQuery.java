@@ -1,13 +1,11 @@
 package com.dcrux.buran.coredb.iface.query.nodeMeta;
 
-import com.dcrux.buran.coredb.iface.DomainId;
-import com.dcrux.buran.coredb.iface.Edge;
 import com.dcrux.buran.coredb.iface.EdgeIndex;
 import com.dcrux.buran.coredb.iface.EdgeLabel;
+import com.dcrux.buran.coredb.iface.EdgeWithSource;
 import com.dcrux.buran.coredb.iface.nodeClass.NodeClass;
 import com.dcrux.buran.coredb.iface.permissions.UserNodePermission;
 
-import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Set;
 
@@ -19,6 +17,12 @@ import java.util.Set;
  * To change this template use File | Settings | File Templates.
  */
 public interface IMetaInfoForQuery {
+
+  public enum EdgeType {
+    out,
+    in
+  }
+
   long getClassId();
 
   int getVersion();
@@ -35,20 +39,12 @@ public interface IMetaInfoForQuery {
 
   Map<Long, UserNodePermission> getOtherPermissions();
 
-  Set<DomainId> getDomains();
+  Set<Long> getDomainIds();
 
   NodeClass getNodeClass();
 
-  boolean isQueryable(EdgeLabel label);
-
   /* Edges */
-  Map<EdgeLabel, Map<EdgeIndex, Edge>> getPublicOutEdges(@Nullable EdgeLabel label);
-
-  Map<EdgeLabel, Map<EdgeIndex, Edge>> getPrivateOutEdges(@Nullable EdgeLabel label);
-
-  Map<EdgeLabel, Map<EdgeIndex, Edge>> getPublicInEdges(@Nullable EdgeLabel label);
-
-  Map<EdgeLabel, Map<EdgeIndex, Edge>> getPrivateInEdges(@Nullable EdgeLabel label);
+  Map<EdgeIndex, EdgeWithSource> getQueryableOutEdges(EdgeLabel label);
 
   INodeMatcher getNodeMatcher();
 }

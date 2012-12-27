@@ -9,6 +9,8 @@ package com.dcrux.buran.coredb.iface.edgeTargets;
  */
 public class IncVersionedEdTarget implements IIncEdgeTarget {
 
+  //TODO: Die Incs-targets kommen vermutlich in die implementierung
+
   private final long ioid;
 
   @Override

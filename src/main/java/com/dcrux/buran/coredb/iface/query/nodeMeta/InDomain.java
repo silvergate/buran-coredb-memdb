@@ -22,6 +22,6 @@ public class InDomain implements INodeMetaCondition {
 
   @Override
   public boolean matches(IMetaInfoForQuery metaInfoForQuery) {
-    return metaInfoForQuery.getDomains().contains(this.domain);
+    return metaInfoForQuery.getDomainIds().contains(this.domain.getId());
   }
 }

@@ -1,6 +1,5 @@
 package com.dcrux.buran.coredb.memoryImpl;
 
-import com.dcrux.buran.coredb.memoryImpl.data.Edges;
 import com.dcrux.buran.coredb.memoryImpl.data.NodeClasses;
 import com.dcrux.buran.coredb.memoryImpl.data.Nodes;
 import com.dcrux.buran.coredb.memoryImpl.typeImpls.TypesRegistry;
@@ -19,17 +18,18 @@ public class ApiIface {
   private final NodeClassesApi nodeClassesApi;
   private final TypesRegistry typesRegistry;
   private final MiApi metaApi;
+  private final QueryApi queryApi;
 
   public ApiIface() {
     this.typesRegistry = new TypesRegistry();
-    Edges edges = new Edges();
     Nodes nodes = new Nodes();
     NodeClasses ncs = new NodeClasses();
     this.nodeClassesApi = new NodeClassesApi(ncs);
-    this.dataManipulationApi = new DmApi(edges, nodes, this.nodeClassesApi, typesRegistry);
-    this.dataReadApi = new DataReadApi(edges, nodes, this.nodeClassesApi, typesRegistry);
-    this.commitApi = new CommitApi(edges, nodes, this.dataReadApi, this.nodeClassesApi);
+    this.dataManipulationApi = new DmApi(nodes, this.nodeClassesApi, typesRegistry);
+    this.dataReadApi = new DataReadApi(nodes, this.nodeClassesApi, typesRegistry);
+    this.commitApi = new CommitApi(nodes, this.dataReadApi, this.nodeClassesApi);
     this.metaApi = new MiApi(this.dataReadApi, this.dataManipulationApi);
+    this.queryApi = new QueryApi(nodes, getNodeClassesApi());
   }
 
   public CommitApi getCommitApi() {
@@ -50,5 +50,9 @@ public class ApiIface {
 
   public MiApi getMetaApi() {
     return metaApi;
+  }
+
+  public QueryApi getQueryApi() {
+    return queryApi;
   }
 }

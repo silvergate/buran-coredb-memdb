@@ -16,7 +16,7 @@ public class Nodes {
   public AccountNodes getByUserId(final long userId) {
     AccountNodes an = this.receiverIdToNodes.get(userId);
     if (an == null) {
-      an = new AccountNodes();
+      an = new AccountNodes(userId);
       this.receiverIdToNodes.put(userId, an);
     }
     return an;

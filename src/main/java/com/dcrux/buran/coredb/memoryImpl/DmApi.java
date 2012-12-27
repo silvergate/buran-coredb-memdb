@@ -4,11 +4,14 @@ import com.dcrux.buran.coredb.iface.EdgeIndex;
 import com.dcrux.buran.coredb.iface.EdgeLabel;
 import com.dcrux.buran.coredb.iface.IncOid;
 import com.dcrux.buran.coredb.iface.OidVersion;
+import com.dcrux.buran.coredb.iface.api.ExpectableException;
 import com.dcrux.buran.coredb.iface.edgeTargets.IIncEdgeTarget;
 import com.dcrux.buran.coredb.iface.nodeClass.IDataSetter;
 import com.dcrux.buran.coredb.iface.nodeClass.IType;
 import com.dcrux.buran.coredb.iface.nodeClass.NodeClass;
-import com.dcrux.buran.coredb.memoryImpl.data.*;
+import com.dcrux.buran.coredb.memoryImpl.data.IncNode;
+import com.dcrux.buran.coredb.memoryImpl.data.IncubationEdge;
+import com.dcrux.buran.coredb.memoryImpl.data.Nodes;
 import com.dcrux.buran.coredb.memoryImpl.typeImpls.ITypeImpl;
 import com.dcrux.buran.coredb.memoryImpl.typeImpls.TypesRegistry;
 
@@ -25,41 +28,23 @@ import java.util.Set;
  * To change this template use File | Settings | File Templates.
  */
 public class DmApi {
-  private final Edges edges;
   private final Nodes nodes;
   private final NodeClassesApi ncApi;
   private final TypesRegistry typesRegistry;
 
-  public DmApi(Edges edges, Nodes nodes, NodeClassesApi ncApi, TypesRegistry typesRegistry) {
-    this.edges = edges;
+  public DmApi(Nodes nodes, NodeClassesApi ncApi, TypesRegistry typesRegistry) {
     this.nodes = nodes;
     this.ncApi = ncApi;
     this.typesRegistry = typesRegistry;
   }
 
   public IncOid createNew(long receiverId, long senderId, long classId, @Nullable OidVersion toUpdate) {
-    final long incOid = this.nodes.getByUserId(senderId).getIncOidCounter().incrementAndGet();
-    final NodeClass nc = this.ncApi.getClassById(classId);
-    if (nc == null) {
-      throw new IllegalStateException("NodeClass not found");
-    }
-    final Node newNode = new Node(senderId, 0L, 0L, new Object[nc.getNumberOfTypes()]);
-    final IncNode incNode = new IncNode(toUpdate, newNode, receiverId);
-
-    /* Add data */
-    this.nodes.getByUserId(senderId).getIncOidToClassId().put(incOid, classId);
-    NodesSingleClass nsc = this.nodes.getByUserId(senderId).getByClassId(classId);
-    final IncOid incOidNew = new IncOid(incOid);
-    nsc.getIncOidToIncubationNode().put(incOidNew.getId(), incNode);
-    return incOidNew;
+    return this.nodes.getByUserId(receiverId).createNew(senderId, classId, toUpdate, this.ncApi);
   }
 
   @Nullable
   IncNode getIncNode(long receiverId, long senderId, IncOid incOid) {
-    final long classId = this.nodes.getByUserId(senderId).getIncOidToClassId().get(incOid.getId());
-    final IncNode incNode =
-            this.nodes.getByUserId(senderId).getByClassId(classId).getIncOidToIncubationNode().get(incOid.getId());
-    return incNode;
+    return this.nodes.getByUserId(receiverId).getIncNode(incOid.getId());
   }
 
   public void setEdge(long receiverId, long senderId, IncOid incOid, EdgeIndex index, EdgeLabel label,
@@ -95,9 +80,11 @@ public class DmApi {
   }
 
   public void setData(long receiverId, long senderId, IncOid incOid, short typeIndex, IDataSetter dataSetter) {
-    final long classId = this.nodes.getByUserId(senderId).getIncOidToClassId().get(incOid.getId());
-    final IncNode incNode =
-            this.nodes.getByUserId(senderId).getByClassId(classId).getIncOidToIncubationNode().get(incOid.getId());
+    final IncNode incNode = this.nodes.getByUserId(receiverId).getIncOidToIncNodes().get(incOid.getId());
+    if (incNode == null) {
+      throw new ExpectableException("Node in incubation not found");
+    }
+    final long classId = incNode.getClassId();
     final NodeClass nc = this.ncApi.getClassById(classId);
     if (nc == null) {
       throw new IllegalStateException("NodeClass not found");

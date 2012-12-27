@@ -1,6 +1,7 @@
 package com.dcrux.buran.coredb.iface.query;
 
 import com.dcrux.buran.coredb.iface.query.nodeMeta.INodeMetaCondition;
+import com.google.common.base.Optional;
 
 /**
  * Created with IntelliJ IDEA.
@@ -9,14 +10,14 @@ import com.dcrux.buran.coredb.iface.query.nodeMeta.INodeMetaCondition;
  * Time: 21:56
  * To change this template use File | Settings | File Templates.
  */
-public class QNode {
-  private final INodeMetaCondition metaCondition;
+public class QNode implements IQNode {
+  private final Optional<INodeMetaCondition> metaCondition;
 
-  public QNode(INodeMetaCondition metaCondition) {
+  public QNode(Optional<INodeMetaCondition> metaCondition) {
     this.metaCondition = metaCondition;
   }
 
-  public INodeMetaCondition getMetaCondition() {
+  public Optional<INodeMetaCondition> getMetaCondition() {
     return metaCondition;
   }
 }

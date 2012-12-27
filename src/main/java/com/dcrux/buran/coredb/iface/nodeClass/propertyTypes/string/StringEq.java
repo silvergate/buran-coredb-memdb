@@ -11,7 +11,7 @@ import com.dcrux.buran.coredb.iface.nodeClass.ICmp;
  * To change this template use File | Settings | File Templates.
  */
 public class StringEq implements ICmp {
-  private static final CmpRef REF = new CmpRef((short) 21);
+  public static final CmpRef REF = new CmpRef((short) 21);
 
   private final String rhs;
 

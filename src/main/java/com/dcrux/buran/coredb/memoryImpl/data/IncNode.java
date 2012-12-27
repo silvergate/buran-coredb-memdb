@@ -23,12 +23,18 @@ public class IncNode {
   private final OidVersion toUpdate;
   private final Node node;
   private final long receiverId;
+  private final long classId;
   private final Map<EdgeIndexLabel, IncubationEdge> incubationEdges = new HashMap<>();
 
-  public IncNode(@Nullable OidVersion toUpdate, Node node, long receiverId) {
+  public IncNode(@Nullable OidVersion toUpdate, Node node, long receiverId, long classId) {
     this.toUpdate = toUpdate;
     this.node = node;
     this.receiverId = receiverId;
+    this.classId = classId;
+  }
+
+  public long getClassId() {
+    return classId;
   }
 
   public long getReceiverId() {

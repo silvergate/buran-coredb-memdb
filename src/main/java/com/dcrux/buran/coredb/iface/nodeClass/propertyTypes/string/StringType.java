@@ -54,6 +54,9 @@ public class StringType implements IType {
 
   @Override
   public boolean supports(CmpRef comparator) {
+    if (this.equalsQuery && (comparator.equals(StringEq.REF))) {
+      return true;
+    }
     return false;
   }
 
