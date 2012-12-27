@@ -1,5 +1,7 @@
 package com.dcrux.buran.coredb.iface.query.propertyCondition;
 
+import com.dcrux.buran.coredb.iface.nodeClass.NodeClass;
+
 /**
  * Created with IntelliJ IDEA.
  * User: caelis
@@ -8,4 +10,5 @@ package com.dcrux.buran.coredb.iface.query.propertyCondition;
  * To change this template use File | Settings | File Templates.
  */
 public interface IPropertyCondition {
+  boolean matches(Object[] data, NodeClass nodeClass);
 }

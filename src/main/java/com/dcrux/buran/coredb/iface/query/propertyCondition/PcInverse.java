@@ -1,5 +1,7 @@
 package com.dcrux.buran.coredb.iface.query.propertyCondition;
 
+import com.dcrux.buran.coredb.iface.nodeClass.NodeClass;
+
 /**
  * Created with IntelliJ IDEA.
  * User: caelis
@@ -16,5 +18,11 @@ public class PcInverse implements IPropertyCondition {
 
   public IPropertyCondition getVal() {
     return val;
+  }
+
+  @Override
+  public boolean matches(Object[] data, NodeClass nodeClass) {
+    final boolean matches = this.val.matches(data, nodeClass);
+    return !matches;
   }
 }

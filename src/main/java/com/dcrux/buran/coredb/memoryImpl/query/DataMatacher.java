@@ -1,9 +1,7 @@
 package com.dcrux.buran.coredb.memoryImpl.query;
 
-import com.dcrux.buran.coredb.iface.api.ExpectableException;
-import com.dcrux.buran.coredb.iface.nodeClass.IType;
 import com.dcrux.buran.coredb.iface.nodeClass.NodeClass;
-import com.dcrux.buran.coredb.iface.query.propertyCondition.*;
+import com.dcrux.buran.coredb.iface.query.propertyCondition.IPropertyCondition;
 import com.dcrux.buran.coredb.memoryImpl.NodeClassesApi;
 
 /**
@@ -37,31 +35,6 @@ public class DataMatacher {
       assert (this.nodeClass != null);
     }
 
-    if (propCondition instanceof PropCondition) {
-      final PropCondition pcCast = (PropCondition) propCondition;
-      final IType type = this.nodeClass.getType(pcCast.getTypeIndex());
-      final boolean supports = type.supports(pcCast.getComparator().getRef());
-      if (!supports) {
-        throw new ExpectableException("The type does not support the given comparator");
-      }
-      final Object rhs = data[pcCast.getTypeIndex()];
-      final boolean matches = pcCast.getComparator().matches(rhs);
-      return matches;
-    } else if (propCondition instanceof PcInverse) {
-      final PcInverse pcInCast = (PcInverse) propCondition;
-      return !(matchesInt(data, pcInCast.getVal()));
-    } else if (propCondition instanceof PcUnion) {
-      final PcUnion pcuCast = (PcUnion) propCondition;
-      final boolean one = matchesInt(data, pcuCast.getVal1());
-      final boolean two = matchesInt(data, pcuCast.getVal2());
-      return one || two;
-    } else if (propCondition instanceof PcIntersection) {
-      final PcIntersection pcInt = (PcIntersection) propCondition;
-      final boolean one = matchesInt(data, pcInt.getVal1());
-      final boolean two = matchesInt(data, pcInt.getVal2());
-      return one && two;
-    } else {
-      throw new ExpectableException("Unknown IPropertyCondition type.");
-    }
+    return propCondition.matches(data, this.nodeClass);
   }
 }

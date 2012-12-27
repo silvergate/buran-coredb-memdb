@@ -17,4 +17,9 @@ public class VersionEq implements INodeMetaCondition {
   public int getVersion() {
     return version;
   }
+
+  @Override
+  public boolean matches(IMetaInfoForQuery metaInfoForQuery) {
+    return metaInfoForQuery.getVersion() == this.version;
+  }
 }

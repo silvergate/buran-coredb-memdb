@@ -1,5 +1,7 @@
 package com.dcrux.buran.coredb.iface.query.propertyCondition;
 
+import com.dcrux.buran.coredb.iface.nodeClass.NodeClass;
+
 /**
  * Created with IntelliJ IDEA.
  * User: caelis
@@ -22,5 +24,15 @@ public class PcUnion implements IPropertyCondition {
 
   public IPropertyCondition getVal2() {
     return val2;
+  }
+
+  @Override
+  public boolean matches(Object[] data, NodeClass nodeClass) {
+    final boolean matches1 = this.val1.matches(data, nodeClass);
+    if (matches1) {
+      return true;
+    }
+    final boolean matches2 = this.val2.matches(data, nodeClass);
+    return matches2;
   }
 }

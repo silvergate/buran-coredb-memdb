@@ -8,4 +8,5 @@ package com.dcrux.buran.coredb.iface.query.nodeMeta;
  * To change this template use File | Settings | File Templates.
  */
 public interface INodeMetaCondition {
+  boolean matches(IMetaInfoForQuery metaInfoForQuery);
 }
