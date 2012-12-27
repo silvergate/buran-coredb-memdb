@@ -12,10 +12,14 @@ import com.google.common.base.Optional;
  */
 public class PrivateEdgeClass extends EdgeClass {
 
-  public PrivateEdgeClass(String label, boolean queryable, Optional<ClassId> outEdgeClass,
+  public PrivateEdgeClass(String label, boolean queryable, Optional<ClassId> inEdgeClass,
                           PrivateEdgeConstraints outNodeConstraints) {
-    super(label, queryable, outEdgeClass);
+    super(label, queryable, inEdgeClass);
     this.outNodeConstraints = outNodeConstraints;
+  }
+
+  public static PrivateEdgeClass cQueryable(String label) {
+    return new PrivateEdgeClass(label, true, Optional.<ClassId>absent(), PrivateEdgeConstraints.many);
   }
 
   private final PrivateEdgeConstraints outNodeConstraints;

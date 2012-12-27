@@ -16,19 +16,19 @@ public class PublicEdgeClass extends EdgeClass {
 
   public PublicEdgeClass(String label, boolean queryable, Optional<ClassId> outEdgeClass,
                          PublicEdgeConstraints outNodeConstraints, Optional<ClassId> inEdgeClass) {
-    super(label, queryable, outEdgeClass);
+    super(label, queryable, inEdgeClass);
     this.outNodeConstraints = outNodeConstraints;
-    this.inEdgeClass = inEdgeClass;
+    this.outEdgeClass = outEdgeClass;
   }
 
   private final PublicEdgeConstraints outNodeConstraints;
-  private final Optional<ClassId> inEdgeClass;
+  private final Optional<ClassId> outEdgeClass;
 
   public PublicEdgeConstraints getOutNodeConstraints() {
     return outNodeConstraints;
   }
 
-  public Optional<ClassId> getInEdgeClass() {
-    return inEdgeClass;
+  public Optional<ClassId> getOutEdgeClass() {
+    return outEdgeClass;
   }
 }

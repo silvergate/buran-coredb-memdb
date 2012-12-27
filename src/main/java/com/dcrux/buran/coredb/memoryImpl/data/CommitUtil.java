@@ -16,6 +16,7 @@ import com.dcrux.buran.coredb.memoryImpl.PreparedComitInfo;
 import com.dcrux.buran.coredb.memoryImpl.edge.*;
 
 import javax.annotation.Nullable;
+import java.text.MessageFormat;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -125,6 +126,7 @@ public class CommitUtil {
     if (nc == null) {
       throw new IllegalStateException("Class not declared");
     }
+
     /* Check types */
     for (short typeIndex = 0; typeIndex < nc.getNumberOfTypes(); typeIndex++) {
       final boolean required = nc.isRequired(typeIndex);
@@ -133,7 +135,8 @@ public class CommitUtil {
         throw new IllegalStateException("A required property is not available");
       }
     }
-    /* Check properties */
+
+    /* Check edges */
     for (Map.Entry<EdgeLabel, PrivateEdgeClass> edgeEntry : nc.getEdgeClasses().entrySet()) {
       final PrivateEdgeConstraints constraints = edgeEntry.getValue().getOutNodeConstraints();
       int numberOfEdges = 0;
@@ -167,7 +170,22 @@ public class CommitUtil {
           }
           break;
       }
+      //TODO: Check target node class
     }
+
+    /* Private edges have to be declared */
+    for (final Map.Entry<IncNode.EdgeIndexLabel, IncubationEdge> incEdge : pci.getIncNode().getIncubationEdges()
+            .entrySet()) {
+      final EdgeLabel label = incEdge.getKey().getLabel();
+      if (!label.isPublic()) {
+        /* Label has to be declared */
+        final boolean declared = nc.getEdgeClasses().containsKey(label);
+        if (!declared) {
+          throw new ExpectableException(MessageFormat.format("Private label {0} is not declared in class", label));
+        }
+      }
+    }
+
   }
 
   public void validate(Set<PreparedComitInfo> prepComInfo, DataReadApi drApi, NodeClassesApi ncApi) throws

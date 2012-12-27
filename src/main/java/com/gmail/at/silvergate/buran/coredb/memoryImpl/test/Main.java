@@ -5,6 +5,7 @@ import com.dcrux.buran.coredb.iface.EdgeLabel;
 import com.dcrux.buran.coredb.iface.IncOid;
 import com.dcrux.buran.coredb.iface.api.CommitResult;
 import com.dcrux.buran.coredb.iface.api.OptimisticLockingException;
+import com.dcrux.buran.coredb.iface.edgeClass.PrivateEdgeClass;
 import com.dcrux.buran.coredb.iface.edgeTargets.IncVersionedEdTarget;
 import com.dcrux.buran.coredb.iface.nodeClass.NodeClass;
 import com.dcrux.buran.coredb.iface.nodeClass.NodeClassHash;
@@ -35,7 +36,8 @@ public class Main {
     ApiIface api = new ApiIface();
 
     /* Declare class */
-    final NodeClass nodeClass = NodeClass.builder().add("daName", false, new StringType(true, true, true)).get();
+    final NodeClass nodeClass = NodeClass.builder().add("daName", false, new StringType(true, true, true))
+            .addEdgeClass(PrivateEdgeClass.cQueryable("hallo")).get();
     final NodeClassHash ncHash = api.getNodeClassesApi().declareClass(nodeClass);
     final Long classId = api.getNodeClassesApi().getClassIdByHash(ncHash);
 
