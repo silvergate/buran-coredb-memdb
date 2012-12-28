@@ -1,11 +1,8 @@
 package com.dcrux.buran.coredb.iface;
 
 /**
- * Created with IntelliJ IDEA.
- * User: caelis
- * Date: 11.12.12
- * Time: 01:21
- * To change this template use File | Settings | File Templates.
+ *
+ * @author caelis
  */
 public class IncOid {
   private final long id;

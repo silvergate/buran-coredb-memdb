@@ -7,11 +7,8 @@ import com.google.common.base.Optional;
 import java.io.Serializable;
 
 /**
- * Created with IntelliJ IDEA.
- * User: caelis
- * Date: 19.12.12
- * Time: 22:17
- * To change this template use File | Settings | File Templates.
+ *
+ * @author caelis
  */
 public abstract class EdgeClass implements Serializable {
   private final EdgeLabel label;

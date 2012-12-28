@@ -5,11 +5,8 @@ import com.dcrux.buran.coredb.iface.nodeClass.propertyTypes.PrimGet;
 import com.dcrux.buran.coredb.iface.nodeClass.propertyTypes.PrimSet;
 
 /**
- * Created with IntelliJ IDEA.
- * User: caelis
- * Date: 19.12.12
- * Time: 20:56
- * To change this template use File | Settings | File Templates.
+ *
+ * @author caelis
  */
 public class IntType implements IType {
   public static final TypeRef REF = new TypeRef((short) 22);

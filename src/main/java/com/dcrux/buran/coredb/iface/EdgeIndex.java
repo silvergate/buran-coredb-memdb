@@ -1,11 +1,8 @@
 package com.dcrux.buran.coredb.iface;
 
 /**
- * Created with IntelliJ IDEA.
- * User: caelis
- * Date: 08.12.12
- * Time: 17:29
- * To change this template use File | Settings | File Templates.
+ *
+ * @author caelis
  */
 public class EdgeIndex {
 

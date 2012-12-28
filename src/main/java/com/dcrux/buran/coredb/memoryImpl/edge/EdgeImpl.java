@@ -3,11 +3,8 @@ package com.dcrux.buran.coredb.memoryImpl.edge;
 import com.dcrux.buran.coredb.iface.EdgeLabel;
 
 /**
- * Created with IntelliJ IDEA.
- * User: caelis
- * Date: 27.12.12
- * Time: 11:02
- * To change this template use File | Settings | File Templates.
+ *
+ * @author caelis
  */
 public class EdgeImpl {
   private final EdgeLabel label;

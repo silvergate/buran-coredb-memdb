@@ -3,11 +3,8 @@ package com.dcrux.buran.coredb.iface.query.propertyCondition;
 import com.dcrux.buran.coredb.iface.nodeClass.NodeClass;
 
 /**
- * Created with IntelliJ IDEA.
- * User: caelis
- * Date: 25.12.12
- * Time: 23:51
- * To change this template use File | Settings | File Templates.
+ *
+ * @author caelis
  */
 public class PcIntersection implements IPropertyCondition {
   private final IPropertyCondition val1;

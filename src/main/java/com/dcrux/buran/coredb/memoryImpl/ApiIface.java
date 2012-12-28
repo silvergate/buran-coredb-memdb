@@ -5,11 +5,8 @@ import com.dcrux.buran.coredb.memoryImpl.data.Nodes;
 import com.dcrux.buran.coredb.memoryImpl.typeImpls.TypesRegistry;
 
 /**
- * Created with IntelliJ IDEA.
- * User: caelis
- * Date: 11.12.12
- * Time: 21:36
- * To change this template use File | Settings | File Templates.
+ *
+ * @author caelis
  */
 public class ApiIface {
   private final CommitApi commitApi;

@@ -3,11 +3,8 @@ package com.dcrux.buran.coredb.memoryImpl.edge;
 import javax.annotation.Nullable;
 
 /**
- * Created with IntelliJ IDEA.
- * User: caelis
- * Date: 27.12.12
- * Time: 13:33
- * To change this template use File | Settings | File Templates.
+ *
+ * @author caelis
  */
 public class ExtEdgeImplTarget implements IEdgeImplTarget {
   private final long userId;

@@ -10,11 +10,8 @@ import com.dcrux.buran.coredb.memoryImpl.data.AccountNodes;
 import com.dcrux.buran.coredb.memoryImpl.data.Node;
 
 /**
- * Created with IntelliJ IDEA.
- * User: caelis
- * Date: 27.12.12
- * Time: 22:19
- * To change this template use File | Settings | File Templates.
+ *
+ * @author caelis
  */
 public class DataAndMetaMatcher {
 

@@ -3,11 +3,8 @@ package com.dcrux.buran.coredb.iface;
 import com.dcrux.buran.coredb.iface.edgeTargets.IEdgeTarget;
 
 /**
- * Created with IntelliJ IDEA.
- * User: caelis
- * Date: 11.12.12
- * Time: 17:23
- * To change this template use File | Settings | File Templates.
+ *
+ * @author caelis
  */
 public class Edge {
   private IEdgeTarget target;

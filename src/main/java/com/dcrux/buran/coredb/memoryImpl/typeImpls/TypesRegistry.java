@@ -6,11 +6,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created with IntelliJ IDEA.
- * User: caelis
- * Date: 24.12.12
- * Time: 15:56
- * To change this template use File | Settings | File Templates.
+ *
+ * @author caelis
  */
 public class TypesRegistry {
   private Map<TypeRef, ITypeImpl> typeRef2TypeImpl = new HashMap<>();

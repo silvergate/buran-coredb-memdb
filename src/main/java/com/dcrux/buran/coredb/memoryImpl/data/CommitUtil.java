@@ -22,11 +22,8 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Created with IntelliJ IDEA.
- * User: caelis
- * Date: 27.12.12
- * Time: 15:41
- * To change this template use File | Settings | File Templates.
+ *
+ * @author caelis
  */
 public class CommitUtil {
   public Set<PreparedComitInfo> generateOidsFromIoids(long senderId, final Set<IncOid> incOids,

@@ -9,11 +9,8 @@ import java.util.Map;
 import java.util.Random;
 
 /**
- * Created with IntelliJ IDEA.
- * User: caelis
- * Date: 19.12.12
- * Time: 21:03
- * To change this template use File | Settings | File Templates.
+ *
+ * @author caelis
  */
 public class NodeClasses {
   private Map<Long, NodeClass> classes = new HashMap<>();

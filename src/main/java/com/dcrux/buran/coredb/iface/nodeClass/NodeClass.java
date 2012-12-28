@@ -7,11 +7,8 @@ import java.io.Serializable;
 import java.util.*;
 
 /**
- * Created with IntelliJ IDEA.
- * User: caelis
- * Date: 02.11.12
- * Time: 19:37
- * To change this template use File | Settings | File Templates.
+ *
+ * @author caelis
  */
 public final class NodeClass implements Serializable {
   private final IType[] types;

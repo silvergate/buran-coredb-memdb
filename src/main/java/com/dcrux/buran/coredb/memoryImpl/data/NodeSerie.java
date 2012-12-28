@@ -9,11 +9,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created with IntelliJ IDEA.
- * User: caelis
- * Date: 27.12.12
- * Time: 03:58
- * To change this template use File | Settings | File Templates.
+ *
+ * @author caelis
  */
 public class NodeSerie {
   private final long oid;

@@ -1,11 +1,8 @@
 package com.dcrux.buran.coredb.iface;
 
 /**
- * Created with IntelliJ IDEA.
- * User: caelis
- * Date: 15.12.12
- * Time: 12:19
- * To change this template use File | Settings | File Templates.
+ *
+ * @author caelis
  */
 public class NodeState {
 

@@ -3,11 +3,8 @@ package com.dcrux.buran.coredb.iface.nodeClass.propertyTypes;
 import com.dcrux.buran.coredb.iface.nodeClass.IDataSetter;
 
 /**
- * Created with IntelliJ IDEA.
- * User: caelis
- * Date: 24.12.12
- * Time: 15:49
- * To change this template use File | Settings | File Templates.
+ *
+ * @author caelis
  */
 public final class PrimSet implements IDataSetter {
   private final Object value;

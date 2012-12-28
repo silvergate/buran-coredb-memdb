@@ -5,11 +5,8 @@ import com.dcrux.buran.coredb.iface.query.propertyCondition.IPropertyCondition;
 import com.dcrux.buran.coredb.memoryImpl.NodeClassesApi;
 
 /**
- * Created with IntelliJ IDEA.
- * User: caelis
- * Date: 26.12.12
- * Time: 01:17
- * To change this template use File | Settings | File Templates.
+ *
+ * @author caelis
  */
 public class DataMatacher {
   private final NodeClassesApi nodeClassesApi;

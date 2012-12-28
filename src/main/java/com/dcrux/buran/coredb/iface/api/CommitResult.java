@@ -6,11 +6,8 @@ import com.dcrux.buran.coredb.iface.OidVersion;
 import java.util.Map;
 
 /**
- * Created with IntelliJ IDEA.
- * User: caelis
- * Date: 24.12.12
- * Time: 16:45
- * To change this template use File | Settings | File Templates.
+ *
+ * @author caelis
  */
 public class CommitResult {
   public CommitResult(Map<IncOid, OidVersion> incOidToOidVer) {

@@ -1,11 +1,8 @@
 package com.dcrux.buran.coredb.iface.edgeTargets;
 
 /**
- * Created with IntelliJ IDEA.
- * User: caelis
- * Date: 21.12.12
- * Time: 16:53
- * To change this template use File | Settings | File Templates.
+ *
+ * @author caelis
  */
 public class UnversionedEdTarget implements IIncEdgeTarget, IEdgeTarget {
 

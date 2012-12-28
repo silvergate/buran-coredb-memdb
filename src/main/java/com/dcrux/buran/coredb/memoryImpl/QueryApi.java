@@ -14,11 +14,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Created with IntelliJ IDEA.
- * User: caelis
- * Date: 11.12.12
- * Time: 23:17
- * To change this template use File | Settings | File Templates.
+ *
+ * @author caelis
  */
 public class QueryApi {
   private final Nodes nodes;

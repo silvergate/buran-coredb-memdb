@@ -25,11 +25,8 @@ import com.google.common.base.Optional;
 import java.util.Set;
 
 /**
- * Created with IntelliJ IDEA.
- * User: caelis
- * Date: 09.12.12
- * Time: 14:29
- * To change this template use File | Settings | File Templates.
+ *
+ * @author caelis
  */
 public class Main {
   public static void main(String[] args) throws OptimisticLockingException {

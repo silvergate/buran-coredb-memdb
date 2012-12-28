@@ -1,11 +1,8 @@
 package com.dcrux.buran.coredb.iface.nodeClass;
 
 /**
- * Created with IntelliJ IDEA.
- * User: caelis
- * Date: 19.12.12
- * Time: 21:07
- * To change this template use File | Settings | File Templates.
+ *
+ * @author caelis
  */
 public class NodeClassHash {
   private final String hash;

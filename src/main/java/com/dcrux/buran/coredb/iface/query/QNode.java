@@ -4,11 +4,8 @@ import com.dcrux.buran.coredb.iface.query.nodeMeta.INodeMetaCondition;
 import com.google.common.base.Optional;
 
 /**
- * Created with IntelliJ IDEA.
- * User: caelis
- * Date: 13.12.12
- * Time: 21:56
- * To change this template use File | Settings | File Templates.
+ *
+ * @author caelis
  */
 public class QNode implements IQNode {
   private final Optional<INodeMetaCondition> metaCondition;

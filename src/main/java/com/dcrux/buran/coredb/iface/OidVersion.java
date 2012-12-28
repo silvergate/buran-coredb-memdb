@@ -1,11 +1,8 @@
 package com.dcrux.buran.coredb.iface;
 
 /**
- * Created with IntelliJ IDEA.
- * User: caelis
- * Date: 07.12.12
- * Time: 20:13
- * To change this template use File | Settings | File Templates.
+ *
+ * @author caelis
  */
 public class OidVersion {
   private final long oid;

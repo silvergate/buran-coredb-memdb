@@ -1,11 +1,8 @@
 package com.dcrux.buran.coredb.iface.nodeClass;
 
 /**
- * Created with IntelliJ IDEA.
- * User: caelis
- * Date: 19.12.12
- * Time: 20:40
- * To change this template use File | Settings | File Templates.
+ *
+ * @author caelis
  */
 public class CmpRef {
   private final short id;

@@ -4,11 +4,8 @@ import com.dcrux.buran.coredb.iface.nodeClass.ISorter;
 import com.dcrux.buran.coredb.iface.nodeClass.SorterRef;
 
 /**
- * Created with IntelliJ IDEA.
- * User: caelis
- * Date: 19.12.12
- * Time: 01:02
- * To change this template use File | Settings | File Templates.
+ *
+ * @author caelis
  */
 public class StringUnicodeSort implements ISorter {
 

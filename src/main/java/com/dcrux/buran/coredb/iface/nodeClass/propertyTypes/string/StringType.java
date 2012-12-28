@@ -5,11 +5,8 @@ import com.dcrux.buran.coredb.iface.nodeClass.propertyTypes.PrimGet;
 import com.dcrux.buran.coredb.iface.nodeClass.propertyTypes.PrimSet;
 
 /**
- * Created with IntelliJ IDEA.
- * User: caelis
- * Date: 02.11.12
- * Time: 19:28
- * To change this template use File | Settings | File Templates.
+ *
+ * @author caelis
  */
 public class StringType implements IType {
 

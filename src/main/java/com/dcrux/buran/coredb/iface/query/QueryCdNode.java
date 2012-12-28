@@ -3,11 +3,8 @@ package com.dcrux.buran.coredb.iface.query;
 import com.google.common.base.Optional;
 
 /**
- * Created with IntelliJ IDEA.
- * User: caelis
- * Date: 16.12.12
- * Time: 21:21
- * To change this template use File | Settings | File Templates.
+ *
+ * @author caelis
  */
 public class QueryCdNode {
   private final IQCdNode condition;

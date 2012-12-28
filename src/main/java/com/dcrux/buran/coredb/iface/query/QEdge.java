@@ -4,11 +4,8 @@ import com.dcrux.buran.coredb.iface.query.edgeCondition.OutEdgeCondition;
 import com.google.common.base.Optional;
 
 /**
- * Created with IntelliJ IDEA.
- * User: caelis
- * Date: 17.12.12
- * Time: 00:58
- * To change this template use File | Settings | File Templates.
+ *
+ * @author caelis
  */
 public class QEdge {
   public QEdge(OutEdgeCondition condition, Optional<IQNode> source) {

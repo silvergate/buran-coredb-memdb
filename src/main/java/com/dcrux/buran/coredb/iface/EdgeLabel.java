@@ -3,11 +3,8 @@ package com.dcrux.buran.coredb.iface;
 import java.io.Serializable;
 
 /**
- * Created with IntelliJ IDEA.
- * User: caelis
- * Date: 08.12.12
- * Time: 17:31
- * To change this template use File | Settings | File Templates.
+ *
+ * @author caelis
  */
 public class EdgeLabel implements Serializable {
   private final String label;

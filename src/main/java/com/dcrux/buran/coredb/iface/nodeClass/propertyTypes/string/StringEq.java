@@ -4,11 +4,8 @@ import com.dcrux.buran.coredb.iface.nodeClass.CmpRef;
 import com.dcrux.buran.coredb.iface.nodeClass.ICmp;
 
 /**
- * Created with IntelliJ IDEA.
- * User: caelis
- * Date: 19.12.12
- * Time: 20:39
- * To change this template use File | Settings | File Templates.
+ *
+ * @author caelis
  */
 public class StringEq implements ICmp {
   public static final CmpRef REF = new CmpRef((short) 21);

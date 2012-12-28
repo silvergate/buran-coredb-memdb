@@ -14,11 +14,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created with IntelliJ IDEA.
- * User: caelis
- * Date: 13.12.12
- * Time: 22:56
- * To change this template use File | Settings | File Templates.
+ *
+ * @author caelis
  */
 public class OutEdgeCondition implements INodeMetaCondition {
 

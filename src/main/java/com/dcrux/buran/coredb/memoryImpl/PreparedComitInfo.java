@@ -8,11 +8,8 @@ import com.dcrux.buran.coredb.memoryImpl.data.NodeSerie;
 import javax.annotation.Nullable;
 
 /**
- * Created with IntelliJ IDEA.
- * User: caelis
- * Date: 21.12.12
- * Time: 19:47
- * To change this template use File | Settings | File Templates.
+ *
+ * @author caelis
  */
 public class PreparedComitInfo {
   private final OidVersion oidToGet;

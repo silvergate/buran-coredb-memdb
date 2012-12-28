@@ -6,11 +6,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Created with IntelliJ IDEA.
- * User: caelis
- * Date: 13.12.12
- * Time: 23:06
- * To change this template use File | Settings | File Templates.
+ *
+ * @author caelis
  */
 public class SenderIsIn implements INodeMetaCondition {
   private final Set<Long> userIds;

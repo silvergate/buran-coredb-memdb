@@ -5,11 +5,8 @@ import com.dcrux.buran.coredb.iface.query.propertyCondition.IPropertyCondition;
 import com.google.common.base.Optional;
 
 /**
- * Created with IntelliJ IDEA.
- * User: caelis
- * Date: 13.12.12
- * Time: 21:56
- * To change this template use File | Settings | File Templates.
+ *
+ * @author caelis
  */
 public class QCdNode extends QNode {
   private final long classId;

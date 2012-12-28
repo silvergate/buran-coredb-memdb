@@ -10,11 +10,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 /**
- * Created with IntelliJ IDEA.
- * User: caelis
- * Date: 19.12.12
- * Time: 21:01
- * To change this template use File | Settings | File Templates.
+ *
+ * @author caelis
  */
 public class NodeClassesApi {
 

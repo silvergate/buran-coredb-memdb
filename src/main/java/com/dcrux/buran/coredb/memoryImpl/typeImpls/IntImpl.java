@@ -9,11 +9,8 @@ import com.dcrux.buran.coredb.iface.nodeClass.propertyTypes.integer.IntType;
 import javax.annotation.Nullable;
 
 /**
- * Created with IntelliJ IDEA.
- * User: caelis
- * Date: 24.12.12
- * Time: 15:57
- * To change this template use File | Settings | File Templates.
+ *
+ * @author caelis
  */
 public class IntImpl implements ITypeImpl {
   @Override

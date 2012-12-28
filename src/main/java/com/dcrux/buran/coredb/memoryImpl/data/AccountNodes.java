@@ -20,11 +20,8 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Created with IntelliJ IDEA.
- * User: caelis
- * Date: 11.12.12
- * Time: 01:13
- * To change this template use File | Settings | File Templates.
+ *
+ * @author caelis
  */
 public class AccountNodes {
 

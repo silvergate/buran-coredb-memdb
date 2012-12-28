@@ -11,11 +11,8 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Created with IntelliJ IDEA.
- * User: caelis
- * Date: 25.12.12
- * Time: 00:27
- * To change this template use File | Settings | File Templates.
+ *
+ * @author caelis
  */
 public class MiApi {
 

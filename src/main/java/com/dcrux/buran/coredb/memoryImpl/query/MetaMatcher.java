@@ -22,11 +22,8 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Created with IntelliJ IDEA.
- * User: caelis
- * Date: 27.12.12
- * Time: 02:44
- * To change this template use File | Settings | File Templates.
+ *
+ * @author caelis
  */
 public class MetaMatcher {
 

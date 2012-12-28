@@ -4,11 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created with IntelliJ IDEA.
- * User: caelis
- * Date: 11.12.12
- * Time: 17:48
- * To change this template use File | Settings | File Templates.
+ *
+ * @author caelis
  */
 public class Nodes {
   private Map<Long, AccountNodes> receiverIdToNodes = new HashMap<>();

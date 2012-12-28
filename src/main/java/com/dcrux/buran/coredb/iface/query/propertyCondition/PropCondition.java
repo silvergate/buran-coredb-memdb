@@ -6,11 +6,8 @@ import com.dcrux.buran.coredb.iface.nodeClass.IType;
 import com.dcrux.buran.coredb.iface.nodeClass.NodeClass;
 
 /**
- * Created with IntelliJ IDEA.
- * User: caelis
- * Date: 13.12.12
- * Time: 21:08
- * To change this template use File | Settings | File Templates.
+ *
+ * @author caelis
  */
 public class PropCondition implements IPropertyCondition {
   private final short typeIndex;

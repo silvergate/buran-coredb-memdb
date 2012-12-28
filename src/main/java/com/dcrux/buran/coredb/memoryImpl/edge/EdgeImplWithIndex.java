@@ -3,11 +3,8 @@ package com.dcrux.buran.coredb.memoryImpl.edge;
 import com.dcrux.buran.coredb.iface.EdgeIndex;
 
 /**
- * Created with IntelliJ IDEA.
- * User: caelis
- * Date: 28.12.12
- * Time: 13:47
- * To change this template use File | Settings | File Templates.
+ *
+ * @author caelis
  */
 public class EdgeImplWithIndex {
   private final EdgeImpl edge;
