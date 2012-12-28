@@ -106,7 +106,7 @@ public class MetaMatcher {
 
     @Override
     public INodeMatcher getNodeMatcher() {
-      return null;  //To change body of implemented methods use File | Settings | File Templates.
+      return nodeMatcher;
     }
   };
 

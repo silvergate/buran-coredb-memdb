@@ -47,33 +47,49 @@ public class Main {
     final long receiverId = 0L;
     final long senderId = 100L;
 
-    /* Erstellen einer node mit edges und daten */
+    /* Erstellen von 2 nodes in der incubation */
 
-    IncOid ioid = api.getDmApi().createNew(receiverId, senderId, classId, null);
-    api.getDmApi()
-            .setEdge(receiverId, senderId, ioid, EdgeIndex.c(0), halloEdge, new IncVersionedEdTarget(ioid.getId()),
-                    false);
-    api.getDmApi()
-            .setEdge(receiverId, senderId, ioid, EdgeIndex.c(1), halloEdge, new IncVersionedEdTarget(ioid.getId()),
-                    false);
+    IncOid nodeOneInc = api.getDmApi().createNew(receiverId, senderId, classId, null);
+    IncOid nodeTwoInc = api.getDmApi().createNew(receiverId, senderId, classId, null);
 
-    api.getDmApi().setData(receiverId, senderId, ioid, (short) 0, PrimSet.string("Ich bin eine Welt"));
+    /* Node 1 mit daten & edges befüllen: Die edges von node 1 zeigen auf node 2 */
 
-    /* Das zeugs commiten */
+    api.getDmApi().setEdge(receiverId, senderId, nodeOneInc, EdgeIndex.c(0), halloEdge,
+            new IncVersionedEdTarget(nodeTwoInc.getId()), false);
+    api.getDmApi().setEdge(receiverId, senderId, nodeOneInc, EdgeIndex.c(1), halloEdge,
+            new IncVersionedEdTarget(nodeTwoInc.getId()), false);
+    api.getDmApi().setData(receiverId, senderId, nodeOneInc, (short) 0, PrimSet.string("Ich bin eine Welt"));
 
-    final CommitResult cr = api.getCommitApi().commit(receiverId, senderId, ioid);
-    System.out.println("OID = " + cr.getOidVers(ioid));
+    /* Node 2 mit daten befüllen */
 
-    /* Von der commiteten node daten lesen */
+    api.getDmApi().setData(receiverId, senderId, nodeTwoInc, (short) 0, PrimSet.string("Text an Node 2"));
+
+    /* Beide nodes Committen */
+
+    final CommitResult cr = api.getCommitApi().commit(receiverId, senderId, nodeOneInc, nodeTwoInc);
+    System.out.println("OID (node 1) = " + cr.getOidVers(nodeOneInc));
+    System.out.println("OID (node 2) = " + cr.getOidVers(nodeTwoInc));
+
+    /* Von der commiteten node 1 daten lesen */
 
     final Object value =
-            api.getDrApi().getData(receiverId, senderId, cr.getOidVers(ioid), (short) 0, PrimGet.SINGLETON);
-    System.out.println("Value = " + value);
+            api.getDrApi().getData(receiverId, senderId, cr.getOidVers(nodeOneInc), (short) 0, PrimGet.SINGLETON);
+    System.out.println("Value (Node 1) = " + value);
 
-    /* Query: Bedingung: muss eine node mit "Ich bin eine Welt" und einer "hallo"-edge im index 0 sein */
+        /* Von der commiteten node 2 daten lesen */
+
+    final Object value2 =
+            api.getDrApi().getData(receiverId, senderId, cr.getOidVers(nodeTwoInc), (short) 0, PrimGet.SINGLETON);
+    System.out.println("Value (Node 2) = " + value2);
+
+    /* Query: Bedingung: muss eine node mit "Ich bin eine Welt" und einer "hallo"-edge im index 0 sein.
+    Am ende der Edge muss eine Node vorhanden sein, mit dem text "Text an Node 2" */
+
+    PropCondition pcNode2 = new PropCondition((short) 0, new StringEq("Text an Node 2"));
 
     PropCondition pc = new PropCondition((short) 0, new StringEq("Ich bin eine Welt"));
-    INodeMetaCondition nmc = OutEdgeCondition.hasEdge(halloEdge, EdgeIndex.c(0));
+    INodeMetaCondition nmc = OutEdgeCondition.hasEdge(halloEdge, EdgeIndex.c(0),
+            new QCdNode(Optional.<INodeMetaCondition>absent(), classId, Optional.<IPropertyCondition>of(pcNode2)));
     QCdNode query = new QCdNode(Optional.<INodeMetaCondition>of(nmc), classId, Optional.<IPropertyCondition>of(pc));
     final Set<Node> result = api.getQueryApi().query(receiverId, senderId, query);
     System.out.println("Query Result: " + result);
