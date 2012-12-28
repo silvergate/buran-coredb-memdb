@@ -7,6 +7,7 @@ package com.dcrux.buran.coredb.iface.query.edgeCondition;
  * Time: 22:57
  * To change this template use File | Settings | File Templates.
  */
+@Deprecated
 public enum EdgeDirection {
   in, out
 }

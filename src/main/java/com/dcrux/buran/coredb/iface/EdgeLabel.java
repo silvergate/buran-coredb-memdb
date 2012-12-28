@@ -14,6 +14,8 @@ public class EdgeLabel implements Serializable {
 
   private EdgeLabel(String label) {
     this.label = label;
+    assert (this.label.length() >= 4);
+    assert (this.label.length() <= 32);
   }
 
   public String getLabel() {

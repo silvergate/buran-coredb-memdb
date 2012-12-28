@@ -9,7 +9,6 @@ import com.dcrux.buran.coredb.iface.query.IQNode;
 import com.dcrux.buran.coredb.iface.query.nodeMeta.IMetaInfoForQuery;
 import com.dcrux.buran.coredb.iface.query.nodeMeta.INodeMetaCondition;
 import com.google.common.base.Optional;
-import org.apache.commons.lang.NotImplementedException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,19 +20,16 @@ import java.util.Map;
  * Time: 22:56
  * To change this template use File | Settings | File Templates.
  */
-public class EdgeCondition implements INodeMetaCondition {
+public class OutEdgeCondition implements INodeMetaCondition {
 
   // TODO: Taugt nur für die Out-Edges etwas, für die in-edges brauchts was anderes
 
-  private final EdgeDirection direction;
   private final EdgeLabel label;
   private final Optional<EdgeIndex> index;
   private final Optional<IQNode> target;
   private final boolean matchAll;
 
-  public EdgeCondition(EdgeDirection direction, EdgeLabel label, Optional<EdgeIndex> index, Optional<IQNode> target,
-                       boolean matchAll) {
-    this.direction = direction;
+  private OutEdgeCondition(EdgeLabel label, Optional<EdgeIndex> index, Optional<IQNode> target, boolean matchAll) {
     this.label = label;
     this.index = index;
     this.target = target;
@@ -43,8 +39,24 @@ public class EdgeCondition implements INodeMetaCondition {
     }
   }
 
-  public EdgeDirection getDirection() {
-    return direction;
+  public static OutEdgeCondition hasEdge(EdgeLabel label) {
+    return new OutEdgeCondition(label, Optional.<EdgeIndex>absent(), Optional.<IQNode>absent(), false);
+  }
+
+  public static OutEdgeCondition hasEdge(EdgeLabel label, EdgeIndex index) {
+    return new OutEdgeCondition(label, Optional.<EdgeIndex>of(index), Optional.<IQNode>absent(), false);
+  }
+
+  public static OutEdgeCondition hasEdge(EdgeLabel label, IQNode targetNode) {
+    return new OutEdgeCondition(label, Optional.<EdgeIndex>absent(), Optional.<IQNode>of(targetNode), false);
+  }
+
+  public static OutEdgeCondition hasEdge(EdgeLabel label, EdgeIndex index, IQNode targetNode) {
+    return new OutEdgeCondition(label, Optional.<EdgeIndex>of(index), Optional.<IQNode>of(targetNode), false);
+  }
+
+  public static OutEdgeCondition hasEdgeAll(EdgeLabel label, IQNode targetNode) {
+    return new OutEdgeCondition(label, Optional.<EdgeIndex>absent(), Optional.<IQNode>of(targetNode), true);
   }
 
   public EdgeLabel getLabel() {
@@ -65,44 +77,37 @@ public class EdgeCondition implements INodeMetaCondition {
 
   @Override
   public boolean matches(IMetaInfoForQuery metaInfoForQuery) {
-    switch (this.direction) {
-      case in:
-        throw new NotImplementedException();
-      case out:
-        final Map<EdgeIndex, EdgeWithSource> queryableOutEdges = metaInfoForQuery.getQueryableOutEdges(this.label);
+    final Map<EdgeIndex, EdgeWithSource> queryableOutEdges = metaInfoForQuery.getQueryableOutEdges(this.label);
 
         /* Label available? */
-        if (queryableOutEdges.isEmpty()) {
+    if (queryableOutEdges.isEmpty()) {
+      return false;
+    }
+
+    final Map<EdgeIndex, EdgeWithSource> outEdgesToQuery;
+    if (this.index.isPresent()) {
+      outEdgesToQuery = new HashMap<>();
+      if (!queryableOutEdges.containsKey(this.index.get())) {
+        return false;
+      }
+      outEdgesToQuery.put(this.index.get(), queryableOutEdges.get(this.index.get()));
+    } else {
+      outEdgesToQuery = queryableOutEdges;
+    }
+
+    if (this.target.isPresent()) {
+      for (Map.Entry<EdgeIndex, EdgeWithSource> elementToCheck : outEdgesToQuery.entrySet()) {
+        boolean matches = matches(elementToCheck.getValue().getEdge(), metaInfoForQuery);
+        if (!matches && isMatchAll()) {
           return false;
         }
-
-        final Map<EdgeIndex, EdgeWithSource> outEdgesToQuery;
-        if (this.index.isPresent()) {
-          outEdgesToQuery = new HashMap<>();
-          if (!queryableOutEdges.containsKey(this.index.get())) {
-            return false;
-          }
-          outEdgesToQuery.put(this.index.get(), queryableOutEdges.get(this.index.get()));
-        } else {
-          outEdgesToQuery = queryableOutEdges;
-        }
-
-        if (this.target.isPresent()) {
-          for (Map.Entry<EdgeIndex, EdgeWithSource> elementToCheck : outEdgesToQuery.entrySet()) {
-            boolean matches = matches(elementToCheck.getValue().getEdge(), metaInfoForQuery);
-            if (!matches && isMatchAll()) {
-              return false;
-            }
-            if (matches && (!isMatchAll())) {
-              return true;
-            }
-          }
-          return isMatchAll();
-        } else {
+        if (matches && (!isMatchAll())) {
           return true;
         }
-      default:
-        throw new ExpectableException("Unknown inout type");
+      }
+      return isMatchAll();
+    } else {
+      return true;
     }
   }
 

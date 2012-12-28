@@ -1,6 +1,6 @@
 package com.dcrux.buran.coredb.iface.query;
 
-import com.dcrux.buran.coredb.iface.query.edgeCondition.EdgeCondition;
+import com.dcrux.buran.coredb.iface.query.edgeCondition.OutEdgeCondition;
 import com.google.common.base.Optional;
 
 /**
@@ -11,15 +11,15 @@ import com.google.common.base.Optional;
  * To change this template use File | Settings | File Templates.
  */
 public class QEdge {
-  public QEdge(EdgeCondition condition, Optional<IQNode> source) {
+  public QEdge(OutEdgeCondition condition, Optional<IQNode> source) {
     this.condition = condition;
     this.source = source;
   }
 
-  private final EdgeCondition condition;
+  private final OutEdgeCondition condition;
   private final Optional<IQNode> source;
 
-  public EdgeCondition getCondition() {
+  public OutEdgeCondition getCondition() {
     return condition;
   }
 

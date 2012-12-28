@@ -50,7 +50,7 @@ public final class NodeClass implements Serializable {
         if (this.labelsToEdgeClasses.containsKey(edgeClass.getLabel())) {
           throw new IllegalStateException("Edge with the same key already exists.");
         }
-        this.labelsToEdgeClasses.put(EdgeLabel.privateEdge(edgeClass.getLabel()), edgeClass);
+        this.labelsToEdgeClasses.put(edgeClass.getLabel(), edgeClass);
         return this;
       }
 

@@ -103,4 +103,14 @@ public class Node {
   public Map<EdgeLabel, Map<EdgeIndex, EdgeImpl>> getVersionedInEdgeds() {
     return versionedInEdgeds;
   }
+
+  @Override
+  public String toString() {
+    return "Node{" +
+            "validFrom=" + validFrom +
+            ", validTo=" + validTo +
+            ", senderId=" + senderId +
+            ", version=" + version +
+            '}';
+  }
 }

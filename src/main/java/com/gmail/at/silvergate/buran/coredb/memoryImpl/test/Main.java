@@ -14,6 +14,7 @@ import com.dcrux.buran.coredb.iface.nodeClass.propertyTypes.PrimSet;
 import com.dcrux.buran.coredb.iface.nodeClass.propertyTypes.string.StringEq;
 import com.dcrux.buran.coredb.iface.nodeClass.propertyTypes.string.StringType;
 import com.dcrux.buran.coredb.iface.query.QCdNode;
+import com.dcrux.buran.coredb.iface.query.edgeCondition.OutEdgeCondition;
 import com.dcrux.buran.coredb.iface.query.nodeMeta.INodeMetaCondition;
 import com.dcrux.buran.coredb.iface.query.propertyCondition.IPropertyCondition;
 import com.dcrux.buran.coredb.iface.query.propertyCondition.PropCondition;
@@ -35,34 +36,45 @@ public class Main {
 
     ApiIface api = new ApiIface();
 
+    EdgeLabel halloEdge = EdgeLabel.privateEdge("hallo");
+
     /* Declare class */
     final NodeClass nodeClass = NodeClass.builder().add("daName", false, new StringType(true, true, true))
-            .addEdgeClass(PrivateEdgeClass.cQueryable("hallo")).get();
+            .addEdgeClass(PrivateEdgeClass.cQueryable(halloEdge)).get();
     final NodeClassHash ncHash = api.getNodeClassesApi().declareClass(nodeClass);
     final Long classId = api.getNodeClassesApi().getClassIdByHash(ncHash);
 
     final long receiverId = 0L;
     final long senderId = 100L;
 
+    /* Erstellen einer node mit edges und daten */
+
     IncOid ioid = api.getDmApi().createNew(receiverId, senderId, classId, null);
-    api.getDmApi().setEdge(receiverId, senderId, ioid, new EdgeIndex(0), EdgeLabel.privateEdge("hallo"),
-            new IncVersionedEdTarget(ioid.getId()), false);
-    api.getDmApi().setEdge(receiverId, senderId, ioid, new EdgeIndex(1), EdgeLabel.privateEdge("hallo"),
-            new IncVersionedEdTarget(ioid.getId()), false);
+    api.getDmApi()
+            .setEdge(receiverId, senderId, ioid, EdgeIndex.c(0), halloEdge, new IncVersionedEdTarget(ioid.getId()),
+                    false);
+    api.getDmApi()
+            .setEdge(receiverId, senderId, ioid, EdgeIndex.c(1), halloEdge, new IncVersionedEdTarget(ioid.getId()),
+                    false);
 
     api.getDmApi().setData(receiverId, senderId, ioid, (short) 0, PrimSet.string("Ich bin eine Welt"));
 
+    /* Das zeugs commiten */
+
     final CommitResult cr = api.getCommitApi().commit(receiverId, senderId, ioid);
     System.out.println("OID = " + cr.getOidVers(ioid));
+
+    /* Von der commiteten node daten lesen */
 
     final Object value =
             api.getDrApi().getData(receiverId, senderId, cr.getOidVers(ioid), (short) 0, PrimGet.SINGLETON);
     System.out.println("Value = " + value);
 
-    /* Query */
+    /* Query: Bedingung: muss eine node mit "Ich bin eine Welt" und einer "hallo"-edge im index 0 sein */
 
     PropCondition pc = new PropCondition((short) 0, new StringEq("Ich bin eine Welt"));
-    QCdNode query = new QCdNode(Optional.<INodeMetaCondition>absent(), classId, Optional.<IPropertyCondition>of(pc));
+    INodeMetaCondition nmc = OutEdgeCondition.hasEdge(halloEdge, EdgeIndex.c(0));
+    QCdNode query = new QCdNode(Optional.<INodeMetaCondition>of(nmc), classId, Optional.<IPropertyCondition>of(pc));
     final Set<Node> result = api.getQueryApi().query(receiverId, senderId, query);
     System.out.println("Query Result: " + result);
 
