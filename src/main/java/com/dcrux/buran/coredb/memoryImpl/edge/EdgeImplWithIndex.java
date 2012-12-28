@@ -3,9 +3,9 @@ package com.dcrux.buran.coredb.memoryImpl.edge;
 import com.dcrux.buran.coredb.iface.EdgeIndex;
 
 /**
- *
  * @author caelis
  */
+@Deprecated
 public class EdgeImplWithIndex {
   private final EdgeImpl edge;
   private final EdgeIndex index;

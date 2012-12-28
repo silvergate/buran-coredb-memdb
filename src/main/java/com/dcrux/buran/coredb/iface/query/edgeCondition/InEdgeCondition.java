@@ -1,6 +1,9 @@
 package com.dcrux.buran.coredb.iface.query.edgeCondition;
 
-import com.dcrux.buran.coredb.iface.*;
+import com.dcrux.buran.coredb.iface.Edge;
+import com.dcrux.buran.coredb.iface.EdgeIndex;
+import com.dcrux.buran.coredb.iface.EdgeLabel;
+import com.dcrux.buran.coredb.iface.EdgeWithSource;
 import com.dcrux.buran.coredb.iface.api.ExpectableException;
 import com.dcrux.buran.coredb.iface.edgeTargets.IEdgeTarget;
 import com.dcrux.buran.coredb.iface.edgeTargets.UnversionedEdTarget;
@@ -14,44 +17,44 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author caelis
+ * Created with IntelliJ IDEA.
+ * User: caelis
+ * Date: 13.12.12
+ * Time: 22:56
+ * To change this template use File | Settings | File Templates.
  */
-public class OutEdgeCondition implements INodeMetaCondition {
+public class InEdgeCondition implements INodeMetaCondition {
 
   private final EdgeLabel label;
   private final Optional<EdgeIndex> index;
-  private final Optional<IQNode> target;
-  private final boolean matchAll;
+  private final Optional<IQNode> source;
 
-  private OutEdgeCondition(EdgeLabel label, Optional<EdgeIndex> index, Optional<IQNode> target, boolean matchAll) {
+  private InEdgeCondition(EdgeLabel label, Optional<EdgeIndex> index, Optional<IQNode> source) {
     this.label = label;
     this.index = index;
-    this.target = target;
-    this.matchAll = matchAll;
-    if (index.isPresent() && matchAll) {
-      throw new ExpectableException("If index is present, you cannot set matchAll to true.");
-    }
+    this.source = source;
   }
 
-  public static OutEdgeCondition hasAnyEdge(EdgeLabel label) {
-    return new OutEdgeCondition(label, Optional.<EdgeIndex>absent(), Optional.<IQNode>absent(), false);
+  /*
+  public static InEdgeCondition hasAnyEdge(EdgeLabel label) {
+    return new InEdgeCondition(label, Optional.<EdgeIndex>absent(), Optional.<IQNode>absent(), false);
   }
 
-  public static OutEdgeCondition hasEdge(EdgeLabel label, EdgeIndex index) {
-    return new OutEdgeCondition(label, Optional.<EdgeIndex>of(index), Optional.<IQNode>absent(), false);
+  public static InEdgeCondition hasEdge(EdgeLabel label, EdgeIndex index) {
+    return new InEdgeCondition(label, Optional.<EdgeIndex>of(index), Optional.<IQNode>absent(), false);
   }
 
-  public static OutEdgeCondition hasAnyEdge(EdgeLabel label, IQNode targetNode) {
-    return new OutEdgeCondition(label, Optional.<EdgeIndex>absent(), Optional.<IQNode>of(targetNode), false);
+  public static InEdgeCondition hasAnyEdge(EdgeLabel label, IQNode targetNode) {
+    return new InEdgeCondition(label, Optional.<EdgeIndex>absent(), Optional.<IQNode>of(targetNode), false);
   }
 
-  public static OutEdgeCondition hasEdge(EdgeLabel label, EdgeIndex index, IQNode targetNode) {
-    return new OutEdgeCondition(label, Optional.<EdgeIndex>of(index), Optional.<IQNode>of(targetNode), false);
+  public static InEdgeCondition hasEdge(EdgeLabel label, EdgeIndex index, IQNode targetNode) {
+    return new InEdgeCondition(label, Optional.<EdgeIndex>of(index), Optional.<IQNode>of(targetNode), false);
   }
 
-  public static OutEdgeCondition hasEdgeAll(EdgeLabel label, IQNode targetNode) {
-    return new OutEdgeCondition(label, Optional.<EdgeIndex>absent(), Optional.<IQNode>of(targetNode), true);
-  }
+  public static InEdgeCondition hasEdgeAll(EdgeLabel label, IQNode targetNode) {
+    return new InEdgeCondition(label, Optional.<EdgeIndex>absent(), Optional.<IQNode>of(targetNode), true);
+  }  */
 
   public EdgeLabel getLabel() {
     return label;
@@ -61,12 +64,8 @@ public class OutEdgeCondition implements INodeMetaCondition {
     return index;
   }
 
-  public Optional<IQNode> getTarget() {
-    return target;
-  }
-
-  public boolean isMatchAll() {
-    return matchAll;
+  public Optional<IQNode> getSource() {
+    return this.source;
   }
 
   @Override
@@ -89,6 +88,7 @@ public class OutEdgeCondition implements INodeMetaCondition {
       outEdgesToQuery = queryableOutEdges;
     }
 
+    /*
     if (this.target.isPresent()) {
       for (Map.Entry<EdgeIndex, EdgeWithSource> elementToCheck : outEdgesToQuery.entrySet()) {
         boolean matches = matches(elementToCheck.getValue().getEdge(), metaInfoForQuery);
@@ -102,7 +102,8 @@ public class OutEdgeCondition implements INodeMetaCondition {
       return isMatchAll();
     } else {
       return true;
-    }
+    } */
+    return false;
   }
 
   private boolean matches(Edge edge, IMetaInfoForQuery metaInfoForQuery) {
@@ -134,6 +135,7 @@ public class OutEdgeCondition implements INodeMetaCondition {
       default:
         throw new ExpectableException("Unknown edge target");
     }
+    /*
     if (oid != null) {
       if (version == null) {
         found = metaInfoForQuery.getNodeMatcher().matches(oid, this.target.get());
@@ -142,5 +144,7 @@ public class OutEdgeCondition implements INodeMetaCondition {
       }
     }
     return found;
+    */
+    return false;
   }
 }

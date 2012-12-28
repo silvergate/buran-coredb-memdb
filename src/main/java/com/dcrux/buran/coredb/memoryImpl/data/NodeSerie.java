@@ -3,13 +3,14 @@ package com.dcrux.buran.coredb.memoryImpl.data;
 import com.dcrux.buran.coredb.iface.EdgeIndex;
 import com.dcrux.buran.coredb.iface.EdgeLabel;
 import com.dcrux.buran.coredb.memoryImpl.edge.EdgeImpl;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
  * @author caelis
  */
 public class NodeSerie {
@@ -29,16 +30,16 @@ public class NodeSerie {
   private final Map<Integer, Node> versionToNode = new HashMap<>();
   private final Map<Node, Integer> nodeToVersion = new HashMap<>();
 
-  private final Map<EdgeLabel, Map<EdgeIndex, EdgeImpl>> inEdges = new HashMap<>();
+  private final Map<EdgeLabel, Multimap<EdgeIndex, EdgeImpl>> inEdges = new HashMap<>();
 
-  public Map<EdgeLabel, Map<EdgeIndex, EdgeImpl>> getInEdges() {
+  Map<EdgeLabel, Multimap<EdgeIndex, EdgeImpl>> getInEdges() {
     return inEdges;
   }
 
   void addInEdge(EdgeIndex index, EdgeImpl edgeImpl) {
-    Map<EdgeIndex, EdgeImpl> edges = this.inEdges.get(edgeImpl.getLabel());
+    Multimap<EdgeIndex, EdgeImpl> edges = this.inEdges.get(edgeImpl.getLabel());
     if (edges == null) {
-      edges = new HashMap<>();
+      edges = HashMultimap.create();
       this.inEdges.put(edgeImpl.getLabel(), edges);
     }
     edges.put(index, edgeImpl);

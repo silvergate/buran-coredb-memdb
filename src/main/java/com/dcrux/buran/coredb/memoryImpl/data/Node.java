@@ -3,6 +3,8 @@ package com.dcrux.buran.coredb.memoryImpl.data;
 import com.dcrux.buran.coredb.iface.EdgeIndex;
 import com.dcrux.buran.coredb.iface.EdgeLabel;
 import com.dcrux.buran.coredb.memoryImpl.edge.EdgeImpl;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -10,7 +12,6 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- *
  * @author caelis
  */
 //TODO: Rename to NodeImpl
@@ -41,7 +42,7 @@ public class Node {
   private final int version;
 
   private final Map<EdgeLabel, Map<EdgeIndex, EdgeImpl>> outEdges = new HashMap<>();
-  private final Map<EdgeLabel, Map<EdgeIndex, EdgeImpl>> versionedInEdgeds = new HashMap<>();
+  private final Map<EdgeLabel, Multimap<EdgeIndex, EdgeImpl>> versionedInEdgeds = new HashMap<>();
 
   public Node(int version, long senderId, long receiverId, long validFrom, long validTo, Object[] data) {
     this.senderId = senderId;
@@ -77,9 +78,9 @@ public class Node {
   }
 
   void addVersionedInEdge(EdgeIndex index, EdgeImpl edgeImpl) {
-    Map<EdgeIndex, EdgeImpl> element = this.versionedInEdgeds.get(edgeImpl.getLabel());
+    Multimap<EdgeIndex, EdgeImpl> element = this.versionedInEdgeds.get(edgeImpl.getLabel());
     if (element == null) {
-      element = new HashMap<>();
+      element = HashMultimap.create();
       this.versionedInEdgeds.put(edgeImpl.getLabel(), element);
     }
     element.put(index, edgeImpl);
@@ -97,7 +98,7 @@ public class Node {
     return outEdges;
   }
 
-  public Map<EdgeLabel, Map<EdgeIndex, EdgeImpl>> getVersionedInEdgeds() {
+  public Map<EdgeLabel, Multimap<EdgeIndex, EdgeImpl>> getVersionedInEdgeds() {
     return versionedInEdgeds;
   }
 
