@@ -15,6 +15,8 @@ import com.dcrux.buran.coredb.memoryImpl.data.AccountNodes;
 import com.dcrux.buran.coredb.memoryImpl.data.Node;
 import com.dcrux.buran.coredb.memoryImpl.edge.EdgeImpl;
 import com.dcrux.buran.coredb.memoryImpl.edge.EdgeUtil;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import org.apache.commons.lang.NotImplementedException;
 
 import java.util.HashMap;
@@ -22,7 +24,6 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- *
  * @author caelis
  */
 public class MetaMatcher {
@@ -91,6 +92,7 @@ public class MetaMatcher {
 
     @Override
     public Map<EdgeIndex, EdgeWithSource> getQueryableOutEdges(EdgeLabel label) {
+      // TODO: Return only Queryables!
       Map<EdgeLabel, Map<EdgeIndex, EdgeImpl>> outEdges = node.getOutEdges();
       final Map<EdgeIndex, EdgeWithSource> result = new HashMap<>();
       if (outEdges.containsKey(label)) {
@@ -99,6 +101,33 @@ public class MetaMatcher {
         }
       }
       return result;
+    }
+
+    @Override
+    public Multimap<EdgeIndex, EdgeWithSource> getQueryableInEdges(EdgeLabel label) {
+      // TODO: Return only Queryables!
+      final Map<EdgeLabel, Multimap<EdgeIndex, EdgeImpl>> verInEdges = node.getVersionedInEdgeds();
+      final Map<EdgeLabel, Multimap<EdgeIndex, EdgeImpl>> unverInEdges = node.getNodeSerie().getInEdges();
+
+      final Multimap<EdgeIndex, EdgeWithSource> combination = HashMultimap.create();
+
+      /* Add versioned edges */
+      if (verInEdges.get(label) != null) {
+        for (Map.Entry<EdgeIndex, EdgeImpl> verInEdgesElement : verInEdges.get(label).entries()) {
+          EdgeWithSource edgeImplWithSource = edgeUtil.toEdgeWithSource(verInEdgesElement.getValue());
+          combination.put(verInEdgesElement.getKey(), edgeImplWithSource);
+        }
+      }
+
+      /* Add unversioned edges */
+      if (unverInEdges.get(label) != null) {
+        for (Map.Entry<EdgeIndex, EdgeImpl> unvInEdgesElement : unverInEdges.get(label).entries()) {
+          EdgeWithSource edgeImplWithSource = edgeUtil.toEdgeWithSource(unvInEdgesElement.getValue());
+          combination.put(unvInEdgesElement.getKey(), edgeImplWithSource);
+        }
+      }
+
+      return combination;
     }
 
     @Override

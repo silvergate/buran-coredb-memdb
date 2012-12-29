@@ -32,7 +32,7 @@ public class NodeSerie {
 
   private final Map<EdgeLabel, Multimap<EdgeIndex, EdgeImpl>> inEdges = new HashMap<>();
 
-  Map<EdgeLabel, Multimap<EdgeIndex, EdgeImpl>> getInEdges() {
+  public Map<EdgeLabel, Multimap<EdgeIndex, EdgeImpl>> getInEdges() {
     return inEdges;
   }
 

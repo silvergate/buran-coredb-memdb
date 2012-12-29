@@ -1,9 +1,6 @@
 package com.dcrux.buran.coredb.iface.query.edgeCondition;
 
-import com.dcrux.buran.coredb.iface.Edge;
-import com.dcrux.buran.coredb.iface.EdgeIndex;
-import com.dcrux.buran.coredb.iface.EdgeLabel;
-import com.dcrux.buran.coredb.iface.EdgeWithSource;
+import com.dcrux.buran.coredb.iface.*;
 import com.dcrux.buran.coredb.iface.api.ExpectableException;
 import com.dcrux.buran.coredb.iface.edgeTargets.IEdgeTarget;
 import com.dcrux.buran.coredb.iface.edgeTargets.UnversionedEdTarget;
@@ -12,8 +9,9 @@ import com.dcrux.buran.coredb.iface.query.IQNode;
 import com.dcrux.buran.coredb.iface.query.nodeMeta.IMetaInfoForQuery;
 import com.dcrux.buran.coredb.iface.query.nodeMeta.INodeMetaCondition;
 import com.google.common.base.Optional;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -35,26 +33,21 @@ public class InEdgeCondition implements INodeMetaCondition {
     this.source = source;
   }
 
-  /*
   public static InEdgeCondition hasAnyEdge(EdgeLabel label) {
-    return new InEdgeCondition(label, Optional.<EdgeIndex>absent(), Optional.<IQNode>absent(), false);
+    return new InEdgeCondition(label, Optional.<EdgeIndex>absent(), Optional.<IQNode>absent());
   }
 
   public static InEdgeCondition hasEdge(EdgeLabel label, EdgeIndex index) {
-    return new InEdgeCondition(label, Optional.<EdgeIndex>of(index), Optional.<IQNode>absent(), false);
+    return new InEdgeCondition(label, Optional.<EdgeIndex>of(index), Optional.<IQNode>absent());
   }
 
   public static InEdgeCondition hasAnyEdge(EdgeLabel label, IQNode targetNode) {
-    return new InEdgeCondition(label, Optional.<EdgeIndex>absent(), Optional.<IQNode>of(targetNode), false);
+    return new InEdgeCondition(label, Optional.<EdgeIndex>absent(), Optional.<IQNode>of(targetNode));
   }
 
   public static InEdgeCondition hasEdge(EdgeLabel label, EdgeIndex index, IQNode targetNode) {
-    return new InEdgeCondition(label, Optional.<EdgeIndex>of(index), Optional.<IQNode>of(targetNode), false);
+    return new InEdgeCondition(label, Optional.<EdgeIndex>of(index), Optional.<IQNode>of(targetNode));
   }
-
-  public static InEdgeCondition hasEdgeAll(EdgeLabel label, IQNode targetNode) {
-    return new InEdgeCondition(label, Optional.<EdgeIndex>absent(), Optional.<IQNode>of(targetNode), true);
-  }  */
 
   public EdgeLabel getLabel() {
     return label;
@@ -70,44 +63,38 @@ public class InEdgeCondition implements INodeMetaCondition {
 
   @Override
   public boolean matches(IMetaInfoForQuery metaInfoForQuery) {
-    final Map<EdgeIndex, EdgeWithSource> queryableOutEdges = metaInfoForQuery.getQueryableOutEdges(this.label);
+    final Multimap<EdgeIndex, EdgeWithSource> queryableOutEdges = metaInfoForQuery.getQueryableInEdges(this.label);
 
         /* Label available? */
     if (queryableOutEdges.isEmpty()) {
       return false;
     }
 
-    final Map<EdgeIndex, EdgeWithSource> outEdgesToQuery;
+    final Multimap<EdgeIndex, EdgeWithSource> outEdgesToQuery;
     if (this.index.isPresent()) {
-      outEdgesToQuery = new HashMap<>();
+      outEdgesToQuery = HashMultimap.create();
       if (!queryableOutEdges.containsKey(this.index.get())) {
         return false;
       }
-      outEdgesToQuery.put(this.index.get(), queryableOutEdges.get(this.index.get()));
+      outEdgesToQuery.putAll(this.index.get(), queryableOutEdges.get(this.index.get()));
     } else {
       outEdgesToQuery = queryableOutEdges;
     }
 
-    /*
-    if (this.target.isPresent()) {
-      for (Map.Entry<EdgeIndex, EdgeWithSource> elementToCheck : outEdgesToQuery.entrySet()) {
-        boolean matches = matches(elementToCheck.getValue().getEdge(), metaInfoForQuery);
-        if (!matches && isMatchAll()) {
-          return false;
-        }
-        if (matches && (!isMatchAll())) {
+    if (this.source.isPresent()) {
+      for (Map.Entry<EdgeIndex, EdgeWithSource> elementToCheck : outEdgesToQuery.entries()) {
+        boolean matches = matches(elementToCheck.getValue(), metaInfoForQuery);
+        if (matches) {
           return true;
         }
       }
-      return isMatchAll();
-    } else {
-      return true;
-    } */
+    }
     return false;
   }
 
-  private boolean matches(Edge edge, IMetaInfoForQuery metaInfoForQuery) {
-    final IEdgeTarget edgeTarget = edge.getTarget();
+  private boolean matches(EdgeWithSource withSource, IMetaInfoForQuery metaInfoForQuery) {
+    final Edge edge = withSource.getEdge();
+    final IEdgeTarget edgeTarget = withSource.getSource();
     boolean found = false;
     final Integer version;
     final Long oid;
@@ -135,16 +122,14 @@ public class InEdgeCondition implements INodeMetaCondition {
       default:
         throw new ExpectableException("Unknown edge target");
     }
-    /*
+
     if (oid != null) {
       if (version == null) {
-        found = metaInfoForQuery.getNodeMatcher().matches(oid, this.target.get());
+        found = metaInfoForQuery.getNodeMatcher().matches(oid, this.source.get());
       } else {
-        found = metaInfoForQuery.getNodeMatcher().matchesVersion(new OidVersion(oid, version), this.target.get());
+        found = metaInfoForQuery.getNodeMatcher().matchesVersion(new OidVersion(oid, version), this.source.get());
       }
     }
     return found;
-    */
-    return false;
   }
 }
