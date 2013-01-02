@@ -1,31 +1,35 @@
 package com.dcrux.buran.coredb.memoryImpl;
 
-import com.dcrux.buran.coredb.iface.EdgeIndex;
-import com.dcrux.buran.coredb.iface.EdgeLabel;
-import com.dcrux.buran.coredb.iface.OidVersion;
+import com.dcrux.buran.coredb.iface.*;
 import com.dcrux.buran.coredb.iface.api.ExpectableException;
+import com.dcrux.buran.coredb.iface.api.NodeNotFoundException;
 import com.dcrux.buran.coredb.iface.nodeClass.IDataGetter;
 import com.dcrux.buran.coredb.iface.nodeClass.IType;
 import com.dcrux.buran.coredb.iface.nodeClass.NodeClass;
-import com.dcrux.buran.coredb.memoryImpl.data.Node;
+import com.dcrux.buran.coredb.memoryImpl.data.NodeImpl;
 import com.dcrux.buran.coredb.memoryImpl.data.NodeSerie;
 import com.dcrux.buran.coredb.memoryImpl.data.Nodes;
 import com.dcrux.buran.coredb.memoryImpl.edge.EdgeImpl;
+import com.dcrux.buran.coredb.memoryImpl.edge.EdgeUtil;
 import com.dcrux.buran.coredb.memoryImpl.typeImpls.ITypeImpl;
 import com.dcrux.buran.coredb.memoryImpl.typeImpls.TypesRegistry;
+import com.google.common.base.Optional;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 
 import javax.annotation.Nullable;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
  * @author caelis
  */
 public class DataReadApi {
   private final Nodes nodes;
   private final NodeClassesApi ncApi;
   private final TypesRegistry typesRegistry;
+  private final EdgeUtil edgeUtil = new EdgeUtil();
 
   public DataReadApi(Nodes nodes, NodeClassesApi ncApi, TypesRegistry typesRegistry) {
     this.nodes = nodes;
@@ -34,29 +38,115 @@ public class DataReadApi {
   }
 
   @Nullable
-  Node getNodeFromCurrent(long receiverId, OidVersion oid) {
+  NodeImpl getNodeFromCurrent(long receiverId, OidVersion oid) {
     return this.nodes.getByUserId(receiverId).getNode(oid.getOid(), oid.getVersion(), true);
   }
 
   @Nullable
-  Node getNodeFromCurrentOrHistorized(long receiverId, OidVersion oid) {
+  NodeImpl getNodeFromCurrentOrHistorized(long receiverId, OidVersion oid) {
     return this.nodes.getByUserId(receiverId).getNode(oid.getOid(), oid.getVersion(), false);
   }
 
-  @Nullable
-  public Map<EdgeLabel, Map<EdgeIndex, EdgeImpl>> getOutEdges(long receiverId, long senderId, OidVersion oid,
-                                                              boolean isPublic) {
-    final Node node = getNodeFromCurrentOrHistorized(receiverId, oid);
+  public Map<EdgeLabel, Map<EdgeIndex, EdgeImpl>> getOutEdgesImpl(long receiverId, long senderId, OidVersion oid,
+                                                                  EnumSet<EdgeType> types, boolean queryableOnly) throws
+          NodeNotFoundException {
+    if (types.isEmpty()) {
+      throw new ExpectableException("Types cannot be empty");
+    }
+    final NodeImpl node = getNodeFromCurrentOrHistorized(receiverId, oid);
     if (node == null) {
-      return null;
+      throw new NodeNotFoundException("Node not found");
     }
     final Map<EdgeLabel, Map<EdgeIndex, EdgeImpl>> privateEdges = new HashMap<>();
     for (Map.Entry<EdgeLabel, Map<EdgeIndex, EdgeImpl>> edgesEntry : node.getOutEdges().entrySet()) {
-      if (isPublic == edgesEntry.getKey().isPublic()) {
+      boolean isQueryable = true; //TODO: Implement me
+      if (queryableOnly && (!isQueryable)) {
+        continue;
+      }
+      final boolean isPublic = edgesEntry.getKey().isPublic();
+      final boolean add =
+              (isPublic && types.contains(EdgeType.publicMod)) || (!isPublic && types.contains(EdgeType.privateMod));
+      if (add) {
         privateEdges.put(edgesEntry.getKey(), edgesEntry.getValue());
       }
     }
     return privateEdges;
+  }
+
+  public Map<EdgeLabel, Map<EdgeIndex, Edge>> getOutEdges(long receiverId, long senderId, OidVersion oid,
+                                                          EnumSet<EdgeType> types, boolean queryableOnly) throws
+          NodeNotFoundException {
+    Map<EdgeLabel, Map<EdgeIndex, EdgeImpl>> outEdgesImpl =
+            getOutEdgesImpl(receiverId, senderId, oid, types, queryableOnly);
+    Map<EdgeLabel, Map<EdgeIndex, Edge>> outEdges = new HashMap<>();
+
+    for (final Map.Entry<EdgeLabel, Map<EdgeIndex, EdgeImpl>> outEdgesImplEntry : outEdgesImpl.entrySet()) {
+      final Map<EdgeIndex, Edge> singleEntry = new HashMap<>();
+      outEdges.put(outEdgesImplEntry.getKey(), singleEntry);
+      for (final Map.Entry<EdgeIndex, EdgeImpl> entry : outEdgesImplEntry.getValue().entrySet()) {
+        final Edge edge = this.edgeUtil.toEdgeWithSource(entry.getValue()).getEdge();
+        singleEntry.put(entry.getKey(), edge);
+      }
+    }
+
+    return outEdges;
+  }
+
+  private void addToEdges(final Map<EdgeLabel, Multimap<EdgeIndex, EdgeWithSource>> combination,
+                          Optional<EdgeLabel> label, boolean queryableOnly, NodeClass nodeClass,
+                          Map<EdgeLabel, Multimap<EdgeIndex, EdgeImpl>> edgeImpls) {
+    for (Map.Entry<EdgeLabel, Multimap<EdgeIndex, EdgeImpl>> verInEdgesByLabel : edgeImpls.entrySet()) {
+      if ((label.isPresent()) && (!label.get().equals(verInEdgesByLabel.getKey()))) {
+        continue;
+      }
+      boolean isQueryable = true; //TODO: Implement me
+      if ((!isQueryable) && (queryableOnly)) {
+        continue;
+      }
+      for (Map.Entry<EdgeIndex, EdgeImpl> verInEdgeEntry : verInEdgesByLabel.getValue().entries()) {
+        Multimap<EdgeIndex, EdgeWithSource> edgeImplsByLabel = combination.get(verInEdgesByLabel.getKey());
+        if (edgeImplsByLabel == null) {
+          edgeImplsByLabel = HashMultimap.create();
+          combination.put(verInEdgesByLabel.getKey(), edgeImplsByLabel);
+        }
+        final EdgeWithSource edgeWithSource = this.edgeUtil.toEdgeWithSource(verInEdgeEntry.getValue());
+        edgeImplsByLabel.put(verInEdgeEntry.getKey(), edgeWithSource);
+      }
+    }
+  }
+
+  public Map<EdgeLabel, Multimap<EdgeIndex, EdgeWithSource>> getInEdges(long receiverId, long senderId, OidVersion oid,
+                                                                        EnumSet<EdgeType> types,
+                                                                        Optional<EdgeLabel> label,
+                                                                        boolean queryablesOnly) throws
+          NodeNotFoundException {
+    if (types.isEmpty()) {
+      throw new ExpectableException("Types cannot be empty");
+    }
+    final NodeImpl node = getNodeFromCurrentOrHistorized(receiverId, oid);
+    if (node == null) {
+      throw new NodeNotFoundException("Node not found");
+    }
+
+    final NodeClass nodeClass;
+    if (queryablesOnly) {
+      nodeClass = this.ncApi.getClassById(node.getNodeSerie().getClassId());
+    } else {
+      nodeClass = null;
+    }
+
+    final Map<EdgeLabel, Multimap<EdgeIndex, EdgeImpl>> verInEdges = node.getVersionedInEdgeds();
+    final Map<EdgeLabel, Multimap<EdgeIndex, EdgeImpl>> unverInEdges = node.getNodeSerie().getInEdges();
+
+    final Map<EdgeLabel, Multimap<EdgeIndex, EdgeWithSource>> combination = new HashMap<>();
+
+          /* Add versioned edges */
+    addToEdges(combination, label, queryablesOnly, nodeClass, verInEdges);
+
+          /* Add unversioned edges */
+    addToEdges(combination, label, queryablesOnly, nodeClass, unverInEdges);
+
+    return combination;
   }
 
   /**
@@ -78,10 +168,11 @@ public class DataReadApi {
 
   @Nullable
   public Object getData(long receiverId, long senderId, OidVersion oidVersion, short typeIndex,
-                        IDataGetter dataGetter) {
-    final Node node = this.nodes.getByUserId(receiverId).getNode(oidVersion.getOid(), oidVersion.getVersion(), false);
+                        IDataGetter dataGetter) throws NodeNotFoundException {
+    final NodeImpl node =
+            this.nodes.getByUserId(receiverId).getNode(oidVersion.getOid(), oidVersion.getVersion(), false);
     if (node == null) {
-      throw new ExpectableException("Node not found");
+      throw new NodeNotFoundException("NodeImpl not found");
     }
     final long classId = node.getNodeSerie().getClassId();
 
@@ -92,7 +183,7 @@ public class DataReadApi {
     final IType type = nc.getType(typeIndex);
     final boolean supports = type.supports(dataGetter);
     if (!supports) {
-      throw new IllegalArgumentException("The given data getter is no supported on this type.");
+      throw new ExpectableException("The given data getter is no supported on this type.");
     }
     ITypeImpl ti = this.typesRegistry.get(type.getRef());
     final Object value = node.getData()[typeIndex];

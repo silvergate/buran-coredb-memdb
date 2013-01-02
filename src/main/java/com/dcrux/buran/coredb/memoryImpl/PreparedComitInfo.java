@@ -8,7 +8,6 @@ import com.dcrux.buran.coredb.memoryImpl.data.NodeSerie;
 import javax.annotation.Nullable;
 
 /**
- *
  * @author caelis
  */
 public class PreparedComitInfo {

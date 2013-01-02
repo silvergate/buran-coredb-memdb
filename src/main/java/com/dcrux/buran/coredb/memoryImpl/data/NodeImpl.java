@@ -15,7 +15,7 @@ import java.util.Set;
  * @author caelis
  */
 //TODO: Rename to NodeImpl
-public class Node {
+public class NodeImpl {
 
   public long getSenderId() {
     return senderId;
@@ -44,7 +44,7 @@ public class Node {
   private final Map<EdgeLabel, Map<EdgeIndex, EdgeImpl>> outEdges = new HashMap<>();
   private final Map<EdgeLabel, Multimap<EdgeIndex, EdgeImpl>> versionedInEdgeds = new HashMap<>();
 
-  public Node(int version, long senderId, long receiverId, long validFrom, long validTo, Object[] data) {
+  public NodeImpl(int version, long senderId, long receiverId, long validFrom, long validTo, Object[] data) {
     this.senderId = senderId;
     this.validFrom = validFrom;
     this.validTo = validTo;
@@ -104,7 +104,7 @@ public class Node {
 
   @Override
   public String toString() {
-    return "Node{" +
+    return "NodeImpl{" +
             "validFrom=" + validFrom +
             ", validTo=" + validTo +
             ", senderId=" + senderId +

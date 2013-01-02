@@ -4,7 +4,6 @@ import com.dcrux.buran.coredb.iface.nodeClass.CmpRef;
 import com.dcrux.buran.coredb.iface.nodeClass.ICmp;
 
 /**
- *
  * @author caelis
  */
 public class StringEq implements ICmp {

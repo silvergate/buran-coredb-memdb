@@ -4,7 +4,6 @@ import com.dcrux.buran.coredb.iface.OidVersion;
 import com.dcrux.buran.coredb.iface.query.IQNode;
 
 /**
- *
  * @author caelis
  */
 public interface INodeMatcher {

@@ -3,7 +3,6 @@ package com.dcrux.buran.coredb.memoryImpl.edge;
 import javax.annotation.Nullable;
 
 /**
- *
  * @author caelis
  */
 public class ExtEdgeImplTarget implements IEdgeImplTarget {

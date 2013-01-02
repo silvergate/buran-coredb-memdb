@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
  * @author caelis
  */
 public class IncNode {
@@ -18,12 +17,12 @@ public class IncNode {
 
   @Nullable
   private final OidVersion toUpdate;
-  private final Node node;
+  private final NodeImpl node;
   private final long receiverId;
   private final long classId;
   private final Map<EdgeIndexLabel, IncubationEdge> incubationEdges = new HashMap<>();
 
-  public IncNode(@Nullable OidVersion toUpdate, Node node, long receiverId, long classId) {
+  public IncNode(@Nullable OidVersion toUpdate, NodeImpl node, long receiverId, long classId) {
     this.toUpdate = toUpdate;
     this.node = node;
     this.receiverId = receiverId;
@@ -43,7 +42,7 @@ public class IncNode {
     return toUpdate;
   }
 
-  public Node getNode() {
+  public NodeImpl getNode() {
     return node;
   }
 

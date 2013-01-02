@@ -1,7 +1,6 @@
 package com.dcrux.buran.coredb.iface.edgeTargets;
 
 /**
- *
  * @author caelis
  */
 public class ExtUnversionedEdTarget implements IIncEdgeTarget, IEdgeTarget {

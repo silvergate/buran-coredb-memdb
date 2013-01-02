@@ -4,7 +4,6 @@ import com.dcrux.buran.coredb.iface.nodeClass.ISorter;
 import com.dcrux.buran.coredb.iface.nodeClass.SorterRef;
 
 /**
- *
  * @author caelis
  */
 public class StringUnicodeSort implements ISorter {

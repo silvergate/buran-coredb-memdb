@@ -1,6 +1,6 @@
 package com.dcrux.buran.coredb.memoryImpl.edge;
 
-import com.dcrux.buran.coredb.memoryImpl.data.Node;
+import com.dcrux.buran.coredb.memoryImpl.data.NodeImpl;
 
 /**
  * Buran.
@@ -11,9 +11,9 @@ import com.dcrux.buran.coredb.memoryImpl.data.Node;
  */
 public class EdgeImplWithSource {
   private final EdgeImpl edgeImpl;
-  private final Node source;
+  private final NodeImpl source;
 
-  public EdgeImplWithSource(EdgeImpl edgeImpl, Node source) {
+  public EdgeImplWithSource(EdgeImpl edgeImpl, NodeImpl source) {
     this.edgeImpl = edgeImpl;
     this.source = source;
   }
@@ -22,7 +22,7 @@ public class EdgeImplWithSource {
     return edgeImpl;
   }
 
-  public Node getSource() {
+  public NodeImpl getSource() {
     return source;
   }
 }

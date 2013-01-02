@@ -9,7 +9,6 @@ import com.dcrux.buran.coredb.iface.nodeClass.propertyTypes.string.StringType;
 import javax.annotation.Nullable;
 
 /**
- *
  * @author caelis
  */
 public class StringImpl implements ITypeImpl {

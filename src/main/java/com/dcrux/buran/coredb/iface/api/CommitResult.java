@@ -6,7 +6,6 @@ import com.dcrux.buran.coredb.iface.OidVersion;
 import java.util.Map;
 
 /**
- *
  * @author caelis
  */
 public class CommitResult {

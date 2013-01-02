@@ -3,7 +3,6 @@ package com.dcrux.buran.coredb.iface;
 import com.dcrux.buran.coredb.iface.edgeTargets.IEdgeTarget;
 
 /**
- *
  * @author caelis
  */
 public class EdgeWithSource {

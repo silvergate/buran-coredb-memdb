@@ -1,7 +1,6 @@
 package com.dcrux.buran.coredb.iface;
 
 /**
- *
  * @author caelis
  */
 public class EdgeIndex {

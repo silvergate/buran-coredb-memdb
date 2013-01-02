@@ -3,7 +3,6 @@ package com.dcrux.buran.coredb.memoryImpl.edge;
 import com.dcrux.buran.coredb.memoryImpl.data.NodeSerie;
 
 /**
- *
  * @author caelis
  */
 public class UnversionedEdgeImplTarget implements IEdgeImplTarget {

@@ -20,7 +20,6 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- *
  * @author caelis
  */
 public class AccountNodes {
@@ -61,7 +60,7 @@ public class AccountNodes {
       version = toUpdate.getVersion() + 1;
     }
 
-    final Node newNode = new Node(version, senderId, receiverId, 0L, 0L, new Object[nc.getNumberOfTypes()]);
+    final NodeImpl newNode = new NodeImpl(version, senderId, receiverId, 0L, 0L, new Object[nc.getNumberOfTypes()]);
     final IncNode incNode = new IncNode(toUpdate, newNode, receiverId, classId);
 
     /* Add data */
@@ -75,11 +74,11 @@ public class AccountNodes {
     return getIncOidToIncNodes().get(incOid);
   }
 
-  private void addNode(final Node node) {
+  private void addNode(final NodeImpl node) {
     final NodeSerie ns = node.getNodeSerie();
     assert (ns != null);
     if (ns.isMarkedAsDeleted()) {
-      throw new ExpectableException("Node serie is marked as deleted. Cannot add a new node.");
+      throw new ExpectableException("NodeImpl serie is marked as deleted. Cannot add a new node.");
     }
 
     boolean nsWasEmptyBefore = ns.getCurrentVersion() == null;
@@ -109,7 +108,7 @@ public class AccountNodes {
 
   private void addNewNodeSerie(NodeSerie nodeSerie) {
     if (nodeSerie.getCurrentVersion() != null) {
-      throw new ExpectableException("Node serie already contains nodes.");
+      throw new ExpectableException("NodeImpl serie already contains nodes.");
     }
     this.oidToRemovedEmptyAndAliveSeries.put(nodeSerie.getOid(), nodeSerie);
   }
@@ -124,7 +123,7 @@ public class AccountNodes {
   }
 
   @Nullable
-  public Node getNode(long oid, int version, boolean currentOnly) {
+  public NodeImpl getNode(long oid, int version, boolean currentOnly) {
     final NodeSerie ns = getNodeSerieByOid(oid, true);
     if (ns == null) {
       return null;
@@ -140,7 +139,7 @@ public class AccountNodes {
   }
 
   @Nullable
-  public Node getCurrentNode(long oid) {
+  public NodeImpl getCurrentNode(long oid) {
     NodeSerie ns = getNodeSerieByOid(oid, true);
     if (ns == null) {
       return null;

@@ -1,5 +1,6 @@
 package com.dcrux.buran.coredb.iface.query.nodeMeta;
 
+import com.dcrux.buran.coredb.iface.Edge;
 import com.dcrux.buran.coredb.iface.EdgeIndex;
 import com.dcrux.buran.coredb.iface.EdgeLabel;
 import com.dcrux.buran.coredb.iface.EdgeWithSource;
@@ -41,7 +42,7 @@ public interface IMetaInfoForQuery {
   NodeClass getNodeClass();
 
   /* Edges */
-  Map<EdgeIndex, EdgeWithSource> getQueryableOutEdges(EdgeLabel label);
+  Map<EdgeIndex, Edge> getQueryableOutEdges(EdgeLabel label);
 
   Multimap<EdgeIndex, EdgeWithSource> getQueryableInEdges(EdgeLabel label);
 

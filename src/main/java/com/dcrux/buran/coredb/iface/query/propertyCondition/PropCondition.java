@@ -6,7 +6,6 @@ import com.dcrux.buran.coredb.iface.nodeClass.IType;
 import com.dcrux.buran.coredb.iface.nodeClass.NodeClass;
 
 /**
- *
  * @author caelis
  */
 public class PropCondition implements IPropertyCondition {

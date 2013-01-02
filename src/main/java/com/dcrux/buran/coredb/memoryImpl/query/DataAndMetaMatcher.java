@@ -5,19 +5,20 @@ import com.dcrux.buran.coredb.iface.query.QCdNode;
 import com.dcrux.buran.coredb.iface.query.QNode;
 import com.dcrux.buran.coredb.iface.query.nodeMeta.INodeMetaCondition;
 import com.dcrux.buran.coredb.iface.query.propertyCondition.IPropertyCondition;
+import com.dcrux.buran.coredb.memoryImpl.DataReadApi;
 import com.dcrux.buran.coredb.memoryImpl.NodeClassesApi;
 import com.dcrux.buran.coredb.memoryImpl.data.AccountNodes;
-import com.dcrux.buran.coredb.memoryImpl.data.Node;
+import com.dcrux.buran.coredb.memoryImpl.data.NodeImpl;
 
 /**
- *
  * @author caelis
  */
 public class DataAndMetaMatcher {
 
-  public boolean matches(IQNode qNode, final Node node, NodeClassesApi ncApi, AccountNodes accountNodes) {
+  public boolean matches(IQNode qNode, final DataReadApi drApi, final NodeImpl node, NodeClassesApi ncApi,
+                         AccountNodes accountNodes) {
     final DataMatacher dataMatcher = new DataMatacher(ncApi, node.getNodeSerie().getClassId());
-    final MetaMatcher metaMatcher = new MetaMatcher(accountNodes, ncApi);
+    final MetaMatcher metaMatcher = new MetaMatcher(drApi, accountNodes, ncApi);
     INodeMetaCondition metaCondition = null;
     IPropertyCondition propCondition = null;
     Long classId = null;

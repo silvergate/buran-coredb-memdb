@@ -2,7 +2,7 @@ package com.dcrux.buran.coredb.memoryImpl;
 
 import com.dcrux.buran.coredb.iface.*;
 import com.dcrux.buran.coredb.memoryImpl.data.IncNode;
-import com.dcrux.buran.coredb.memoryImpl.data.Node;
+import com.dcrux.buran.coredb.memoryImpl.data.NodeImpl;
 import org.apache.commons.lang.NotImplementedException;
 
 import javax.annotation.Nullable;
@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- *
  * @author caelis
  */
 public class MiApi {
@@ -26,13 +25,13 @@ public class MiApi {
 
   @Nullable
   public NodeState getState(long receiverId, long senderId, OidVersion oidVersion) {
-    final Node inCurrent = this.dataReadApi.getNodeFromCurrent(receiverId, oidVersion);
+    final NodeImpl inCurrent = this.dataReadApi.getNodeFromCurrent(receiverId, oidVersion);
     if (inCurrent != null) {
-      return NodeState.state(NodeState.NodeStateReason.available, NodeState.State.available);
+      return NodeState.available;
     }
-    final Node histOrCur = this.dataReadApi.getNodeFromCurrentOrHistorized(receiverId, oidVersion);
+    final NodeImpl histOrCur = this.dataReadApi.getNodeFromCurrentOrHistorized(receiverId, oidVersion);
     if (histOrCur != null) {
-      return NodeState.state(NodeState.NodeStateReason.historized, NodeState.State.available);
+      return NodeState.historizedAvailable;
     }
     return null;
   }
@@ -53,7 +52,7 @@ public class MiApi {
   }
 
   public Set<DomainId> getNodeDomains(long receiverId, long senderId, OidVersion oidVersion) {
-    final Node node = this.dataReadApi.getNodeFromCurrentOrHistorized(receiverId, oidVersion);
+    final NodeImpl node = this.dataReadApi.getNodeFromCurrentOrHistorized(receiverId, oidVersion);
     final Set<DomainId> domainIds = new HashSet<DomainId>();
     for (final Long domainId : node.getDomainIds()) {
       domainIds.add(new DomainId(domainId));

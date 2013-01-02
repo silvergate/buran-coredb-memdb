@@ -1,7 +1,6 @@
 package com.dcrux.buran.coredb.memoryImpl.data;
 
 /**
- *
  * @author caelis
  */
 public class DomainImpl {

@@ -1,25 +1,26 @@
 package com.dcrux.buran.coredb.memoryImpl.query;
 
-import com.dcrux.buran.coredb.iface.EdgeIndex;
-import com.dcrux.buran.coredb.iface.EdgeLabel;
-import com.dcrux.buran.coredb.iface.EdgeWithSource;
-import com.dcrux.buran.coredb.iface.OidVersion;
+import com.dcrux.buran.coredb.iface.*;
+import com.dcrux.buran.coredb.iface.api.ExpectableException;
+import com.dcrux.buran.coredb.iface.api.NodeNotFoundException;
 import com.dcrux.buran.coredb.iface.nodeClass.NodeClass;
 import com.dcrux.buran.coredb.iface.permissions.UserNodePermission;
 import com.dcrux.buran.coredb.iface.query.IQNode;
 import com.dcrux.buran.coredb.iface.query.nodeMeta.IMetaInfoForQuery;
 import com.dcrux.buran.coredb.iface.query.nodeMeta.INodeMatcher;
 import com.dcrux.buran.coredb.iface.query.nodeMeta.INodeMetaCondition;
+import com.dcrux.buran.coredb.memoryImpl.DataReadApi;
 import com.dcrux.buran.coredb.memoryImpl.NodeClassesApi;
 import com.dcrux.buran.coredb.memoryImpl.data.AccountNodes;
-import com.dcrux.buran.coredb.memoryImpl.data.Node;
-import com.dcrux.buran.coredb.memoryImpl.edge.EdgeImpl;
+import com.dcrux.buran.coredb.memoryImpl.data.NodeImpl;
 import com.dcrux.buran.coredb.memoryImpl.edge.EdgeUtil;
+import com.google.common.base.Optional;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import org.apache.commons.lang.NotImplementedException;
 
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -28,13 +29,15 @@ import java.util.Set;
  */
 public class MetaMatcher {
 
-  private Node node;
+  private NodeImpl node;
   private long classId;
+  private final DataReadApi drApi;
   private final EdgeUtil edgeUtil = new EdgeUtil();
   private final AccountNodes accountNodes;
   private final NodeClassesApi ncApi;
 
-  public MetaMatcher(AccountNodes accountNodes, NodeClassesApi ncApi) {
+  public MetaMatcher(DataReadApi drApi, AccountNodes accountNodes, NodeClassesApi ncApi) {
+    this.drApi = drApi;
     this.accountNodes = accountNodes;
     this.ncApi = ncApi;
   }
@@ -91,43 +94,36 @@ public class MetaMatcher {
     }
 
     @Override
-    public Map<EdgeIndex, EdgeWithSource> getQueryableOutEdges(EdgeLabel label) {
-      // TODO: Return only Queryables!
-      Map<EdgeLabel, Map<EdgeIndex, EdgeImpl>> outEdges = node.getOutEdges();
-      final Map<EdgeIndex, EdgeWithSource> result = new HashMap<>();
-      if (outEdges.containsKey(label)) {
-        for (final Map.Entry<EdgeIndex, EdgeImpl> edgesInLabel : outEdges.get(label).entrySet()) {
-          result.put(edgesInLabel.getKey(), edgeUtil.toEdgeWithSource(edgesInLabel.getValue()));
+    public Map<EdgeIndex, Edge> getQueryableOutEdges(EdgeLabel label) {
+      try {
+        final Map<EdgeLabel, Map<EdgeIndex, Edge>> edges = drApi.getOutEdges(getReceiver(), getSender(),
+                new OidVersion(node.getNodeSerie().getOid(), node.getVersion()),
+                EnumSet.of(com.dcrux.buran.coredb.iface.EdgeType.privateMod,
+                        com.dcrux.buran.coredb.iface.EdgeType.publicMod), true);
+        if (!edges.containsKey(label)) {
+          return Collections.emptyMap();
+        } else {
+          return edges.get(label);
         }
+      } catch (NodeNotFoundException e) {
+        throw new ExpectableException("Node not found, this should not happen.");
       }
-      return result;
     }
 
     @Override
     public Multimap<EdgeIndex, EdgeWithSource> getQueryableInEdges(EdgeLabel label) {
-      // TODO: Return only Queryables!
-      final Map<EdgeLabel, Multimap<EdgeIndex, EdgeImpl>> verInEdges = node.getVersionedInEdgeds();
-      final Map<EdgeLabel, Multimap<EdgeIndex, EdgeImpl>> unverInEdges = node.getNodeSerie().getInEdges();
-
-      final Multimap<EdgeIndex, EdgeWithSource> combination = HashMultimap.create();
-
-      /* Add versioned edges */
-      if (verInEdges.get(label) != null) {
-        for (Map.Entry<EdgeIndex, EdgeImpl> verInEdgesElement : verInEdges.get(label).entries()) {
-          EdgeWithSource edgeImplWithSource = edgeUtil.toEdgeWithSource(verInEdgesElement.getValue());
-          combination.put(verInEdgesElement.getKey(), edgeImplWithSource);
+      try {
+        final Map<EdgeLabel, Multimap<EdgeIndex, EdgeWithSource>> inEdges = drApi.getInEdges(getReceiver(), getSender(),
+                new OidVersion(node.getNodeSerie().getOid(), node.getVersion()),
+                EnumSet.of(com.dcrux.buran.coredb.iface.EdgeType.privateMod,
+                        com.dcrux.buran.coredb.iface.EdgeType.publicMod), Optional.<EdgeLabel>of(label), true);
+        if (!inEdges.containsKey(label)) {
+          return HashMultimap.create();
         }
+        return inEdges.get(label);
+      } catch (NodeNotFoundException e) {
+        throw new ExpectableException("Node not found, this should not happen.");
       }
-
-      /* Add unversioned edges */
-      if (unverInEdges.get(label) != null) {
-        for (Map.Entry<EdgeIndex, EdgeImpl> unvInEdgesElement : unverInEdges.get(label).entries()) {
-          EdgeWithSource edgeImplWithSource = edgeUtil.toEdgeWithSource(unvInEdgesElement.getValue());
-          combination.put(unvInEdgesElement.getKey(), edgeImplWithSource);
-        }
-      }
-
-      return combination;
     }
 
     @Override
@@ -139,26 +135,26 @@ public class MetaMatcher {
   private final INodeMatcher nodeMatcher = new INodeMatcher() {
     @Override
     public boolean matchesVersion(OidVersion oidVersion, IQNode qNode) {
-      final Node node = accountNodes.getNode(oidVersion.getOid(), oidVersion.getVersion(), true);
+      final NodeImpl node = accountNodes.getNode(oidVersion.getOid(), oidVersion.getVersion(), true);
       if (node == null) {
         return false;
       }
       DataAndMetaMatcher dataAndMetaMatcher = new DataAndMetaMatcher();
-      return dataAndMetaMatcher.matches(qNode, node, ncApi, accountNodes);
+      return dataAndMetaMatcher.matches(qNode, drApi, node, ncApi, accountNodes);
     }
 
     @Override
     public boolean matches(long oid, IQNode qNode) {
-      final Node node = accountNodes.getCurrentNode(oid);
+      final NodeImpl node = accountNodes.getCurrentNode(oid);
       if (node == null) {
         return false;
       }
       DataAndMetaMatcher dataAndMetaMatcher = new DataAndMetaMatcher();
-      return dataAndMetaMatcher.matches(qNode, node, ncApi, accountNodes);
+      return dataAndMetaMatcher.matches(qNode, drApi, node, ncApi, accountNodes);
     }
   };
 
-  public boolean matches(Node node, INodeMetaCondition nodeMetaCondition) {
+  public boolean matches(NodeImpl node, INodeMetaCondition nodeMetaCondition) {
     this.node = node;
     this.classId = node.getNodeSerie().getClassId();
     return nodeMetaCondition.matches(this.metaInfoForQuery);

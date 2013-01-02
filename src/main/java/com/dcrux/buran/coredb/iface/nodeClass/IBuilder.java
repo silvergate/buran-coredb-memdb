@@ -3,7 +3,6 @@ package com.dcrux.buran.coredb.iface.nodeClass;
 import com.dcrux.buran.coredb.iface.edgeClass.PrivateEdgeClass;
 
 /**
- *
  * @author caelis
  */
 public interface IBuilder {

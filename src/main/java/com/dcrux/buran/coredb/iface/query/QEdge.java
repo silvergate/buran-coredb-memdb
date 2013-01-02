@@ -4,7 +4,6 @@ import com.dcrux.buran.coredb.iface.query.edgeCondition.OutEdgeCondition;
 import com.google.common.base.Optional;
 
 /**
- *
  * @author caelis
  */
 public class QEdge {

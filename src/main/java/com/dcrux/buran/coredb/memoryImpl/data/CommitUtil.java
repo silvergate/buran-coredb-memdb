@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- *
  * @author caelis
  */
 public class CommitUtil {
@@ -221,10 +220,10 @@ public class CommitUtil {
     }
   }
 
-  public void addEdge(Set<PreparedComitInfo> prepComInfo, final Node sourceNode, final IncubationEdge incEdge,
+  public void addEdge(Set<PreparedComitInfo> prepComInfo, final NodeImpl sourceNode, final IncubationEdge incEdge,
                       EdgeIndex index, AccountNodes accountNodes) {
     NodeSerie inNodeSerie = null;
-    Node inNode = null;
+    NodeImpl inNode = null;
 
     final IIncEdgeTarget target = incEdge.getTarget();
     final IEdgeImplTarget finalTarget;

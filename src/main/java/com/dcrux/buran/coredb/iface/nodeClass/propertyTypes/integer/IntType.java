@@ -5,7 +5,6 @@ import com.dcrux.buran.coredb.iface.nodeClass.propertyTypes.PrimGet;
 import com.dcrux.buran.coredb.iface.nodeClass.propertyTypes.PrimSet;
 
 /**
- *
  * @author caelis
  */
 public class IntType implements IType {

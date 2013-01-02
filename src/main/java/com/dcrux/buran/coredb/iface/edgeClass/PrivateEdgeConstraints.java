@@ -1,7 +1,6 @@
 package com.dcrux.buran.coredb.iface.edgeClass;
 
 /**
- *
  * @author caelis
  */
 public enum PrivateEdgeConstraints {

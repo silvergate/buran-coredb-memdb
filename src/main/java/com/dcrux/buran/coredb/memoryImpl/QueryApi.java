@@ -3,7 +3,7 @@ package com.dcrux.buran.coredb.memoryImpl;
 import com.dcrux.buran.coredb.iface.query.IQNode;
 import com.dcrux.buran.coredb.iface.query.QCdNode;
 import com.dcrux.buran.coredb.memoryImpl.data.AccountNodes;
-import com.dcrux.buran.coredb.memoryImpl.data.Node;
+import com.dcrux.buran.coredb.memoryImpl.data.NodeImpl;
 import com.dcrux.buran.coredb.memoryImpl.data.NodeSerie;
 import com.dcrux.buran.coredb.memoryImpl.data.Nodes;
 import com.dcrux.buran.coredb.memoryImpl.query.DataAndMetaMatcher;
@@ -14,19 +14,20 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- *
  * @author caelis
  */
 public class QueryApi {
   private final Nodes nodes;
   private final NodeClassesApi ncApi;
+  private final DataReadApi drApi;
 
-  public QueryApi(Nodes nodes, NodeClassesApi ncApi) {
+  public QueryApi(Nodes nodes, NodeClassesApi ncApi, DataReadApi drApi) {
     this.nodes = nodes;
     this.ncApi = ncApi;
+    this.drApi = drApi;
   }
 
-  public Set<Node> query(long receiverId, long senderId, IQNode query) {
+  public Set<NodeImpl> query(long receiverId, long senderId, IQNode query) {
     final DataAndMetaMatcher dataAndMetaMatcher = new DataAndMetaMatcher();
     final AccountNodes acNodes = nodes.getByUserId(receiverId);
 
@@ -48,10 +49,10 @@ public class QueryApi {
       return Collections.emptySet();
     }
 
-    final Set<Node> result = new HashSet<>();
+    final Set<NodeImpl> result = new HashSet<>();
     for (final NodeSerie nodeSerie : nodesToIterate) {
-      final Node currentNode = nodeSerie.getNode(nodeSerie.getCurrentVersion());
-      final boolean matches = dataAndMetaMatcher.matches(query, currentNode, this.ncApi, acNodes);
+      final NodeImpl currentNode = nodeSerie.getNode(nodeSerie.getCurrentVersion());
+      final boolean matches = dataAndMetaMatcher.matches(query, this.drApi, currentNode, this.ncApi, acNodes);
       if (matches) {
         result.add(currentNode);
       }

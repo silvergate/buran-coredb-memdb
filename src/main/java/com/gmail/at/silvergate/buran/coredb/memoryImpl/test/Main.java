@@ -3,8 +3,7 @@ package com.gmail.at.silvergate.buran.coredb.memoryImpl.test;
 import com.dcrux.buran.coredb.iface.EdgeIndex;
 import com.dcrux.buran.coredb.iface.EdgeLabel;
 import com.dcrux.buran.coredb.iface.IncOid;
-import com.dcrux.buran.coredb.iface.api.CommitResult;
-import com.dcrux.buran.coredb.iface.api.OptimisticLockingException;
+import com.dcrux.buran.coredb.iface.api.*;
 import com.dcrux.buran.coredb.iface.edgeClass.PrivateEdgeClass;
 import com.dcrux.buran.coredb.iface.edgeTargets.IncVersionedEdTarget;
 import com.dcrux.buran.coredb.iface.nodeClass.NodeClass;
@@ -19,17 +18,17 @@ import com.dcrux.buran.coredb.iface.query.nodeMeta.INodeMetaCondition;
 import com.dcrux.buran.coredb.iface.query.propertyCondition.IPropertyCondition;
 import com.dcrux.buran.coredb.iface.query.propertyCondition.PropCondition;
 import com.dcrux.buran.coredb.memoryImpl.ApiIface;
-import com.dcrux.buran.coredb.memoryImpl.data.Node;
+import com.dcrux.buran.coredb.memoryImpl.data.NodeImpl;
 import com.google.common.base.Optional;
 
 import java.util.Set;
 
 /**
- *
  * @author caelis
  */
 public class Main {
-  public static void main(String[] args) throws OptimisticLockingException {
+  public static void main(String[] args) throws OptimisticLockingException, IncubationNodeNotFound, EdgeIndexAlreadySet,
+          NodeNotFoundException {
 
     ApiIface api = new ApiIface();
 
@@ -49,7 +48,7 @@ public class Main {
     IncOid nodeOneInc = api.getDmApi().createNew(receiverId, senderId, classId, null);
     IncOid nodeTwoInc = api.getDmApi().createNew(receiverId, senderId, classId, null);
 
-    /* Node 1 mit daten & edges befüllen: Die edges von node 1 zeigen auf node 2 */
+    /* NodeImpl 1 mit daten & edges befüllen: Die edges von node 1 zeigen auf node 2 */
 
     api.getDmApi().setEdge(receiverId, senderId, nodeOneInc, EdgeIndex.c(0), halloEdge,
             new IncVersionedEdTarget(nodeTwoInc.getId()), false);
@@ -57,9 +56,9 @@ public class Main {
             new IncVersionedEdTarget(nodeTwoInc.getId()), false);
     api.getDmApi().setData(receiverId, senderId, nodeOneInc, (short) 0, PrimSet.string("Ich bin eine Welt"));
 
-    /* Node 2 mit daten befüllen */
+    /* NodeImpl 2 mit daten befüllen */
 
-    api.getDmApi().setData(receiverId, senderId, nodeTwoInc, (short) 0, PrimSet.string("Text an Node 2"));
+    api.getDmApi().setData(receiverId, senderId, nodeTwoInc, (short) 0, PrimSet.string("Text an NodeImpl 2"));
 
     /* Beide nodes Committen */
 
@@ -71,24 +70,24 @@ public class Main {
 
     final Object value =
             api.getDrApi().getData(receiverId, senderId, cr.getOidVers(nodeOneInc), (short) 0, PrimGet.SINGLETON);
-    System.out.println("Value (Node 1) = " + value);
+    System.out.println("Value (NodeImpl 1) = " + value);
 
         /* Von der commiteten node 2 daten lesen */
 
     final Object value2 =
             api.getDrApi().getData(receiverId, senderId, cr.getOidVers(nodeTwoInc), (short) 0, PrimGet.SINGLETON);
-    System.out.println("Value (Node 2) = " + value2);
+    System.out.println("Value (NodeImpl 2) = " + value2);
 
     /* Query: Bedingung: muss eine node mit "Ich bin eine Welt" und einer "hallo"-edge im index 0 sein.
-    Am ende der Edge muss eine Node vorhanden sein, mit dem text "Text an Node 2" */
+    Am ende der Edge muss eine NodeImpl vorhanden sein, mit dem text "Text an NodeImpl 2" */
 
-    PropCondition pcNode2 = new PropCondition((short) 0, new StringEq("Text an Node 2"));
+    PropCondition pcNode2 = new PropCondition((short) 0, new StringEq("Text an NodeImpl 2"));
 
     PropCondition pc = new PropCondition((short) 0, new StringEq("Ich bin eine Welt"));
     INodeMetaCondition nmc = OutEdgeCondition.hasEdge(halloEdge, EdgeIndex.c(0),
             new QCdNode(Optional.<INodeMetaCondition>absent(), classId, Optional.<IPropertyCondition>of(pcNode2)));
     QCdNode query = new QCdNode(Optional.<INodeMetaCondition>of(nmc), classId, Optional.<IPropertyCondition>of(pc));
-    final Set<Node> result = api.getQueryApi().query(receiverId, senderId, query);
+    final Set<NodeImpl> result = api.getQueryApi().query(receiverId, senderId, query);
     System.out.println("Query Result: " + result);
 
     return;

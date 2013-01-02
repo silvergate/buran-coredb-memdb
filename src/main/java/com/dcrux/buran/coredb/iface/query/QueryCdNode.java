@@ -3,7 +3,6 @@ package com.dcrux.buran.coredb.iface.query;
 import com.google.common.base.Optional;
 
 /**
- *
  * @author caelis
  */
 public class QueryCdNode {

@@ -9,7 +9,6 @@ import com.dcrux.buran.coredb.iface.nodeClass.propertyTypes.integer.IntType;
 import javax.annotation.Nullable;
 
 /**
- *
  * @author caelis
  */
 public class IntImpl implements ITypeImpl {

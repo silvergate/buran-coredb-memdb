@@ -1,39 +1,27 @@
 package com.dcrux.buran.coredb.iface;
 
 /**
+ * Buran.
  *
- * @author caelis
+ * @author: ${USER}
+ * Date: 02.01.13
+ * Time: 14:45
  */
-public class NodeState {
+public enum NodeState {
+  available(0),
+  historizedAvailable(10),
+  historizedPropertiesMissing(11),
+  historizedAllMissing(12),
+  unavailablePropertiesMissing(20),
+  unavailableAllMissing(21);
 
-  public static enum NodeStateReason {
-    available,
-    historized,
-    tempUnavailable
+  NodeState(int state) {
+    this.state = (byte) state;
   }
 
-  public static enum State {
-    available,
-    propertiesMissing,
-    propertiesAndMetadataButClassMissing
+  final byte state;
+
+  public byte getState() {
+    return state;
   }
-
-  private final byte state;
-
-  public NodeState(byte state) {
-    this.state = state;
-  }
-
-  public static NodeState state(NodeStateReason state, State reason) {
-    return new NodeState((byte) 0);
-  }
-
-  public State getState() {
-    return null;
-  }
-
-  public NodeStateReason getReason() {
-    return null;
-  }
-
 }

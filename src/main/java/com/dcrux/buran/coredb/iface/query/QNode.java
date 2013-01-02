@@ -4,7 +4,6 @@ import com.dcrux.buran.coredb.iface.query.nodeMeta.INodeMetaCondition;
 import com.google.common.base.Optional;
 
 /**
- *
  * @author caelis
  */
 public class QNode implements IQNode {

@@ -5,7 +5,6 @@ import com.dcrux.buran.coredb.iface.query.propertyCondition.IPropertyCondition;
 import com.google.common.base.Optional;
 
 /**
- *
  * @author caelis
  */
 public class QCdNode extends QNode {

@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- *
  * @author caelis
  */
 public class SenderIsIn implements INodeMetaCondition {

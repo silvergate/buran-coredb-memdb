@@ -3,7 +3,6 @@ package com.dcrux.buran.coredb.iface;
 import java.io.Serializable;
 
 /**
- *
  * @author caelis
  */
 public class EdgeLabel implements Serializable {

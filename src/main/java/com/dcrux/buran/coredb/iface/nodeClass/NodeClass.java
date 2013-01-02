@@ -7,7 +7,6 @@ import java.io.Serializable;
 import java.util.*;
 
 /**
- *
  * @author caelis
  */
 public final class NodeClass implements Serializable {

@@ -1,7 +1,6 @@
 package com.dcrux.buran.coredb.iface.nodeClass;
 
 /**
- *
  * @author caelis
  */
 public class ClassId {
@@ -13,6 +12,10 @@ public class ClassId {
 
   public long getId() {
     return id;
+  }
+
+  public static ClassId c(long id) {
+    return new ClassId(id);
   }
 
   @Override

@@ -3,7 +3,6 @@ package com.dcrux.buran.coredb.iface.nodeClass;
 import java.io.Serializable;
 
 /**
- *
  * @author caelis
  */
 public interface IType extends Serializable {

@@ -3,7 +3,6 @@ package com.dcrux.buran.coredb.iface.query.nodeMeta;
 import com.dcrux.buran.coredb.iface.DomainId;
 
 /**
- *
  * @author caelis
  */
 public class InDomain implements INodeMetaCondition {

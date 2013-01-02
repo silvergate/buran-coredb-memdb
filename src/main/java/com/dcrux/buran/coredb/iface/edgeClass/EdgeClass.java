@@ -7,7 +7,6 @@ import com.google.common.base.Optional;
 import java.io.Serializable;
 
 /**
- *
  * @author caelis
  */
 public abstract class EdgeClass implements Serializable {

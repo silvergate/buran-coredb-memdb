@@ -5,7 +5,6 @@ import com.dcrux.buran.coredb.iface.nodeClass.ClassId;
 import com.google.common.base.Optional;
 
 /**
- *
  * @author caelis
  */
 public class PrivateEdgeClass extends EdgeClass {

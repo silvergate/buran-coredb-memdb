@@ -3,7 +3,6 @@ package com.dcrux.buran.coredb.memoryImpl.edge;
 import com.dcrux.buran.coredb.iface.EdgeLabel;
 
 /**
- *
  * @author caelis
  */
 public class EdgeImpl {

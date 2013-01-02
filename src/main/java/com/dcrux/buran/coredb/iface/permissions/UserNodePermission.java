@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
  * @author caelis
  */
 public class UserNodePermission {

@@ -3,7 +3,6 @@ package com.dcrux.buran.coredb.iface.nodeClass.propertyTypes;
 import com.dcrux.buran.coredb.iface.nodeClass.IDataSetter;
 
 /**
- *
  * @author caelis
  */
 public final class PrimSet implements IDataSetter {

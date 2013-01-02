@@ -4,7 +4,10 @@ import com.dcrux.buran.coredb.iface.EdgeIndex;
 import com.dcrux.buran.coredb.iface.EdgeLabel;
 import com.dcrux.buran.coredb.iface.IncOid;
 import com.dcrux.buran.coredb.iface.OidVersion;
+import com.dcrux.buran.coredb.iface.api.EdgeIndexAlreadySet;
+import com.dcrux.buran.coredb.iface.api.EdgeIndexNotSet;
 import com.dcrux.buran.coredb.iface.api.ExpectableException;
+import com.dcrux.buran.coredb.iface.api.IncubationNodeNotFound;
 import com.dcrux.buran.coredb.iface.edgeTargets.IIncEdgeTarget;
 import com.dcrux.buran.coredb.iface.nodeClass.IDataSetter;
 import com.dcrux.buran.coredb.iface.nodeClass.IType;
@@ -21,7 +24,6 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- *
  * @author caelis
  */
 public class DmApi {
@@ -45,28 +47,39 @@ public class DmApi {
   }
 
   public void setEdge(long receiverId, long senderId, IncOid incOid, EdgeIndex index, EdgeLabel label,
-                      IIncEdgeTarget target, boolean allowReplace) {
+                      IIncEdgeTarget target, boolean allowReplace) throws EdgeIndexAlreadySet, IncubationNodeNotFound {
     final IncNode incNode = getIncNode(receiverId, senderId, incOid);
+    if (incNode == null) {
+      throw new IncubationNodeNotFound("Inc Node not found");
+    }
     if (!allowReplace) {
       if (incNode.getIncubationEdges().containsKey(index)) {
-        throw new IllegalArgumentException("Index already taken");
+        throw new EdgeIndexAlreadySet("Index already taken");
       }
     }
     incNode.getIncubationEdges().put(new IncNode.EdgeIndexLabel(label, index), new IncubationEdge(target, label));
   }
 
-  public void removeEdge(long receiverId, long senderId, IncOid incOid, EdgeIndex index, boolean strict) {
+  public void removeEdge(long receiverId, long senderId, IncOid incOid, EdgeIndex index, boolean strict) throws
+          EdgeIndexNotSet, IncubationNodeNotFound {
     final IncNode incNode = getIncNode(receiverId, senderId, incOid);
+    if (incNode == null) {
+      throw new IncubationNodeNotFound("Inc Node not found");
+    }
     if (strict) {
       if (!incNode.getIncubationEdges().containsKey(index)) {
-        throw new IllegalArgumentException("Index not found");
+        throw new EdgeIndexNotSet("Index not found");
       }
     }
     incNode.getIncubationEdges().remove(index);
   }
 
-  public void removeEdges(long receiverId, long senderId, IncOid incOid, EdgeLabel label) {
+  public void removeEdges(long receiverId, long senderId, IncOid incOid, EdgeLabel label) throws
+          IncubationNodeNotFound {
     final IncNode incNode = getIncNode(receiverId, senderId, incOid);
+    if (incNode == null) {
+      throw new IncubationNodeNotFound("Inc Node not found");
+    }
     final Set<EdgeIndex> toRemove = new HashSet<>();
     for (final Map.Entry<IncNode.EdgeIndexLabel, IncubationEdge> item : incNode.getIncubationEdges().entrySet()) {
       if (item.getValue().getLabel().getLabel().equals(label.getLabel())) {
@@ -76,10 +89,14 @@ public class DmApi {
     incNode.getIncubationEdges().keySet().removeAll(toRemove);
   }
 
-  public void setData(long receiverId, long senderId, IncOid incOid, short typeIndex, IDataSetter dataSetter) {
+  public void setData(long receiverId, long senderId, IncOid incOid, short typeIndex, IDataSetter dataSetter) throws
+          IncubationNodeNotFound {
     final IncNode incNode = this.nodes.getByUserId(receiverId).getIncOidToIncNodes().get(incOid.getId());
     if (incNode == null) {
-      throw new ExpectableException("Node in incubation not found");
+      throw new IncubationNodeNotFound("NodeImpl in incubation not found");
+    }
+    if (incNode.getNode().getSenderId() != senderId) {
+      throw new ExpectableException("The sender id is not the same as the one given at creation.");
     }
     final long classId = incNode.getClassId();
     final NodeClass nc = this.ncApi.getClassById(classId);

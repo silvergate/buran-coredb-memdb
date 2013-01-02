@@ -1,7 +1,6 @@
 package com.dcrux.buran.coredb.iface.query;
 
 /**
- *
  * @author caelis
  */
 public class MetaSort implements ISorting {

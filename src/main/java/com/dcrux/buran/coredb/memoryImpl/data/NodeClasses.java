@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Random;
 
 /**
- *
  * @author caelis
  */
 public class NodeClasses {

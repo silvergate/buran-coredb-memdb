@@ -7,7 +7,6 @@ import com.dcrux.buran.coredb.iface.nodeClass.TypeRef;
 import javax.annotation.Nullable;
 
 /**
- *
  * @author caelis
  */
 public interface ITypeImpl {

@@ -5,7 +5,6 @@ import com.dcrux.buran.coredb.iface.query.propertyCondition.IPropertyCondition;
 import com.dcrux.buran.coredb.memoryImpl.NodeClassesApi;
 
 /**
- *
  * @author caelis
  */
 public class DataMatacher {

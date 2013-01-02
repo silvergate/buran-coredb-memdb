@@ -27,8 +27,8 @@ public class NodeSerie {
     this.receiverId = receiverId;
   }
 
-  private final Map<Integer, Node> versionToNode = new HashMap<>();
-  private final Map<Node, Integer> nodeToVersion = new HashMap<>();
+  private final Map<Integer, NodeImpl> versionToNode = new HashMap<>();
+  private final Map<NodeImpl, Integer> nodeToVersion = new HashMap<>();
 
   private final Map<EdgeLabel, Multimap<EdgeIndex, EdgeImpl>> inEdges = new HashMap<>();
 
@@ -45,9 +45,9 @@ public class NodeSerie {
     edges.put(index, edgeImpl);
   }
 
-  void addNewVersion(Node node) {
+  void addNewVersion(NodeImpl node) {
     /* Get node to replace - if any */
-    final Node nodeToReplace;
+    final NodeImpl nodeToReplace;
     if (getCurrentVersion() != null) {
       nodeToReplace = getNode(getCurrentVersion());
     } else {
@@ -75,8 +75,8 @@ public class NodeSerie {
     return Integer.MIN_VALUE + 1;
   }
 
-  public Node getNode(int version) {
-    final Node node = this.versionToNode.get(version);
+  public NodeImpl getNode(int version) {
+    final NodeImpl node = this.versionToNode.get(version);
     assert (node != null);
     return node;
   }
@@ -96,7 +96,7 @@ public class NodeSerie {
   void markAsDeleted(final long currentTime) {
     assert (!this.versionToNode.isEmpty());
     this.currentVersion = Integer.MIN_VALUE;
-    final Node node = getNode(getCurrentVersion());
+    final NodeImpl node = getNode(getCurrentVersion());
     node.setValidTo(currentTime);
   }
 

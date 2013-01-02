@@ -1,6 +1,9 @@
 package com.dcrux.buran.coredb.iface.query.edgeCondition;
 
-import com.dcrux.buran.coredb.iface.*;
+import com.dcrux.buran.coredb.iface.Edge;
+import com.dcrux.buran.coredb.iface.EdgeIndex;
+import com.dcrux.buran.coredb.iface.EdgeLabel;
+import com.dcrux.buran.coredb.iface.OidVersion;
 import com.dcrux.buran.coredb.iface.api.ExpectableException;
 import com.dcrux.buran.coredb.iface.edgeTargets.IEdgeTarget;
 import com.dcrux.buran.coredb.iface.edgeTargets.UnversionedEdTarget;
@@ -71,14 +74,14 @@ public class OutEdgeCondition implements INodeMetaCondition {
 
   @Override
   public boolean matches(IMetaInfoForQuery metaInfoForQuery) {
-    final Map<EdgeIndex, EdgeWithSource> queryableOutEdges = metaInfoForQuery.getQueryableOutEdges(this.label);
+    final Map<EdgeIndex, Edge> queryableOutEdges = metaInfoForQuery.getQueryableOutEdges(this.label);
 
         /* Label available? */
     if (queryableOutEdges.isEmpty()) {
       return false;
     }
 
-    final Map<EdgeIndex, EdgeWithSource> outEdgesToQuery;
+    final Map<EdgeIndex, Edge> outEdgesToQuery;
     if (this.index.isPresent()) {
       outEdgesToQuery = new HashMap<>();
       if (!queryableOutEdges.containsKey(this.index.get())) {
@@ -90,8 +93,8 @@ public class OutEdgeCondition implements INodeMetaCondition {
     }
 
     if (this.target.isPresent()) {
-      for (Map.Entry<EdgeIndex, EdgeWithSource> elementToCheck : outEdgesToQuery.entrySet()) {
-        boolean matches = matches(elementToCheck.getValue().getEdge(), metaInfoForQuery);
+      for (Map.Entry<EdgeIndex, Edge> elementToCheck : outEdgesToQuery.entrySet()) {
+        boolean matches = matches(elementToCheck.getValue(), metaInfoForQuery);
         if (!matches && isMatchAll()) {
           return false;
         }

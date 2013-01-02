@@ -4,7 +4,6 @@ import com.dcrux.buran.coredb.iface.EdgeLabel;
 import com.dcrux.buran.coredb.iface.edgeTargets.IIncEdgeTarget;
 
 /**
- *
  * @author caelis
  */
 public class IncubationEdge {
