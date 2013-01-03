@@ -20,7 +20,9 @@ import java.util.Map;
  */
 public interface IApi {
 
-  /* REGION: Classes */
+  /*********************************************************************************************
+   * REGION: Classes
+   ********************************************************************************************/
 
   /**
    * Declares a class and returns its hash. The hash can the be converted to a class-id. The class-hash is globally valid.
@@ -40,7 +42,9 @@ public interface IApi {
   @Nullable
   ClassId getClassIdByHash(NodeClassHash hash);
 
-  /* REGION: Create and commit */
+  /*********************************************************************************************
+   * REGION: Create and commit
+   ********************************************************************************************/
 
   /**
    * Create a new node in incubation without updating.
@@ -107,7 +111,9 @@ public interface IApi {
    */
   void cancelIncubationNode(UserId receiver, UserId sender, IncNid... incNid) throws IncubationNodeNotFound;
 
-  /* REGION: Data manipulation */
+  /*********************************************************************************************
+   * REGION: Data manipulation
+   ********************************************************************************************/
 
   /**
    * Sets data to the property specified by typeIndex.
@@ -194,7 +200,21 @@ public interface IApi {
   void removeEdges(UserId receiver, UserId sender, IncNid incNid, Optional<EdgeLabel> label) throws
           IncubationNodeNotFound;
 
-  /* REGION: Data read api */
+  /**
+   * Marks a node as deleted. All other manipulations on this node in incubation have no effect. This method only works if updating a node. After commit, the updated node will be historized. This node in incubation will be lost and there won't be a current version of the updated node.
+   *
+   * @param receiver
+   * @param sender
+   * @param incNid
+   * @throws IncubationNodeNotFound
+   * @throws NotUpdatingException   If called on a node not updating another node.
+   */
+  void markNodeAsDeleted(UserId receiver, UserId sender, IncNid incNid) throws IncubationNodeNotFound,
+          NotUpdatingException;
+
+  /*********************************************************************************************
+   * REGION: Data read api
+   ********************************************************************************************/
 
   /**
    * Gets data from a property of a node.
@@ -251,7 +271,9 @@ public interface IApi {
                                                                  Optional<EdgeLabel> label) throws
           NodeNotFoundException, InformationUnavailableException, PermissionDeniedException;
 
-  /* REGION: Meta-Data read api */
+  /*********************************************************************************************
+   * REGION: Meta-Data read api
+   ********************************************************************************************/
 
   /**
    * Returns the state of the given node.
@@ -277,4 +299,21 @@ public interface IApi {
    */
   @Nullable
   NidVer getCurrentNodeVersion(UserId receiver, UserId sender, long nid) throws NodeNotFoundException;
+
+  /**
+   * Returns the latest version of a deleted node.
+   *
+   * @param receiver
+   * @param sender
+   * @param nid
+   * @return Latest version of a node or <code>null</code> if this is a valid node but not deleted.
+   * @throws NodeNotFoundException The node given by its id was not found.
+   */
+  @Nullable
+  NidVer getLatestVersionBeforeDeletion(UserId receiver, UserId sender, long nid) throws NodeNotFoundException;
+
+  /*********************************************************************************************
+   * REGION: Domain API
+   ********************************************************************************************/
+
 }

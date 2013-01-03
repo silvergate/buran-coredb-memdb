@@ -2,11 +2,11 @@ package com.dcrux.buran.coredb.memoryImpl.data;
 
 import com.dcrux.buran.coredb.iface.EdgeIndex;
 import com.dcrux.buran.coredb.iface.EdgeLabel;
+import com.dcrux.buran.coredb.iface.NidVer;
 import com.dcrux.buran.coredb.memoryImpl.edge.EdgeImpl;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
-import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,7 +19,9 @@ public class NodeSerie {
   private final long receiverId;
   private int currentVersion = Integer.MIN_VALUE;
 
-  public static final int FIRST_VERSION = Integer.MIN_VALUE + 1;
+  public static final int FIRST_VERSION = NidVer.FIRST_VERSION;
+
+  private boolean hasBeenDeleted;
 
   public NodeSerie(long oid, long classId, long receiverId) {
     this.oid = oid;
@@ -46,17 +48,21 @@ public class NodeSerie {
   }
 
   void addNewVersion(NodeImpl node) {
+    if (hasBeenDeleted()) {
+      throw new IllegalStateException("Cannot update serie, has been marked as deleted.");
+    }
+
     /* Get node to replace - if any */
     final NodeImpl nodeToReplace;
-    if (getCurrentVersion() != null) {
+    if (!hasNoVersion()) {
       nodeToReplace = getNode(getCurrentVersion());
     } else {
       nodeToReplace = null;
     }
 
     int newVersion;
-    if (getCurrentVersion() == null) {
-      newVersion = getFirstVersion();
+    if (hasNoVersion()) {
+      newVersion = FIRST_VERSION;
     } else {
       newVersion = getCurrentVersion() + 1;
     }
@@ -71,33 +77,51 @@ public class NodeSerie {
     this.nodeToVersion.put(node, newVersion);
   }
 
-  public int getFirstVersion() {
-    return Integer.MIN_VALUE + 1;
+  void markAsDeleted(long currentTime) {
+    if (hasBeenDeleted()) {
+      throw new IllegalStateException("Cannot update serie, has been marked as deleted.");
+    }
+    if (hasNoVersion()) {
+      throw new IllegalStateException("Has no version - cannot mark as deleted");
+    }
+    final NodeImpl nodeToReplace = getNode(getCurrentVersion());
+    nodeToReplace.setValidTo(currentTime);
   }
 
   public NodeImpl getNode(int version) {
     final NodeImpl node = this.versionToNode.get(version);
-    assert (node != null);
+    if (node == null) {
+      throw new IllegalStateException("Node with given version not found");
+    }
     return node;
   }
 
-  @Nullable
-  public Integer getCurrentVersion() {
-    if (this.currentVersion == Integer.MIN_VALUE) {
-      return null;
+  public boolean hasNoVersion() {
+    return (this.currentVersion == Integer.MIN_VALUE);
+  }
+
+  public boolean hasBeenDeleted() {
+    return this.hasBeenDeleted;
+  }
+
+  public int getCurrentVersion() {
+    if (hasNoVersion()) {
+      throw new IllegalStateException("Has no version");
+    }
+    if (hasBeenDeleted()) {
+      throw new IllegalStateException("Has been deleted - has no current version");
     }
     return this.currentVersion;
   }
 
-  public boolean isMarkedAsDeleted() {
-    return ((this.currentVersion == Integer.MIN_VALUE) && (!this.versionToNode.isEmpty()));
-  }
-
-  void markAsDeleted(final long currentTime) {
-    assert (!this.versionToNode.isEmpty());
-    this.currentVersion = Integer.MIN_VALUE;
-    final NodeImpl node = getNode(getCurrentVersion());
-    node.setValidTo(currentTime);
+  public int getLatestVersionBeforeDeletion() {
+    if (hasNoVersion()) {
+      throw new IllegalStateException("Has no version");
+    }
+    if (!hasBeenDeleted()) {
+      throw new IllegalStateException("Has not yet been deleted");
+    }
+    return this.currentVersion;
   }
 
   public long getOid() {

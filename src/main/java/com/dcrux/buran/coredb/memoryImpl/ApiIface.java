@@ -11,6 +11,7 @@ import com.dcrux.buran.coredb.memoryImpl.data.Nodes;
 import com.dcrux.buran.coredb.memoryImpl.typeImpls.TypesRegistry;
 import com.google.common.base.Optional;
 import com.google.common.collect.Multimap;
+import org.apache.commons.lang.NotImplementedException;
 
 import javax.annotation.Nullable;
 import java.util.EnumSet;
@@ -153,6 +154,12 @@ public class ApiIface implements IApi {
     getDmApi().removeEdges(receiver.getId(), sender.getId(), incNid, label);
   }
 
+  @Override
+  public void markNodeAsDeleted(UserId receiver, UserId sender, IncNid incNid) throws IncubationNodeNotFound,
+          NotUpdatingException {
+    throw new NotImplementedException("Implementation missing");
+  }
+
   @Nullable
   @Override
   public Object getData(UserId receiver, UserId sender, NidVer nidVersion, short typeIndex,
@@ -212,8 +219,14 @@ public class ApiIface implements IApi {
   public NidVer getCurrentNodeVersion(UserId receiver, UserId sender, long nid) throws NodeNotFoundException {
     final Integer version = this.getDrApi().getCurrentNodeVersion(receiver.getId(), sender.getId(), nid);
     if (version == null) {
-      throw new NodeNotFoundException("Node not found");
+      return null;
     }
     return new NidVer(nid, version);
+  }
+
+  @Nullable
+  @Override
+  public NidVer getLatestVersionBeforeDeletion(UserId receiver, UserId sender, long nid) throws NodeNotFoundException {
+    return this.getDrApi().getLatestVersionBeforeDeletion(receiver.getId(), sender.getId(), nid);
   }
 }

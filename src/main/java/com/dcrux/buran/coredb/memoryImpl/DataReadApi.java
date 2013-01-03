@@ -107,12 +107,32 @@ public class DataReadApi {
   }
 
   @Nullable
-  public Integer getCurrentNodeVersion(long receiverId, long senderId, long nidWithoutVersion) {
+  public Integer getCurrentNodeVersion(long receiverId, long senderId, long nidWithoutVersion) throws
+          NodeNotFoundException {
     final NodeSerie nodeSerie = this.nodes.getByUserId(receiverId).getOidToAliveSeries().get(nidWithoutVersion);
     if (nodeSerie == null) {
+      throw new NodeNotFoundException("Node not found");
+    }
+    if (nodeSerie.hasBeenDeleted() || nodeSerie.hasNoVersion()) {
       return null;
     }
     return nodeSerie.getCurrentVersion();
+  }
+
+  @Nullable
+  public NidVer getLatestVersionBeforeDeletion(long receiverId, long senderId, long nidWithoutVersion) throws
+          NodeNotFoundException {
+    final NodeSerie nodeSerie = this.nodes.getByUserId(receiverId).getOidToAliveSeries().get(nidWithoutVersion);
+    if (nodeSerie == null) {
+      throw new NodeNotFoundException("Node not found");
+    }
+    if (nodeSerie.hasNoVersion()) {
+      throw new ExpectableException("This shoud never happen");
+    }
+    if (!nodeSerie.hasBeenDeleted()) {
+      return null;
+    }
+    return new NidVer(nidWithoutVersion, nodeSerie.getLatestVersionBeforeDeletion());
   }
 
   private void addToEdges(final Map<EdgeLabel, Multimap<EdgeIndex, EdgeWithSource>> combination,
@@ -204,7 +224,7 @@ public class DataReadApi {
           NodeNotFoundException {
     final NodeImpl node = this.nodes.getByUserId(receiverId).getNode(nidVer.getOid(), nidVer.getVersion(), false);
     if (node == null) {
-      throw new NodeNotFoundException("NodeImpl not found");
+      throw new NodeNotFoundException("Node not found");
     }
     final long classId = node.getNodeSerie().getClassId();
 

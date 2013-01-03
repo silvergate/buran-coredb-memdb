@@ -13,20 +13,27 @@ import java.util.Map;
  */
 public class IncNode {
 
-  // TODO: Gehört nicht ins interface!
-
   @Nullable
   private final NidVer toUpdate;
   private final NodeImpl node;
   private final long receiverId;
   private final long classId;
   private final Map<EdgeIndexLabel, IncubationEdge> incubationEdges = new HashMap<>();
+  private boolean markedToDelete;
 
   public IncNode(@Nullable NidVer toUpdate, NodeImpl node, long receiverId, long classId) {
     this.toUpdate = toUpdate;
     this.node = node;
     this.receiverId = receiverId;
     this.classId = classId;
+  }
+
+  public boolean isMarkedToDelete() {
+    return markedToDelete;
+  }
+
+  public void setMarkedToDelete(boolean markedToDelete) {
+    this.markedToDelete = markedToDelete;
   }
 
   public long getClassId() {

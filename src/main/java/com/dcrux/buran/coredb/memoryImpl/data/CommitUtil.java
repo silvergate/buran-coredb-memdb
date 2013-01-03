@@ -111,6 +111,9 @@ public class CommitUtil {
   private NidVer findOidInIncOids(Set<PreparedComitInfo> pci, long incOid) {
     PreparedComitInfo prepComInfo = findPrepComInfoByIncOid(pci, incOid);
     if (prepComInfo != null) {
+      if (prepComInfo.getIncNode().isMarkedToDelete()) {
+        throw new IllegalArgumentException("Is marked as deleted, cannot be a target");
+      }
       return prepComInfo.getOidToGet();
     }
     return null;

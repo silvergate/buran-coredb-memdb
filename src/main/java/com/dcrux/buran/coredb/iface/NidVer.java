@@ -4,6 +4,12 @@ package com.dcrux.buran.coredb.iface;
  * @author caelis
  */
 public class NidVer {
+
+  /**
+   * First version of a node.
+   */
+  public static final int FIRST_VERSION = Integer.MIN_VALUE + 1;
+
   private final long oid;
   private final int version;
 

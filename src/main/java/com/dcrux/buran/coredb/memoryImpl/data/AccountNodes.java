@@ -11,7 +11,6 @@ import com.dcrux.buran.coredb.memoryImpl.NodeClassesApi;
 import com.dcrux.buran.coredb.memoryImpl.PreparedComitInfo;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import org.apache.commons.lang.NotImplementedException;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
@@ -74,14 +73,27 @@ public class AccountNodes {
     return getIncOidToIncNodes().get(incOid);
   }
 
+  private void markNodeAsDeleted(final NodeImpl node, long currentTime) {
+    final NodeSerie ns = node.getNodeSerie();
+    if (ns.hasBeenDeleted()) {
+      throw new IllegalStateException("Node serie is already marked to delete");
+    }
+    if (ns.hasNoVersion()) {
+      throw new IllegalStateException("Cannot delete a node without version");
+    }
+    ns.markAsDeleted(currentTime);
+    this.oidToAliveSeries.remove(ns.getOid());
+    this.classIdToAliveSeries.remove(ns.getClassId(), ns);
+  }
+
   private void addNode(final NodeImpl node) {
     final NodeSerie ns = node.getNodeSerie();
     assert (ns != null);
-    if (ns.isMarkedAsDeleted()) {
+    if (ns.hasBeenDeleted()) {
       throw new ExpectableException("NodeImpl serie is marked as deleted. Cannot add a new node.");
     }
 
-    boolean nsWasEmptyBefore = ns.getCurrentVersion() == null;
+    boolean nsWasEmptyBefore = ns.hasNoVersion();
 
     if (nsWasEmptyBefore) {
       addNewNodeSerie(ns);
@@ -95,19 +107,8 @@ public class AccountNodes {
     }
   }
 
-  public void markAsDeleted(long oid, long currentTime) {
-    if (true) {
-      throw new NotImplementedException("SCHEISS IMPLEMENTATION, NEU MACHEN!");
-    }
-    final NodeSerie ns = this.oidToAliveSeries.get(oid);
-    assert (ns != null);
-    ns.markAsDeleted(currentTime);
-    this.oidToAliveSeries.remove(oid);
-    this.classIdToAliveSeries.remove(ns.getClassId(), ns);
-  }
-
   private void addNewNodeSerie(NodeSerie nodeSerie) {
-    if (nodeSerie.getCurrentVersion() != null) {
+    if (!nodeSerie.hasNoVersion()) {
       throw new ExpectableException("NodeImpl serie already contains nodes.");
     }
     this.oidToRemovedEmptyAndAliveSeries.put(nodeSerie.getOid(), nodeSerie);
@@ -144,7 +145,10 @@ public class AccountNodes {
     if (ns == null) {
       return null;
     }
-    if (ns.getCurrentVersion() == null) {
+    if (ns.hasBeenDeleted()) {
+      return null;
+    }
+    if (ns.hasNoVersion()) {
       return null;
     }
     return ns.getNode(ns.getCurrentVersion());
@@ -210,6 +214,10 @@ public class AccountNodes {
     }
 
     /* Add node */
-    addNode(incNode.getNode());
+    if (!incNode.isMarkedToDelete()) {
+      addNode(incNode.getNode());
+    } else {
+      markNodeAsDeleted(incNode.getNode(), currentTime);
+    }
   }
 }
