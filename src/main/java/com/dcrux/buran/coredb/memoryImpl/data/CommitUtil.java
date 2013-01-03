@@ -132,7 +132,7 @@ public class CommitUtil {
       }
     }
 
-    /* Check edges */
+    /* Check private edges */
     for (Map.Entry<EdgeLabel, PrivateEdgeClass> edgeEntry : nc.getEdgeClasses().entrySet()) {
       final PrivateEdgeConstraints constraints = edgeEntry.getValue().getOutNodeConstraints();
       int numberOfEdges = 0;
@@ -182,6 +182,7 @@ public class CommitUtil {
       }
     }
 
+    //TODO: Check public edge constraints and check public edge target node class
   }
 
   public void validate(Set<PreparedComitInfo> prepComInfo, DataReadApi drApi, NodeClassesApi ncApi) throws

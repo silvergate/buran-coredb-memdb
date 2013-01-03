@@ -10,6 +10,8 @@ import com.dcrux.buran.coredb.iface.api.IApi;
 import com.dcrux.buran.coredb.iface.api.KeepAliveHint;
 import com.dcrux.buran.coredb.iface.api.exceptions.*;
 import com.dcrux.buran.coredb.iface.edgeClass.PrivateEdgeClass;
+import com.dcrux.buran.coredb.iface.edgeClass.PublicEdgeClass;
+import com.dcrux.buran.coredb.iface.edgeClass.PublicEdgeConstraints;
 import com.dcrux.buran.coredb.iface.edgeTargets.IncVersionedEdTarget;
 import com.dcrux.buran.coredb.iface.nodeClass.ClassId;
 import com.dcrux.buran.coredb.iface.nodeClass.NodeClass;
@@ -28,6 +30,7 @@ import com.dcrux.buran.coredb.memoryImpl.data.NodeImpl;
 import com.google.common.base.Optional;
 
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * @author caelis
@@ -46,6 +49,15 @@ public class Main {
             .addEdgeClass(PrivateEdgeClass.cQueryable(halloEdge)).get();
     final NodeClassHash ncHash = api.declareClass(nodeClass);
     final ClassId classId = api.getClassIdByHash(ncHash);
+
+    /* Public edge label test */
+    final ClassId cls2 = new ClassId(332332l);
+    PublicEdgeClass pec = new PublicEdgeClass(UUID.randomUUID(), true, Optional.of(cls2), PublicEdgeConstraints.many,
+            Optional.of(classId));
+    final EdgeLabel label = pec.createLabel();
+    System.out.println(label.getLabel());
+    PublicEdgeClass pecParsed = PublicEdgeClass.parse(label);
+    System.out.println("Equals: " + pecParsed.createLabel().equals(label));
 
     final UserId receiver = UserId.c(0L);
     final UserId sender = UserId.c(100L);

@@ -3,6 +3,8 @@ package com.dcrux.buran.coredb.memoryImpl;
 import com.dcrux.buran.coredb.iface.*;
 import com.dcrux.buran.coredb.iface.api.exceptions.ExpectableException;
 import com.dcrux.buran.coredb.iface.api.exceptions.NodeNotFoundException;
+import com.dcrux.buran.coredb.iface.edgeClass.PrivateEdgeClass;
+import com.dcrux.buran.coredb.iface.edgeClass.PublicEdgeClass;
 import com.dcrux.buran.coredb.iface.nodeClass.IDataGetter;
 import com.dcrux.buran.coredb.iface.nodeClass.IType;
 import com.dcrux.buran.coredb.iface.nodeClass.NodeClass;
@@ -57,9 +59,21 @@ public class DataReadApi {
     if (node == null) {
       throw new NodeNotFoundException("Node not found");
     }
+    final long nodeClassId = node.getNodeSerie().getClassId();
+    final NodeClass nodeClass = this.ncApi.getClassById(nodeClassId);
     final Map<EdgeLabel, Map<EdgeIndex, EdgeImpl>> privateEdges = new HashMap<>();
     for (Map.Entry<EdgeLabel, Map<EdgeIndex, EdgeImpl>> edgesEntry : node.getOutEdges().entrySet()) {
-      boolean isQueryable = true; //TODO: Implement me
+
+      /* Is queryable? */
+      final boolean isQueryable;
+      if (edgesEntry.getKey().isPublic()) {
+        PublicEdgeClass pec = PublicEdgeClass.parse(edgesEntry.getKey());
+        isQueryable = pec.isQueryable();
+      } else {
+        PrivateEdgeClass pec = nodeClass.getEdgeClasses().get(edgesEntry.getKey());
+        isQueryable = pec.isQueryable();
+      }
+
       if (queryableOnly && (!isQueryable)) {
         continue;
       }
@@ -108,7 +122,17 @@ public class DataReadApi {
       if ((label.isPresent()) && (!label.get().equals(verInEdgesByLabel.getKey()))) {
         continue;
       }
-      boolean isQueryable = true; //TODO: Implement me
+
+      /* Is queryable? */
+      final boolean isQueryable;
+      if (verInEdgesByLabel.getKey().isPublic()) {
+        PublicEdgeClass pec = PublicEdgeClass.parse(verInEdgesByLabel.getKey());
+        isQueryable = pec.isQueryable();
+      } else {
+        PrivateEdgeClass pec = nodeClass.getEdgeClasses().get(verInEdgesByLabel.getKey());
+        isQueryable = pec.isQueryable();
+      }
+
       if ((!isQueryable) && (queryableOnly)) {
         continue;
       }

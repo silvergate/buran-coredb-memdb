@@ -208,6 +208,7 @@ public class ApiIface implements IApi {
   }
 
   @Override
+  @Nullable
   public NidVer getCurrentNodeVersion(UserId receiver, UserId sender, long nid) throws NodeNotFoundException {
     final Integer version = this.getDrApi().getCurrentNodeVersion(receiver.getId(), sender.getId(), nid);
     if (version == null) {

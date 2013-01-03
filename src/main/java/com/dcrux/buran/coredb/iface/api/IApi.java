@@ -139,7 +139,7 @@ public interface IApi {
                IIncEdgeTarget target) throws EdgeIndexAlreadySet, IncubationNodeNotFound;
 
   /**
-   * Sets an edge specified by the given label and index to the given target. Will replace an existing edge.
+   * Sets an edge specified by the given label and index to the given target. Will replace an existing edge (if any).
    *
    * @param receiver
    * @param sender
@@ -272,8 +272,9 @@ public interface IApi {
    * @param receiver
    * @param sender
    * @param nid
-   * @return
+   * @return The versioned node-id or <code>null</code> if there's no current version. There's no current version if the node has been marked as deleted.
    * @throws NodeNotFoundException The node given by its id was not found.
    */
+  @Nullable
   NidVer getCurrentNodeVersion(UserId receiver, UserId sender, long nid) throws NodeNotFoundException;
 }
