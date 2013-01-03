@@ -99,13 +99,13 @@ public class ApiIface implements IApi {
   }
 
   @Override
-  public KeepAliveInfo keepAlive(UserId receiver, UserId sender, IncNid incNid, KeepAliveHint keepAliveHint) throws
+  public KeepAliveInfo keepAlive(UserId receiver, UserId sender, KeepAliveHint keepAliveHint, IncNid... incNid) throws
           IncubationNodeNotFound {
     return new KeepAliveInfo(keepAliveNumSeconds(), System.currentTimeMillis() + keepAliveNumSeconds() * 1000);
   }
 
   @Override
-  public void cancelIncubationNode(UserId receiver, UserId sender, IncNid incNid) throws IncubationNodeNotFound {
+  public void cancelIncubationNode(UserId receiver, UserId sender, IncNid... incNid) throws IncubationNodeNotFound {
     //TODO: Not implemented
   }
 
@@ -148,7 +148,7 @@ public class ApiIface implements IApi {
   }
 
   @Override
-  public void removeEdges(UserId receiver, UserId sender, IncNid incNid, EdgeLabel label) throws
+  public void removeEdges(UserId receiver, UserId sender, IncNid incNid, Optional<EdgeLabel> label) throws
           IncubationNodeNotFound {
     getDmApi().removeEdges(receiver.getId(), sender.getId(), incNid, label);
   }

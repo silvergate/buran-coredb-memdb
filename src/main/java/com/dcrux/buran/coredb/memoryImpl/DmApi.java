@@ -17,6 +17,7 @@ import com.dcrux.buran.coredb.memoryImpl.data.IncubationEdge;
 import com.dcrux.buran.coredb.memoryImpl.data.Nodes;
 import com.dcrux.buran.coredb.memoryImpl.typeImpls.ITypeImpl;
 import com.dcrux.buran.coredb.memoryImpl.typeImpls.TypesRegistry;
+import com.google.common.base.Optional;
 
 import javax.annotation.Nullable;
 import java.util.HashSet;
@@ -76,7 +77,7 @@ public class DmApi {
     incNode.getIncubationEdges().remove(eil);
   }
 
-  public void removeEdges(long receiverId, long senderId, IncNid incNid, EdgeLabel label) throws
+  public void removeEdges(long receiverId, long senderId, IncNid incNid, Optional<EdgeLabel> label) throws
           IncubationNodeNotFound {
     final IncNode incNode = getIncNode(receiverId, senderId, incNid);
     if (incNode == null) {
@@ -84,7 +85,9 @@ public class DmApi {
     }
     final Set<EdgeIndex> toRemove = new HashSet<>();
     for (final Map.Entry<IncNode.EdgeIndexLabel, IncubationEdge> item : incNode.getIncubationEdges().entrySet()) {
-      if (item.getValue().getLabel().getLabel().equals(label.getLabel())) {
+      final boolean remove =
+              (!label.isPresent()) || (item.getValue().getLabel().getLabel().equals(label.get().getLabel()));
+      if (remove) {
         toRemove.add(item.getKey().getIndex());
       }
     }
