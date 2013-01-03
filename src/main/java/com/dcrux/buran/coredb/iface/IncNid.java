@@ -3,10 +3,10 @@ package com.dcrux.buran.coredb.iface;
 /**
  * @author caelis
  */
-public class IncOid {
+public class IncNid {
   private final long id;
 
-  public IncOid(long id) {
+  public IncNid(long id) {
     this.id = id;
   }
 
@@ -23,9 +23,9 @@ public class IncOid {
       return false;
     }
 
-    IncOid incOid = (IncOid) o;
+    IncNid incNid = (IncNid) o;
 
-    if (id != incOid.id) {
+    if (id != incNid.id) {
       return false;
     }
 

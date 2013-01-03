@@ -2,7 +2,7 @@ package com.dcrux.buran.coredb.memoryImpl.data;
 
 import com.dcrux.buran.coredb.iface.EdgeIndex;
 import com.dcrux.buran.coredb.iface.EdgeLabel;
-import com.dcrux.buran.coredb.iface.OidVersion;
+import com.dcrux.buran.coredb.iface.NidVer;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
@@ -16,13 +16,13 @@ public class IncNode {
   // TODO: Gehört nicht ins interface!
 
   @Nullable
-  private final OidVersion toUpdate;
+  private final NidVer toUpdate;
   private final NodeImpl node;
   private final long receiverId;
   private final long classId;
   private final Map<EdgeIndexLabel, IncubationEdge> incubationEdges = new HashMap<>();
 
-  public IncNode(@Nullable OidVersion toUpdate, NodeImpl node, long receiverId, long classId) {
+  public IncNode(@Nullable NidVer toUpdate, NodeImpl node, long receiverId, long classId) {
     this.toUpdate = toUpdate;
     this.node = node;
     this.receiverId = receiverId;
@@ -38,7 +38,7 @@ public class IncNode {
   }
 
   @Nullable
-  public OidVersion getToUpdate() {
+  public NidVer getToUpdate() {
     return toUpdate;
   }
 

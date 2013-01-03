@@ -2,10 +2,10 @@ package com.dcrux.buran.coredb.memoryImpl.data;
 
 import com.dcrux.buran.coredb.iface.EdgeIndex;
 import com.dcrux.buran.coredb.iface.EdgeLabel;
-import com.dcrux.buran.coredb.iface.IncOid;
-import com.dcrux.buran.coredb.iface.OidVersion;
-import com.dcrux.buran.coredb.iface.api.ExpectableException;
-import com.dcrux.buran.coredb.iface.api.OptimisticLockingException;
+import com.dcrux.buran.coredb.iface.IncNid;
+import com.dcrux.buran.coredb.iface.NidVer;
+import com.dcrux.buran.coredb.iface.api.exceptions.ExpectableException;
+import com.dcrux.buran.coredb.iface.api.exceptions.OptimisticLockingException;
 import com.dcrux.buran.coredb.iface.edgeClass.PrivateEdgeClass;
 import com.dcrux.buran.coredb.iface.edgeClass.PrivateEdgeConstraints;
 import com.dcrux.buran.coredb.iface.edgeTargets.*;
@@ -25,11 +25,11 @@ import java.util.Set;
  * @author caelis
  */
 public class CommitUtil {
-  public Set<PreparedComitInfo> generateOidsFromIoids(long senderId, final Set<IncOid> incOids,
+  public Set<PreparedComitInfo> generateOidsFromIoids(long senderId, final Set<IncNid> incNids,
                                                       AccountNodes accountNodes) {
     final Set<PreparedComitInfo> toOids = new HashSet<>();
-    for (final IncOid incOid : incOids) {
-      final IncNode incNode = accountNodes.getIncNode(incOid.getId());
+    for (final IncNid incNid : incNids) {
+      final IncNode incNode = accountNodes.getIncNode(incNid.getId());
       final long classId = incNode.getClassId();
       assert (incNode != null);
       if (incNode.getToUpdate() != null) {
@@ -40,7 +40,7 @@ public class CommitUtil {
           throw new ExpectableException("Cannot update given node, node has been deletet or not found");
         }
         final PreparedComitInfo pci = new PreparedComitInfo(
-                new OidVersion(incNode.getToUpdate().getOid(), incNode.getToUpdate().getVersion() + 1), incOid, classId,
+                new NidVer(incNode.getToUpdate().getOid(), incNode.getToUpdate().getVersion() + 1), incNid, classId,
                 true, incNode.getToUpdate(), incNode.getReceiverId(), incNode, nodeSerie);
         incNode.getNode().setNodeSerie(nodeSerie);
         toOids.add(pci);
@@ -49,7 +49,7 @@ public class CommitUtil {
         final long oid = accountNodes.getOidCounter().incrementAndGet();
         final NodeSerie newNodeSerie = new NodeSerie(oid, classId, incNode.getReceiverId());
         final PreparedComitInfo pci =
-                new PreparedComitInfo(new OidVersion(oid, NodeSerie.FIRST_VERSION), incOid, classId, false, null,
+                new PreparedComitInfo(new NidVer(oid, NodeSerie.FIRST_VERSION), incNid, classId, false, null,
                         incNode.getReceiverId(), incNode, newNodeSerie);
         incNode.getNode().setNodeSerie(newNodeSerie);
         toOids.add(pci);
@@ -82,14 +82,14 @@ public class CommitUtil {
         break;
       case unversionedInc:
           /* Has to be in incubation */
-        OidVersion found = findOidInIncOids(pciEntry, ((IncUnversionedEdTarget) target).getIoid());
+        NidVer found = findOidInIncOids(pciEntry, ((IncUnversionedEdTarget) target).getIoid());
         if (found == null) {
           throw new IllegalStateException("A given edge-inc-oid is not found in incubation");
         }
         break;
       case versionedInc:
                    /* Has to be in incubation */
-        OidVersion foundVer = findOidInIncOids(pciEntry, ((IncVersionedEdTarget) target).getIoid());
+        NidVer foundVer = findOidInIncOids(pciEntry, ((IncVersionedEdTarget) target).getIoid());
         if (foundVer == null) {
           throw new IllegalStateException("A given edge-inc-oid is not found in incubation");
         }
@@ -108,7 +108,7 @@ public class CommitUtil {
   }
 
   @Nullable
-  private OidVersion findOidInIncOids(Set<PreparedComitInfo> pci, long incOid) {
+  private NidVer findOidInIncOids(Set<PreparedComitInfo> pci, long incOid) {
     PreparedComitInfo prepComInfo = findPrepComInfoByIncOid(pci, incOid);
     if (prepComInfo != null) {
       return prepComInfo.getOidToGet();

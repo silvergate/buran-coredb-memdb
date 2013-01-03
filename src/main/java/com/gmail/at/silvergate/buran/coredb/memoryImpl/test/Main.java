@@ -2,10 +2,16 @@ package com.gmail.at.silvergate.buran.coredb.memoryImpl.test;
 
 import com.dcrux.buran.coredb.iface.EdgeIndex;
 import com.dcrux.buran.coredb.iface.EdgeLabel;
-import com.dcrux.buran.coredb.iface.IncOid;
-import com.dcrux.buran.coredb.iface.api.*;
+import com.dcrux.buran.coredb.iface.IncNid;
+import com.dcrux.buran.coredb.iface.UserId;
+import com.dcrux.buran.coredb.iface.api.CommitResult;
+import com.dcrux.buran.coredb.iface.api.CreateInfo;
+import com.dcrux.buran.coredb.iface.api.IApi;
+import com.dcrux.buran.coredb.iface.api.KeepAliveHint;
+import com.dcrux.buran.coredb.iface.api.exceptions.*;
 import com.dcrux.buran.coredb.iface.edgeClass.PrivateEdgeClass;
 import com.dcrux.buran.coredb.iface.edgeTargets.IncVersionedEdTarget;
+import com.dcrux.buran.coredb.iface.nodeClass.ClassId;
 import com.dcrux.buran.coredb.iface.nodeClass.NodeClass;
 import com.dcrux.buran.coredb.iface.nodeClass.NodeClassHash;
 import com.dcrux.buran.coredb.iface.nodeClass.propertyTypes.PrimGet;
@@ -28,54 +34,53 @@ import java.util.Set;
  */
 public class Main {
   public static void main(String[] args) throws OptimisticLockingException, IncubationNodeNotFound, EdgeIndexAlreadySet,
-          NodeNotFoundException {
+          NodeNotFoundException, PermissionDeniedException, InformationUnavailableException {
 
-    ApiIface api = new ApiIface();
+    ApiIface apiImpl = new ApiIface();
+    IApi api = apiImpl;
 
     EdgeLabel halloEdge = EdgeLabel.privateEdge("hallo");
 
     /* Declare class */
     final NodeClass nodeClass = NodeClass.builder().add("daName", false, new StringType(true, true, true))
             .addEdgeClass(PrivateEdgeClass.cQueryable(halloEdge)).get();
-    final NodeClassHash ncHash = api.getNodeClassesApi().declareClass(nodeClass);
-    final Long classId = api.getNodeClassesApi().getClassIdByHash(ncHash);
+    final NodeClassHash ncHash = api.declareClass(nodeClass);
+    final ClassId classId = api.getClassIdByHash(ncHash);
 
-    final long receiverId = 0L;
-    final long senderId = 100L;
+    final UserId receiver = UserId.c(0L);
+    final UserId sender = UserId.c(100L);
 
     /* Erstellen von 2 nodes in der incubation */
 
-    IncOid nodeOneInc = api.getDmApi().createNew(receiverId, senderId, classId, null);
-    IncOid nodeTwoInc = api.getDmApi().createNew(receiverId, senderId, classId, null);
+    CreateInfo nodeOneCreateInfo = api.createNew(receiver, sender, classId, Optional.<KeepAliveHint>absent());
+    IncNid nodeOneInc = nodeOneCreateInfo.getIncNid();
+    CreateInfo nodeTwoCreateInfo = api.createNew(receiver, sender, classId, Optional.<KeepAliveHint>absent());
+    IncNid nodeTwoInc = nodeTwoCreateInfo.getIncNid();
 
     /* NodeImpl 1 mit daten & edges befüllen: Die edges von node 1 zeigen auf node 2 */
 
-    api.getDmApi().setEdge(receiverId, senderId, nodeOneInc, EdgeIndex.c(0), halloEdge,
-            new IncVersionedEdTarget(nodeTwoInc.getId()), false);
-    api.getDmApi().setEdge(receiverId, senderId, nodeOneInc, EdgeIndex.c(1), halloEdge,
-            new IncVersionedEdTarget(nodeTwoInc.getId()), false);
-    api.getDmApi().setData(receiverId, senderId, nodeOneInc, (short) 0, PrimSet.string("Ich bin eine Welt"));
+    api.setEdge(receiver, sender, nodeOneInc, EdgeIndex.c(0), halloEdge, new IncVersionedEdTarget(nodeTwoInc.getId()));
+    api.setEdge(receiver, sender, nodeOneInc, EdgeIndex.c(1), halloEdge, new IncVersionedEdTarget(nodeTwoInc.getId()));
+    api.setData(receiver, sender, nodeOneInc, (short) 0, PrimSet.string("Ich bin eine Welt"));
 
     /* NodeImpl 2 mit daten befüllen */
 
-    api.getDmApi().setData(receiverId, senderId, nodeTwoInc, (short) 0, PrimSet.string("Text an NodeImpl 2"));
+    api.setData(receiver, sender, nodeTwoInc, (short) 0, PrimSet.string("Text an NodeImpl 2"));
 
     /* Beide nodes Committen */
 
-    final CommitResult cr = api.getCommitApi().commit(receiverId, senderId, nodeOneInc, nodeTwoInc);
-    System.out.println("OID (node 1) = " + cr.getOidVers(nodeOneInc));
-    System.out.println("OID (node 2) = " + cr.getOidVers(nodeTwoInc));
+    final CommitResult cr = api.commit(receiver, sender, nodeOneInc, nodeTwoInc);
+    System.out.println("OID (node 1) = " + cr.getNid(nodeOneInc));
+    System.out.println("OID (node 2) = " + cr.getNid(nodeTwoInc));
 
     /* Von der commiteten node 1 daten lesen */
 
-    final Object value =
-            api.getDrApi().getData(receiverId, senderId, cr.getOidVers(nodeOneInc), (short) 0, PrimGet.SINGLETON);
+    final Object value = api.getData(receiver, sender, cr.getNid(nodeOneInc), (short) 0, PrimGet.SINGLETON);
     System.out.println("Value (NodeImpl 1) = " + value);
 
         /* Von der commiteten node 2 daten lesen */
 
-    final Object value2 =
-            api.getDrApi().getData(receiverId, senderId, cr.getOidVers(nodeTwoInc), (short) 0, PrimGet.SINGLETON);
+    final Object value2 = api.getData(receiver, sender, cr.getNid(nodeTwoInc), (short) 0, PrimGet.SINGLETON);
     System.out.println("Value (NodeImpl 2) = " + value2);
 
     /* Query: Bedingung: muss eine node mit "Ich bin eine Welt" und einer "hallo"-edge im index 0 sein.
@@ -85,9 +90,11 @@ public class Main {
 
     PropCondition pc = new PropCondition((short) 0, new StringEq("Ich bin eine Welt"));
     INodeMetaCondition nmc = OutEdgeCondition.hasEdge(halloEdge, EdgeIndex.c(0),
-            new QCdNode(Optional.<INodeMetaCondition>absent(), classId, Optional.<IPropertyCondition>of(pcNode2)));
-    QCdNode query = new QCdNode(Optional.<INodeMetaCondition>of(nmc), classId, Optional.<IPropertyCondition>of(pc));
-    final Set<NodeImpl> result = api.getQueryApi().query(receiverId, senderId, query);
+            new QCdNode(Optional.<INodeMetaCondition>absent(), classId.getId(),
+                    Optional.<IPropertyCondition>of(pcNode2)));
+    QCdNode query =
+            new QCdNode(Optional.<INodeMetaCondition>of(nmc), classId.getId(), Optional.<IPropertyCondition>of(pc));
+    final Set<NodeImpl> result = apiImpl.getQueryApi().query(receiver.getId(), sender.getId(), query);
     System.out.println("Query Result: " + result);
 
     return;

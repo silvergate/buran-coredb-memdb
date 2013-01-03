@@ -1,8 +1,8 @@
 package com.dcrux.buran.coredb.memoryImpl;
 
-import com.dcrux.buran.coredb.iface.IncOid;
+import com.dcrux.buran.coredb.iface.IncNid;
 import com.dcrux.buran.coredb.iface.api.CommitResult;
-import com.dcrux.buran.coredb.iface.api.OptimisticLockingException;
+import com.dcrux.buran.coredb.iface.api.exceptions.OptimisticLockingException;
 import com.dcrux.buran.coredb.memoryImpl.data.Nodes;
 
 import java.util.Arrays;
@@ -23,13 +23,13 @@ public class CommitApi {
     this.ncApi = ncApi;
   }
 
-  public CommitResult commit(long receiverId, long senderId, IncOid... incOid) throws OptimisticLockingException {
-    Set<IncOid> incOids = new HashSet<>();
-    incOids.addAll(Arrays.asList(incOid));
-    return this.nodes.getByUserId(receiverId).commit(senderId, incOids, this.drApi, this.ncApi);
+  public CommitResult commit(long receiverId, long senderId, IncNid... incNid) throws OptimisticLockingException {
+    Set<IncNid> incNids = new HashSet<>();
+    incNids.addAll(Arrays.asList(incNid));
+    return this.nodes.getByUserId(receiverId).commit(senderId, incNids, this.drApi, this.ncApi);
   }
 
-  public CommitResult commit(long receiverId, long senderId, Set<IncOid> incOids) throws OptimisticLockingException {
-    return this.nodes.getByUserId(receiverId).commit(senderId, incOids, this.drApi, this.ncApi);
+  public CommitResult commit(long receiverId, long senderId, Set<IncNid> incNids) throws OptimisticLockingException {
+    return this.nodes.getByUserId(receiverId).commit(senderId, incNids, this.drApi, this.ncApi);
   }
 }

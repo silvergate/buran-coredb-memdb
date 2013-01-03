@@ -1,6 +1,6 @@
 package com.dcrux.buran.coredb.iface.query.propertyCondition;
 
-import com.dcrux.buran.coredb.iface.api.ExpectableException;
+import com.dcrux.buran.coredb.iface.api.exceptions.ExpectableException;
 import com.dcrux.buran.coredb.iface.nodeClass.ICmp;
 import com.dcrux.buran.coredb.iface.nodeClass.IType;
 import com.dcrux.buran.coredb.iface.nodeClass.NodeClass;

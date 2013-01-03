@@ -3,8 +3,8 @@ package com.dcrux.buran.coredb.iface.query.edgeCondition;
 import com.dcrux.buran.coredb.iface.Edge;
 import com.dcrux.buran.coredb.iface.EdgeIndex;
 import com.dcrux.buran.coredb.iface.EdgeLabel;
-import com.dcrux.buran.coredb.iface.OidVersion;
-import com.dcrux.buran.coredb.iface.api.ExpectableException;
+import com.dcrux.buran.coredb.iface.NidVer;
+import com.dcrux.buran.coredb.iface.api.exceptions.ExpectableException;
 import com.dcrux.buran.coredb.iface.edgeTargets.IEdgeTarget;
 import com.dcrux.buran.coredb.iface.edgeTargets.UnversionedEdTarget;
 import com.dcrux.buran.coredb.iface.edgeTargets.VersionedEdTarget;
@@ -141,7 +141,7 @@ public class OutEdgeCondition implements INodeMetaCondition {
       if (version == null) {
         found = metaInfoForQuery.getNodeMatcher().matches(oid, this.target.get());
       } else {
-        found = metaInfoForQuery.getNodeMatcher().matchesVersion(new OidVersion(oid, version), this.target.get());
+        found = metaInfoForQuery.getNodeMatcher().matchesVersion(new NidVer(oid, version), this.target.get());
       }
     }
     return found;

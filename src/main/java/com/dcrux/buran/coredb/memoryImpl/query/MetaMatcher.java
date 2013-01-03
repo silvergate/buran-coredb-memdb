@@ -1,8 +1,8 @@
 package com.dcrux.buran.coredb.memoryImpl.query;
 
 import com.dcrux.buran.coredb.iface.*;
-import com.dcrux.buran.coredb.iface.api.ExpectableException;
-import com.dcrux.buran.coredb.iface.api.NodeNotFoundException;
+import com.dcrux.buran.coredb.iface.api.exceptions.ExpectableException;
+import com.dcrux.buran.coredb.iface.api.exceptions.NodeNotFoundException;
 import com.dcrux.buran.coredb.iface.nodeClass.NodeClass;
 import com.dcrux.buran.coredb.iface.permissions.UserNodePermission;
 import com.dcrux.buran.coredb.iface.query.IQNode;
@@ -97,7 +97,7 @@ public class MetaMatcher {
     public Map<EdgeIndex, Edge> getQueryableOutEdges(EdgeLabel label) {
       try {
         final Map<EdgeLabel, Map<EdgeIndex, Edge>> edges = drApi.getOutEdges(getReceiver(), getSender(),
-                new OidVersion(node.getNodeSerie().getOid(), node.getVersion()),
+                new NidVer(node.getNodeSerie().getOid(), node.getVersion()),
                 EnumSet.of(com.dcrux.buran.coredb.iface.EdgeType.privateMod,
                         com.dcrux.buran.coredb.iface.EdgeType.publicMod), true);
         if (!edges.containsKey(label)) {
@@ -114,7 +114,7 @@ public class MetaMatcher {
     public Multimap<EdgeIndex, EdgeWithSource> getQueryableInEdges(EdgeLabel label) {
       try {
         final Map<EdgeLabel, Multimap<EdgeIndex, EdgeWithSource>> inEdges = drApi.getInEdges(getReceiver(), getSender(),
-                new OidVersion(node.getNodeSerie().getOid(), node.getVersion()),
+                new NidVer(node.getNodeSerie().getOid(), node.getVersion()),
                 EnumSet.of(com.dcrux.buran.coredb.iface.EdgeType.privateMod,
                         com.dcrux.buran.coredb.iface.EdgeType.publicMod), Optional.<EdgeLabel>of(label), true);
         if (!inEdges.containsKey(label)) {
@@ -134,8 +134,8 @@ public class MetaMatcher {
 
   private final INodeMatcher nodeMatcher = new INodeMatcher() {
     @Override
-    public boolean matchesVersion(OidVersion oidVersion, IQNode qNode) {
-      final NodeImpl node = accountNodes.getNode(oidVersion.getOid(), oidVersion.getVersion(), true);
+    public boolean matchesVersion(NidVer nidVer, IQNode qNode) {
+      final NodeImpl node = accountNodes.getNode(nidVer.getOid(), nidVer.getVersion(), true);
       if (node == null) {
         return false;
       }

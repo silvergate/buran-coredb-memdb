@@ -1,7 +1,7 @@
 package com.dcrux.buran.coredb.iface.api;
 
-import com.dcrux.buran.coredb.iface.IncOid;
-import com.dcrux.buran.coredb.iface.OidVersion;
+import com.dcrux.buran.coredb.iface.IncNid;
+import com.dcrux.buran.coredb.iface.NidVer;
 
 import java.util.Map;
 
@@ -9,14 +9,14 @@ import java.util.Map;
  * @author caelis
  */
 public class CommitResult {
-  public CommitResult(Map<IncOid, OidVersion> incOidToOidVer) {
+  public CommitResult(Map<IncNid, NidVer> incOidToOidVer) {
     this.incOidToOidVer = incOidToOidVer;
   }
 
-  private final Map<IncOid, OidVersion> incOidToOidVer;
+  private final Map<IncNid, NidVer> incOidToOidVer;
 
-  public OidVersion getOidVers(IncOid incoid) {
-    final OidVersion oidVer = this.incOidToOidVer.get(incoid);
+  public NidVer getNid(IncNid incoid) {
+    final NidVer oidVer = this.incOidToOidVer.get(incoid);
     if (oidVer == null) {
       throw new IllegalArgumentException("Given incOid not found.");
     }

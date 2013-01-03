@@ -1,7 +1,7 @@
 package com.dcrux.buran.coredb.memoryImpl;
 
-import com.dcrux.buran.coredb.iface.IncOid;
-import com.dcrux.buran.coredb.iface.OidVersion;
+import com.dcrux.buran.coredb.iface.IncNid;
+import com.dcrux.buran.coredb.iface.NidVer;
 import com.dcrux.buran.coredb.memoryImpl.data.IncNode;
 import com.dcrux.buran.coredb.memoryImpl.data.NodeSerie;
 
@@ -11,17 +11,17 @@ import javax.annotation.Nullable;
  * @author caelis
  */
 public class PreparedComitInfo {
-  private final OidVersion oidToGet;
-  private final IncOid ioid;
+  private final NidVer oidToGet;
+  private final IncNid ioid;
   private long classId;
   private final boolean isUpdate;
-  private final OidVersion oidToUpdate;
+  private final NidVer oidToUpdate;
   private final long receiverId;
   private final IncNode incNode;
   private final NodeSerie nodeSerie;
 
-  public PreparedComitInfo(OidVersion oidToGet, IncOid ioid, long classId, boolean update,
-                           @Nullable OidVersion oidToUpdate, long receiverId, IncNode incNode, NodeSerie nodeSerie) {
+  public PreparedComitInfo(NidVer oidToGet, IncNid ioid, long classId, boolean update, @Nullable NidVer oidToUpdate,
+                           long receiverId, IncNode incNode, NodeSerie nodeSerie) {
     this.oidToGet = oidToGet;
     this.ioid = ioid;
     this.classId = classId;
@@ -32,11 +32,11 @@ public class PreparedComitInfo {
     this.nodeSerie = nodeSerie;
   }
 
-  public OidVersion getOidToGet() {
+  public NidVer getOidToGet() {
     return oidToGet;
   }
 
-  public IncOid getIoid() {
+  public IncNid getIoid() {
     return ioid;
   }
 
@@ -48,7 +48,7 @@ public class PreparedComitInfo {
     return isUpdate;
   }
 
-  public OidVersion getOidToUpdate() {
+  public NidVer getOidToUpdate() {
     return oidToUpdate;
   }
 

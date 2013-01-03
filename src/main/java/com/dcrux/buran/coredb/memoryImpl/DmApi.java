@@ -2,12 +2,12 @@ package com.dcrux.buran.coredb.memoryImpl;
 
 import com.dcrux.buran.coredb.iface.EdgeIndex;
 import com.dcrux.buran.coredb.iface.EdgeLabel;
-import com.dcrux.buran.coredb.iface.IncOid;
-import com.dcrux.buran.coredb.iface.OidVersion;
-import com.dcrux.buran.coredb.iface.api.EdgeIndexAlreadySet;
-import com.dcrux.buran.coredb.iface.api.EdgeIndexNotSet;
-import com.dcrux.buran.coredb.iface.api.ExpectableException;
-import com.dcrux.buran.coredb.iface.api.IncubationNodeNotFound;
+import com.dcrux.buran.coredb.iface.IncNid;
+import com.dcrux.buran.coredb.iface.NidVer;
+import com.dcrux.buran.coredb.iface.api.exceptions.EdgeIndexAlreadySet;
+import com.dcrux.buran.coredb.iface.api.exceptions.EdgeIndexNotSet;
+import com.dcrux.buran.coredb.iface.api.exceptions.ExpectableException;
+import com.dcrux.buran.coredb.iface.api.exceptions.IncubationNodeNotFound;
 import com.dcrux.buran.coredb.iface.edgeTargets.IIncEdgeTarget;
 import com.dcrux.buran.coredb.iface.nodeClass.IDataSetter;
 import com.dcrux.buran.coredb.iface.nodeClass.IType;
@@ -37,46 +37,48 @@ public class DmApi {
     this.typesRegistry = typesRegistry;
   }
 
-  public IncOid createNew(long receiverId, long senderId, long classId, @Nullable OidVersion toUpdate) {
+  public IncNid createNew(long receiverId, long senderId, long classId, @Nullable NidVer toUpdate) {
     return this.nodes.getByUserId(receiverId).createNew(senderId, classId, toUpdate, this.ncApi);
   }
 
   @Nullable
-  IncNode getIncNode(long receiverId, long senderId, IncOid incOid) {
-    return this.nodes.getByUserId(receiverId).getIncNode(incOid.getId());
+  IncNode getIncNode(long receiverId, long senderId, IncNid incNid) {
+    return this.nodes.getByUserId(receiverId).getIncNode(incNid.getId());
   }
 
-  public void setEdge(long receiverId, long senderId, IncOid incOid, EdgeIndex index, EdgeLabel label,
+  public void setEdge(long receiverId, long senderId, IncNid incNid, EdgeIndex index, EdgeLabel label,
                       IIncEdgeTarget target, boolean allowReplace) throws EdgeIndexAlreadySet, IncubationNodeNotFound {
-    final IncNode incNode = getIncNode(receiverId, senderId, incOid);
+    final IncNode incNode = getIncNode(receiverId, senderId, incNid);
     if (incNode == null) {
       throw new IncubationNodeNotFound("Inc Node not found");
     }
+    final IncNode.EdgeIndexLabel eil = new IncNode.EdgeIndexLabel(label, index);
     if (!allowReplace) {
-      if (incNode.getIncubationEdges().containsKey(index)) {
+      if (incNode.getIncubationEdges().containsKey(eil)) {
         throw new EdgeIndexAlreadySet("Index already taken");
       }
     }
-    incNode.getIncubationEdges().put(new IncNode.EdgeIndexLabel(label, index), new IncubationEdge(target, label));
+    incNode.getIncubationEdges().put(eil, new IncubationEdge(target, label));
   }
 
-  public void removeEdge(long receiverId, long senderId, IncOid incOid, EdgeIndex index, boolean strict) throws
-          EdgeIndexNotSet, IncubationNodeNotFound {
-    final IncNode incNode = getIncNode(receiverId, senderId, incOid);
+  public void removeEdge(long receiverId, long senderId, IncNid incNid, EdgeLabel label, EdgeIndex index,
+                         boolean strict) throws EdgeIndexNotSet, IncubationNodeNotFound {
+    final IncNode incNode = getIncNode(receiverId, senderId, incNid);
     if (incNode == null) {
       throw new IncubationNodeNotFound("Inc Node not found");
     }
+    final IncNode.EdgeIndexLabel eil = new IncNode.EdgeIndexLabel(label, index);
     if (strict) {
-      if (!incNode.getIncubationEdges().containsKey(index)) {
+      if (!incNode.getIncubationEdges().containsKey(eil)) {
         throw new EdgeIndexNotSet("Index not found");
       }
     }
-    incNode.getIncubationEdges().remove(index);
+    incNode.getIncubationEdges().remove(eil);
   }
 
-  public void removeEdges(long receiverId, long senderId, IncOid incOid, EdgeLabel label) throws
+  public void removeEdges(long receiverId, long senderId, IncNid incNid, EdgeLabel label) throws
           IncubationNodeNotFound {
-    final IncNode incNode = getIncNode(receiverId, senderId, incOid);
+    final IncNode incNode = getIncNode(receiverId, senderId, incNid);
     if (incNode == null) {
       throw new IncubationNodeNotFound("Inc Node not found");
     }
@@ -89,9 +91,9 @@ public class DmApi {
     incNode.getIncubationEdges().keySet().removeAll(toRemove);
   }
 
-  public void setData(long receiverId, long senderId, IncOid incOid, short typeIndex, IDataSetter dataSetter) throws
+  public void setData(long receiverId, long senderId, IncNid incNid, short typeIndex, IDataSetter dataSetter) throws
           IncubationNodeNotFound {
-    final IncNode incNode = this.nodes.getByUserId(receiverId).getIncOidToIncNodes().get(incOid.getId());
+    final IncNode incNode = this.nodes.getByUserId(receiverId).getIncOidToIncNodes().get(incNid.getId());
     if (incNode == null) {
       throw new IncubationNodeNotFound("NodeImpl in incubation not found");
     }

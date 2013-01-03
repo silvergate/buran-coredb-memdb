@@ -1,7 +1,7 @@
 package com.dcrux.buran.coredb.iface.query.edgeCondition;
 
 import com.dcrux.buran.coredb.iface.*;
-import com.dcrux.buran.coredb.iface.api.ExpectableException;
+import com.dcrux.buran.coredb.iface.api.exceptions.ExpectableException;
 import com.dcrux.buran.coredb.iface.edgeTargets.IEdgeTarget;
 import com.dcrux.buran.coredb.iface.edgeTargets.UnversionedEdTarget;
 import com.dcrux.buran.coredb.iface.edgeTargets.VersionedEdTarget;
@@ -127,7 +127,7 @@ public class InEdgeCondition implements INodeMetaCondition {
       if (version == null) {
         found = metaInfoForQuery.getNodeMatcher().matches(oid, this.source.get());
       } else {
-        found = metaInfoForQuery.getNodeMatcher().matchesVersion(new OidVersion(oid, version), this.source.get());
+        found = metaInfoForQuery.getNodeMatcher().matchesVersion(new NidVer(oid, version), this.source.get());
       }
     }
     return found;

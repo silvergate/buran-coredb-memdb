@@ -24,35 +24,35 @@ public class MiApi {
   }
 
   @Nullable
-  public NodeState getState(long receiverId, long senderId, OidVersion oidVersion) {
-    final NodeImpl inCurrent = this.dataReadApi.getNodeFromCurrent(receiverId, oidVersion);
+  public NodeState getState(long receiverId, long senderId, NidVer nidVer) {
+    final NodeImpl inCurrent = this.dataReadApi.getNodeFromCurrent(receiverId, nidVer);
     if (inCurrent != null) {
       return NodeState.available;
     }
-    final NodeImpl histOrCur = this.dataReadApi.getNodeFromCurrentOrHistorized(receiverId, oidVersion);
+    final NodeImpl histOrCur = this.dataReadApi.getNodeFromCurrentOrHistorized(receiverId, nidVer);
     if (histOrCur != null) {
       return NodeState.historizedAvailable;
     }
     return null;
   }
 
-  public void addNodeDomain(long receiverId, long senderId, IncOid incOid, DomainId domain) {
-    final IncNode incNode = this.dmApi.getIncNode(receiverId, senderId, incOid);
+  public void addNodeDomain(long receiverId, long senderId, IncNid incNid, DomainId domain) {
+    final IncNode incNode = this.dmApi.getIncNode(receiverId, senderId, incNid);
     incNode.getNode().getDomainIds().add(domain.getId());
   }
 
-  public void removeNodeDomain(long receiverId, long senderId, IncOid incOid, DomainId domain) {
-    final IncNode incNode = this.dmApi.getIncNode(receiverId, senderId, incOid);
+  public void removeNodeDomain(long receiverId, long senderId, IncNid incNid, DomainId domain) {
+    final IncNode incNode = this.dmApi.getIncNode(receiverId, senderId, incNid);
     incNode.getNode().getDomainIds().remove(domain.getId());
   }
 
-  public void removeAllNodeDomains(long receiverId, long senderId, IncOid incOid) {
-    final IncNode incNode = this.dmApi.getIncNode(receiverId, senderId, incOid);
+  public void removeAllNodeDomains(long receiverId, long senderId, IncNid incNid) {
+    final IncNode incNode = this.dmApi.getIncNode(receiverId, senderId, incNid);
     incNode.getNode().getDomainIds().clear();
   }
 
-  public Set<DomainId> getNodeDomains(long receiverId, long senderId, OidVersion oidVersion) {
-    final NodeImpl node = this.dataReadApi.getNodeFromCurrentOrHistorized(receiverId, oidVersion);
+  public Set<DomainId> getNodeDomains(long receiverId, long senderId, NidVer nidVer) {
+    final NodeImpl node = this.dataReadApi.getNodeFromCurrentOrHistorized(receiverId, nidVer);
     final Set<DomainId> domainIds = new HashSet<DomainId>();
     for (final Long domainId : node.getDomainIds()) {
       domainIds.add(new DomainId(domainId));
@@ -60,7 +60,7 @@ public class MiApi {
     return domainIds;
   }
 
-  public Map<EdgeLabel, Map<EdgeIndex, Edge>> getInEdges(OidVersion oidVersion) {
+  public Map<EdgeLabel, Map<EdgeIndex, Edge>> getInEdges(NidVer nidVer) {
     throw new NotImplementedException("");
   }
 }

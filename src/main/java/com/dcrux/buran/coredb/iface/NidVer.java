@@ -3,7 +3,7 @@ package com.dcrux.buran.coredb.iface;
 /**
  * @author caelis
  */
-public class OidVersion {
+public class NidVer {
   private final long oid;
   private final int version;
 
@@ -15,7 +15,7 @@ public class OidVersion {
     return version;
   }
 
-  public OidVersion(long oid, int version) {
+  public NidVer(long oid, int version) {
     this.oid = oid;
     this.version = version;
   }
@@ -29,7 +29,7 @@ public class OidVersion {
       return false;
     }
 
-    OidVersion that = (OidVersion) o;
+    NidVer that = (NidVer) o;
 
     if (oid != that.oid) {
       return false;
@@ -50,7 +50,7 @@ public class OidVersion {
 
   @Override
   public String toString() {
-    return "OidVersion{" +
+    return "NidVer{" +
             "oid=" + oid +
             ", version=" + version +
             '}';

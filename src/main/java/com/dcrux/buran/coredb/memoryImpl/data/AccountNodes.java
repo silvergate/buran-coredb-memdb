@@ -1,10 +1,10 @@
 package com.dcrux.buran.coredb.memoryImpl.data;
 
-import com.dcrux.buran.coredb.iface.IncOid;
-import com.dcrux.buran.coredb.iface.OidVersion;
+import com.dcrux.buran.coredb.iface.IncNid;
+import com.dcrux.buran.coredb.iface.NidVer;
 import com.dcrux.buran.coredb.iface.api.CommitResult;
-import com.dcrux.buran.coredb.iface.api.ExpectableException;
-import com.dcrux.buran.coredb.iface.api.OptimisticLockingException;
+import com.dcrux.buran.coredb.iface.api.exceptions.ExpectableException;
+import com.dcrux.buran.coredb.iface.api.exceptions.OptimisticLockingException;
 import com.dcrux.buran.coredb.iface.nodeClass.NodeClass;
 import com.dcrux.buran.coredb.memoryImpl.DataReadApi;
 import com.dcrux.buran.coredb.memoryImpl.NodeClassesApi;
@@ -46,7 +46,7 @@ public class AccountNodes {
     return classIdToAliveSeries;
   }
 
-  public IncOid createNew(long senderId, long classId, @Nullable OidVersion toUpdate, NodeClassesApi ncApi) {
+  public IncNid createNew(long senderId, long classId, @Nullable NidVer toUpdate, NodeClassesApi ncApi) {
     final long incOid = getIncOidCounter().incrementAndGet();
     final NodeClass nc = ncApi.getClassById(classId);
     if (nc == null) {
@@ -65,8 +65,8 @@ public class AccountNodes {
 
     /* Add data */
     getIncOidToIncNodes().put(incOid, incNode);
-    final IncOid incOidNew = new IncOid(incOid);
-    return incOidNew;
+    final IncNid incNidNew = new IncNid(incOid);
+    return incNidNew;
   }
 
   @Nullable
@@ -165,11 +165,11 @@ public class AccountNodes {
     return oidCounter;
   }
 
-  public CommitResult commit(long senderId, Set<IncOid> incOids, DataReadApi drApi, NodeClassesApi ncApi) throws
+  public CommitResult commit(long senderId, Set<IncNid> incNids, DataReadApi drApi, NodeClassesApi ncApi) throws
           OptimisticLockingException {
     // TODO: Missing write lock
       /* OIDs von allen extrahieren */
-    final Set<PreparedComitInfo> prepComInfo = this.commitUtil.generateOidsFromIoids(senderId, incOids, this);
+    final Set<PreparedComitInfo> prepComInfo = this.commitUtil.generateOidsFromIoids(senderId, incNids, this);
       /* Validate */
     this.commitUtil.validate(prepComInfo, drApi, ncApi);
 
@@ -178,7 +178,7 @@ public class AccountNodes {
       commitNodeAndEdges(prepComInfo, senderId, pciEntry);
     }
 
-    final Map<IncOid, OidVersion> incOidToOidVer = new HashMap<>();
+    final Map<IncNid, NidVer> incOidToOidVer = new HashMap<>();
     for (final PreparedComitInfo pciEntry : prepComInfo) {
       incOidToOidVer.put(pciEntry.getIoid(), pciEntry.getOidToGet());
     }
@@ -186,19 +186,19 @@ public class AccountNodes {
   }
 
   private void commitNodeAndEdges(Set<PreparedComitInfo> pci, final long senderId, PreparedComitInfo pciEntry) {
-    final IncOid incOid = pciEntry.getIoid();
+    final IncNid incNid = pciEntry.getIoid();
     final long classId = pciEntry.getClassId();
 
     final IncNode incNode = pciEntry.getIncNode();
 
     /* Remove Incubation Data */
-    getIncOidToIncNodes().remove(incOid.getId());
+    getIncOidToIncNodes().remove(incNid.getId());
 
     /* Set data */
     final AccountNodes accountNodes = this;
     final long oid = pciEntry.getOidToGet().getOid();
     final int version = pciEntry.getOidToGet().getVersion();
-    final OidVersion oidVersion = new OidVersion(oid, version);
+    final NidVer nidVer = new NidVer(oid, version);
 
     /* Set valid from time */
     long currentTime = System.currentTimeMillis();

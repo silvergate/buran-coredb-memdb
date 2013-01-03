@@ -1,8 +1,8 @@
 package com.dcrux.buran.coredb.memoryImpl;
 
 import com.dcrux.buran.coredb.iface.*;
-import com.dcrux.buran.coredb.iface.api.ExpectableException;
-import com.dcrux.buran.coredb.iface.api.NodeNotFoundException;
+import com.dcrux.buran.coredb.iface.api.exceptions.ExpectableException;
+import com.dcrux.buran.coredb.iface.api.exceptions.NodeNotFoundException;
 import com.dcrux.buran.coredb.iface.nodeClass.IDataGetter;
 import com.dcrux.buran.coredb.iface.nodeClass.IType;
 import com.dcrux.buran.coredb.iface.nodeClass.NodeClass;
@@ -38,16 +38,16 @@ public class DataReadApi {
   }
 
   @Nullable
-  NodeImpl getNodeFromCurrent(long receiverId, OidVersion oid) {
+  NodeImpl getNodeFromCurrent(long receiverId, NidVer oid) {
     return this.nodes.getByUserId(receiverId).getNode(oid.getOid(), oid.getVersion(), true);
   }
 
   @Nullable
-  NodeImpl getNodeFromCurrentOrHistorized(long receiverId, OidVersion oid) {
+  NodeImpl getNodeFromCurrentOrHistorized(long receiverId, NidVer oid) {
     return this.nodes.getByUserId(receiverId).getNode(oid.getOid(), oid.getVersion(), false);
   }
 
-  public Map<EdgeLabel, Map<EdgeIndex, EdgeImpl>> getOutEdgesImpl(long receiverId, long senderId, OidVersion oid,
+  public Map<EdgeLabel, Map<EdgeIndex, EdgeImpl>> getOutEdgesImpl(long receiverId, long senderId, NidVer oid,
                                                                   EnumSet<EdgeType> types, boolean queryableOnly) throws
           NodeNotFoundException {
     if (types.isEmpty()) {
@@ -73,7 +73,7 @@ public class DataReadApi {
     return privateEdges;
   }
 
-  public Map<EdgeLabel, Map<EdgeIndex, Edge>> getOutEdges(long receiverId, long senderId, OidVersion oid,
+  public Map<EdgeLabel, Map<EdgeIndex, Edge>> getOutEdges(long receiverId, long senderId, NidVer oid,
                                                           EnumSet<EdgeType> types, boolean queryableOnly) throws
           NodeNotFoundException {
     Map<EdgeLabel, Map<EdgeIndex, EdgeImpl>> outEdgesImpl =
@@ -115,7 +115,7 @@ public class DataReadApi {
     }
   }
 
-  public Map<EdgeLabel, Multimap<EdgeIndex, EdgeWithSource>> getInEdges(long receiverId, long senderId, OidVersion oid,
+  public Map<EdgeLabel, Multimap<EdgeIndex, EdgeWithSource>> getInEdges(long receiverId, long senderId, NidVer oid,
                                                                         EnumSet<EdgeType> types,
                                                                         Optional<EdgeLabel> label,
                                                                         boolean queryablesOnly) throws
@@ -161,16 +161,15 @@ public class DataReadApi {
     return ns != null;
   }
 
-  public boolean existsInCurrent(long receiverId, OidVersion oidVersion) {
+  public boolean existsInCurrent(long receiverId, NidVer nidVer) {
     // TODO: Das muss nicht ins public api, da gibts schon das getState
-    return getNodeFromCurrent(receiverId, oidVersion) != null;
+    return getNodeFromCurrent(receiverId, nidVer) != null;
   }
 
   @Nullable
-  public Object getData(long receiverId, long senderId, OidVersion oidVersion, short typeIndex,
-                        IDataGetter dataGetter) throws NodeNotFoundException {
-    final NodeImpl node =
-            this.nodes.getByUserId(receiverId).getNode(oidVersion.getOid(), oidVersion.getVersion(), false);
+  public Object getData(long receiverId, long senderId, NidVer nidVer, short typeIndex, IDataGetter dataGetter) throws
+          NodeNotFoundException {
+    final NodeImpl node = this.nodes.getByUserId(receiverId).getNode(nidVer.getOid(), nidVer.getVersion(), false);
     if (node == null) {
       throw new NodeNotFoundException("NodeImpl not found");
     }

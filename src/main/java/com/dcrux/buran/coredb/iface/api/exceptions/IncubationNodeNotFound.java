@@ -1,4 +1,4 @@
-package com.dcrux.buran.coredb.iface.api;
+package com.dcrux.buran.coredb.iface.api.exceptions;
 
 /**
  * Buran.
