@@ -92,6 +92,15 @@ public class DataReadApi {
     return outEdges;
   }
 
+  @Nullable
+  public Integer getCurrentNodeVersion(long receiverId, long senderId, long nidWithoutVersion) {
+    final NodeSerie nodeSerie = this.nodes.getByUserId(receiverId).getOidToAliveSeries().get(nidWithoutVersion);
+    if (nodeSerie == null) {
+      return null;
+    }
+    return nodeSerie.getCurrentVersion();
+  }
+
   private void addToEdges(final Map<EdgeLabel, Multimap<EdgeIndex, EdgeWithSource>> combination,
                           Optional<EdgeLabel> label, boolean queryableOnly, NodeClass nodeClass,
                           Map<EdgeLabel, Multimap<EdgeIndex, EdgeImpl>> edgeImpls) {

@@ -62,7 +62,7 @@ public interface IApi {
    * @param nodeToUpdate
    * @param historyHint
    * @return
-   * @throws NodeNotUpdatable
+   * @throws NodeNotUpdatable          Is thrown if the node to update is not currently the current version or if the node has been marked as deleted.
    * @throws PermissionDeniedException
    * @throws HistoryHintNotFulfillable
    */
@@ -219,7 +219,7 @@ public interface IApi {
    *
    * @param receiver
    * @param sender
-   * @param oid
+   * @param nid
    * @param types    Optional: Filter by modifier (public or private). Must not be empty.
    * @param label    Optional: Filter by label.
    * @return
@@ -228,7 +228,7 @@ public interface IApi {
    *
    * @throws PermissionDeniedException
    */
-  Map<EdgeLabel, Map<EdgeIndex, Edge>> getOutEdges(UserId receiver, UserId sender, NidVer oid, EnumSet<EdgeType> types,
+  Map<EdgeLabel, Map<EdgeIndex, Edge>> getOutEdges(UserId receiver, UserId sender, NidVer nid, EnumSet<EdgeType> types,
                                                    Optional<EdgeLabel> label) throws NodeNotFoundException,
           InformationUnavailableException, PermissionDeniedException;
 
@@ -237,7 +237,7 @@ public interface IApi {
    *
    * @param receiver
    * @param sender
-   * @param oid
+   * @param nid
    * @param types    Optional: Filter by modifier (public or private). Must not be empty.
    * @param label    Optional: Filter by label.
    * @return
@@ -246,9 +246,34 @@ public interface IApi {
    *
    * @throws PermissionDeniedException
    */
-  Map<EdgeLabel, Multimap<EdgeIndex, EdgeWithSource>> getInEdges(UserId receiver, UserId sender, NidVer oid,
+  Map<EdgeLabel, Multimap<EdgeIndex, EdgeWithSource>> getInEdges(UserId receiver, UserId sender, NidVer nid,
                                                                  EnumSet<EdgeType> types,
                                                                  Optional<EdgeLabel> label) throws
           NodeNotFoundException, InformationUnavailableException, PermissionDeniedException;
 
+  /* REGION: Meta-Data read api */
+
+  /**
+   * Returns the state of the given node.
+   *
+   * @param receiver
+   * @param sender
+   * @param nid
+   * @return
+   * @throws NodeNotFoundException     Is thrown if a node with the given node-id does not exists (now and in the past).
+   * @throws PermissionDeniedException
+   */
+  NodeState getNodeState(UserId receiver, UserId sender, NidVer nid) throws NodeNotFoundException,
+          PermissionDeniedException;
+
+  /**
+   * Returns the current version of the node specified by its id.
+   *
+   * @param receiver
+   * @param sender
+   * @param nid
+   * @return
+   * @throws NodeNotFoundException The node given by its id was not found.
+   */
+  NidVer getCurrentNodeVersion(UserId receiver, UserId sender, long nid) throws NodeNotFoundException;
 }

@@ -162,18 +162,18 @@ public class ApiIface implements IApi {
   }
 
   @Override
-  public Map<EdgeLabel, Map<EdgeIndex, Edge>> getOutEdges(UserId receiver, UserId sender, NidVer oid,
+  public Map<EdgeLabel, Map<EdgeIndex, Edge>> getOutEdges(UserId receiver, UserId sender, NidVer nid,
                                                           EnumSet<EdgeType> types, Optional<EdgeLabel> label) throws
           NodeNotFoundException, InformationUnavailableException, PermissionDeniedException {
-    return getDrApi().getOutEdges(receiver.getId(), sender.getId(), oid, types, false);
+    return getDrApi().getOutEdges(receiver.getId(), sender.getId(), nid, types, false);
   }
 
   @Override
-  public Map<EdgeLabel, Multimap<EdgeIndex, EdgeWithSource>> getInEdges(UserId receiver, UserId sender, NidVer oid,
+  public Map<EdgeLabel, Multimap<EdgeIndex, EdgeWithSource>> getInEdges(UserId receiver, UserId sender, NidVer nid,
                                                                         EnumSet<EdgeType> types,
                                                                         Optional<EdgeLabel> label) throws
           NodeNotFoundException, InformationUnavailableException, PermissionDeniedException {
-    return getDrApi().getInEdges(receiver.getId(), sender.getId(), oid, types, label, false);
+    return getDrApi().getInEdges(receiver.getId(), sender.getId(), nid, types, label, false);
   }
 
   @Override
@@ -195,5 +195,24 @@ public class ApiIface implements IApi {
   public CommitResult commit(UserId receiver, UserId sender, IncNid... incNid) throws OptimisticLockingException,
           PermissionDeniedException, IncubationNodeNotFound {
     return getCommitApi().commit(receiver.getId(), sender.getId(), incNid);
+  }
+
+  @Override
+  public NodeState getNodeState(UserId receiver, UserId sender, NidVer nid) throws NodeNotFoundException,
+          PermissionDeniedException {
+    final NodeState state = this.getMetaApi().getState(receiver.getId(), sender.getId(), nid);
+    if (state == null) {
+      throw new NodeNotFoundException("Node not found");
+    }
+    return state;
+  }
+
+  @Override
+  public NidVer getCurrentNodeVersion(UserId receiver, UserId sender, long nid) throws NodeNotFoundException {
+    final Integer version = this.getDrApi().getCurrentNodeVersion(receiver.getId(), sender.getId(), nid);
+    if (version == null) {
+      throw new NodeNotFoundException("Node not found");
+    }
+    return new NidVer(nid, version);
   }
 }

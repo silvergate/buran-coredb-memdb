@@ -1,13 +1,14 @@
 package com.dcrux.buran.coredb.memoryImpl;
 
-import com.dcrux.buran.coredb.iface.*;
+import com.dcrux.buran.coredb.iface.DomainId;
+import com.dcrux.buran.coredb.iface.IncNid;
+import com.dcrux.buran.coredb.iface.NidVer;
+import com.dcrux.buran.coredb.iface.NodeState;
 import com.dcrux.buran.coredb.memoryImpl.data.IncNode;
 import com.dcrux.buran.coredb.memoryImpl.data.NodeImpl;
-import org.apache.commons.lang.NotImplementedException;
 
 import javax.annotation.Nullable;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -58,9 +59,5 @@ public class MiApi {
       domainIds.add(new DomainId(domainId));
     }
     return domainIds;
-  }
-
-  public Map<EdgeLabel, Map<EdgeIndex, Edge>> getInEdges(NidVer nidVer) {
-    throw new NotImplementedException("");
   }
 }
