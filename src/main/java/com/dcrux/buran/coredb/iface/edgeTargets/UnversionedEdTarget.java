@@ -5,7 +5,7 @@ package com.dcrux.buran.coredb.iface.edgeTargets;
  */
 public class UnversionedEdTarget implements IIncEdgeTarget, IEdgeTarget {
 
-  private final long oid;
+  private final long nid;
 
   @Override
   public EdgeTargetType getEdgeTargetType() {
@@ -17,11 +17,11 @@ public class UnversionedEdTarget implements IIncEdgeTarget, IEdgeTarget {
     return IncEdgeTargetType.unversioned;
   }
 
-  public UnversionedEdTarget(long oid) {
-    this.oid = oid;
+  public UnversionedEdTarget(long nid) {
+    this.nid = nid;
   }
 
-  public long getOid() {
-    return oid;
+  public long getNid() {
+    return nid;
   }
 }

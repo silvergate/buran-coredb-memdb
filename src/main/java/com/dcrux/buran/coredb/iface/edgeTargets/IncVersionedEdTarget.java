@@ -7,18 +7,18 @@ public class IncVersionedEdTarget implements IIncEdgeTarget {
 
   //TODO: Die Incs-targets kommen vermutlich in die implementierung
 
-  private final long ioid;
+  private final long inid;
 
   @Override
   public IncEdgeTargetType getIncType() {
     return IncEdgeTargetType.versionedInc;
   }
 
-  public IncVersionedEdTarget(long ioid) {
-    this.ioid = ioid;
+  public IncVersionedEdTarget(long inid) {
+    this.inid = inid;
   }
 
-  public long getIoid() {
-    return ioid;
+  public long getInid() {
+    return inid;
   }
 }

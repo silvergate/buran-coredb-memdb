@@ -71,25 +71,25 @@ public class CommitUtil {
                 "TODO: Hier muss überprüft werden, ob die userId bekannt ist! (Der Rest kann nicht überprüft werden)");
         break;
       case unversioned:
-        if (!drApi.oidExistsInCurrentOrHistory(receiverId, ((UnversionedEdTarget) target).getOid())) {
+        if (!drApi.oidExistsInCurrentOrHistory(receiverId, ((UnversionedEdTarget) target).getNid())) {
           throw new IllegalStateException("Edge target not found");
         }
         break;
       case versioned:
-        if (!drApi.oidExistsInCurrentOrHistory(receiverId, ((VersionedEdTarget) target).getOid())) {
+        if (!drApi.oidExistsInCurrentOrHistory(receiverId, ((VersionedEdTarget) target).getNid())) {
           throw new IllegalStateException("Edge target not found");
         }
         break;
       case unversionedInc:
           /* Has to be in incubation */
-        NidVer found = findOidInIncOids(pciEntry, ((IncUnversionedEdTarget) target).getIoid());
+        NidVer found = findOidInIncOids(pciEntry, ((IncUnversionedEdTarget) target).getInid());
         if (found == null) {
           throw new IllegalStateException("A given edge-inc-oid is not found in incubation");
         }
         break;
       case versionedInc:
                    /* Has to be in incubation */
-        NidVer foundVer = findOidInIncOids(pciEntry, ((IncVersionedEdTarget) target).getIoid());
+        NidVer foundVer = findOidInIncOids(pciEntry, ((IncVersionedEdTarget) target).getInid());
         if (foundVer == null) {
           throw new IllegalStateException("A given edge-inc-oid is not found in incubation");
         }
@@ -230,29 +230,29 @@ public class CommitUtil {
     switch (target.getIncType()) {
       case externalUnversioned:
         finalTarget = new ExtEdgeImplTarget(((ExtUnversionedEdTarget) target).getUserId(),
-                ((ExtUnversionedEdTarget) target).getOid(), null);
+                ((ExtUnversionedEdTarget) target).getNid(), null);
         break;
       case externalVersioned:
         finalTarget = new ExtEdgeImplTarget(((ExtVersionedEdTarget) target).getUserId(),
-                ((ExtVersionedEdTarget) target).getOid(), ((ExtVersionedEdTarget) target).getVersion());
+                ((ExtVersionedEdTarget) target).getNid(), ((ExtVersionedEdTarget) target).getVersion());
         break;
       case unversioned:
         final UnversionedEdTarget unversionedEdTarget = (UnversionedEdTarget) target;
         finalTarget =
-                new UnversionedEdgeImplTarget(accountNodes.getNodeSerieByOid(unversionedEdTarget.getOid(), false));
+                new UnversionedEdgeImplTarget(accountNodes.getNodeSerieByOid(unversionedEdTarget.getNid(), false));
         /* Add to in-node */
-        inNodeSerie = accountNodes.getNodeSerieByOid(unversionedEdTarget.getOid(), false);
+        inNodeSerie = accountNodes.getNodeSerieByOid(unversionedEdTarget.getNid(), false);
         break;
       case versioned:
         final VersionedEdTarget versionedEdTarget = (VersionedEdTarget) target;
         finalTarget = new VersionedEdgeImplTarget(
-                accountNodes.getNode(versionedEdTarget.getOid(), versionedEdTarget.getVersion(), false));
+                accountNodes.getNode(versionedEdTarget.getNid(), versionedEdTarget.getVersion(), false));
         /* Add to in node */
-        inNode = accountNodes.getNode(versionedEdTarget.getOid(), versionedEdTarget.getVersion(), false);
+        inNode = accountNodes.getNode(versionedEdTarget.getNid(), versionedEdTarget.getVersion(), false);
         break;
       case unversionedInc:
         final IncUnversionedEdTarget incUnversionedEdTarget = (IncUnversionedEdTarget) target;
-        final PreparedComitInfo pci = findPrepComInfoByIncOid(prepComInfo, incUnversionedEdTarget.getIoid());
+        final PreparedComitInfo pci = findPrepComInfoByIncOid(prepComInfo, incUnversionedEdTarget.getInid());
         assert (pci != null);
         finalTarget = new UnversionedEdgeImplTarget(pci.getNodeSerie());
                 /* Add to in-node */
@@ -260,7 +260,7 @@ public class CommitUtil {
         break;
       case versionedInc:
         final IncVersionedEdTarget incVersionedEdTarget = (IncVersionedEdTarget) target;
-        final PreparedComitInfo pciTwo = findPrepComInfoByIncOid(prepComInfo, incVersionedEdTarget.getIoid());
+        final PreparedComitInfo pciTwo = findPrepComInfoByIncOid(prepComInfo, incVersionedEdTarget.getInid());
         assert (pciTwo != null);
         finalTarget = new VersionedEdgeImplTarget(pciTwo.getIncNode().getNode());
                 /* Add to in node */

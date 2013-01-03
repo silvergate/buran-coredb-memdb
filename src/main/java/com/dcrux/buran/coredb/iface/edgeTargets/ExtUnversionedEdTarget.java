@@ -5,7 +5,7 @@ package com.dcrux.buran.coredb.iface.edgeTargets;
  */
 public class ExtUnversionedEdTarget implements IIncEdgeTarget, IEdgeTarget {
 
-  private final long oid;
+  private final long nid;
   private final long userId;
 
   @Override
@@ -18,13 +18,13 @@ public class ExtUnversionedEdTarget implements IIncEdgeTarget, IEdgeTarget {
     return IncEdgeTargetType.externalUnversioned;
   }
 
-  public ExtUnversionedEdTarget(long userId, long oid) {
-    this.oid = oid;
+  public ExtUnversionedEdTarget(long userId, long nid) {
+    this.nid = nid;
     this.userId = userId;
   }
 
-  public long getOid() {
-    return oid;
+  public long getNid() {
+    return nid;
   }
 
   public long getUserId() {

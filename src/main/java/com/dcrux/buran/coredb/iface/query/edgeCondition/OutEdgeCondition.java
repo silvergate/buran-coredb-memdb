@@ -127,11 +127,11 @@ public class OutEdgeCondition implements INodeMetaCondition {
         version = null;
         break;
       case unversioned:
-        oid = ((UnversionedEdTarget) edgeTarget).getOid();
+        oid = ((UnversionedEdTarget) edgeTarget).getNid();
         version = null;
         break;
       case versioned:
-        oid = ((VersionedEdTarget) edgeTarget).getOid();
+        oid = ((VersionedEdTarget) edgeTarget).getNid();
         version = ((VersionedEdTarget) edgeTarget).getVersion();
         break;
       default:
