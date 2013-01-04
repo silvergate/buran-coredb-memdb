@@ -9,6 +9,7 @@ import com.dcrux.buran.coredb.iface.api.CreateInfo;
 import com.dcrux.buran.coredb.iface.api.IApi;
 import com.dcrux.buran.coredb.iface.api.KeepAliveHint;
 import com.dcrux.buran.coredb.iface.api.exceptions.*;
+import com.dcrux.buran.coredb.iface.domains.DomainHashCreator;
 import com.dcrux.buran.coredb.iface.edgeClass.PrivateEdgeClass;
 import com.dcrux.buran.coredb.iface.edgeClass.PublicEdgeClass;
 import com.dcrux.buran.coredb.iface.edgeClass.PublicEdgeConstraints;
@@ -29,6 +30,7 @@ import com.dcrux.buran.coredb.memoryImpl.ApiIface;
 import com.dcrux.buran.coredb.memoryImpl.data.NodeImpl;
 import com.google.common.base.Optional;
 
+import java.util.Arrays;
 import java.util.Set;
 import java.util.UUID;
 
@@ -58,6 +60,11 @@ public class Main {
     System.out.println(label.getLabel());
     PublicEdgeClass pecParsed = PublicEdgeClass.parse(label);
     System.out.println("Equals: " + pecParsed.createLabel().equals(label));
+
+    /* Domain hash */
+    DomainHashCreator dhc = new DomainHashCreator(UUID.randomUUID(), "sdjkvnjskdfnnvknsdjkfnv", "rvmsdkrfvksdmfkmvksd",
+            "skdjfvskdfkvjsdfsvkdmfj");
+    System.out.println("DomainHash:" + Arrays.toString(dhc.createHash().getHash()));
 
     final UserId receiver = UserId.c(0L);
     final UserId sender = UserId.c(100L);
