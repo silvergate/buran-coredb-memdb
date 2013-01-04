@@ -8,6 +8,7 @@ import java.util.Map;
 /**
  * @author caelis
  */
+@Deprecated
 public class TypesRegistry {
   private Map<TypeRef, ITypeImpl> typeRef2TypeImpl = new HashMap<>();
 

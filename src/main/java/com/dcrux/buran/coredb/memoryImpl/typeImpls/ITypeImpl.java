@@ -9,6 +9,7 @@ import javax.annotation.Nullable;
 /**
  * @author caelis
  */
+@Deprecated
 public interface ITypeImpl {
   TypeRef getRef();
 

@@ -13,7 +13,6 @@ import com.dcrux.buran.coredb.memoryImpl.data.NodeSerie;
 import com.dcrux.buran.coredb.memoryImpl.data.Nodes;
 import com.dcrux.buran.coredb.memoryImpl.edge.EdgeImpl;
 import com.dcrux.buran.coredb.memoryImpl.edge.EdgeUtil;
-import com.dcrux.buran.coredb.memoryImpl.typeImpls.ITypeImpl;
 import com.dcrux.buran.coredb.memoryImpl.typeImpls.TypesRegistry;
 import com.google.common.base.Optional;
 import com.google.common.collect.HashMultimap;
@@ -237,9 +236,9 @@ public class DataReadApi {
     if (!supports) {
       throw new ExpectableException("The given data getter is no supported on this type.");
     }
-    ITypeImpl ti = this.typesRegistry.get(type.getRef());
+    //ITypeImpl ti = this.typesRegistry.get(type.getRef());
     final Object value = node.getData()[typeIndex];
-    return ti.getData(dataGetter, value);
+    return type.getData(dataGetter, value);
   }
 
 }

@@ -11,6 +11,7 @@ import javax.annotation.Nullable;
 /**
  * @author caelis
  */
+@Deprecated
 public class IntImpl implements ITypeImpl {
   @Override
   public TypeRef getRef() {

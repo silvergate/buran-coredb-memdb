@@ -15,7 +15,6 @@ import com.dcrux.buran.coredb.iface.nodeClass.NodeClass;
 import com.dcrux.buran.coredb.memoryImpl.data.IncNode;
 import com.dcrux.buran.coredb.memoryImpl.data.IncubationEdge;
 import com.dcrux.buran.coredb.memoryImpl.data.Nodes;
-import com.dcrux.buran.coredb.memoryImpl.typeImpls.ITypeImpl;
 import com.dcrux.buran.coredb.memoryImpl.typeImpls.TypesRegistry;
 import com.google.common.base.Optional;
 
@@ -113,9 +112,9 @@ public class DmApi {
     if (!supports) {
       throw new IllegalArgumentException("The given data setter is no supported on this type.");
     }
-    ITypeImpl ti = this.typesRegistry.get(type.getRef());
+    //ITypeImpl ti = this.typesRegistry.get(type.getRef());
     final Object oldValue = incNode.getNode().getData()[typeIndex];
-    final Object newValue = ti.setData(dataSetter, oldValue);
+    final Object newValue = type.setData(dataSetter, oldValue);
     incNode.getNode().getData()[typeIndex] = newValue;
   }
 
