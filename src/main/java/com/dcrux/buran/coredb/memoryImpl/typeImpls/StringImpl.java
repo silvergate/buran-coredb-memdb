@@ -3,8 +3,8 @@ package com.dcrux.buran.coredb.memoryImpl.typeImpls;
 import com.dcrux.buran.coredb.iface.nodeClass.IDataGetter;
 import com.dcrux.buran.coredb.iface.nodeClass.IDataSetter;
 import com.dcrux.buran.coredb.iface.nodeClass.TypeRef;
-import com.dcrux.buran.coredb.iface.nodeClass.propertyTypes.PrimSet;
-import com.dcrux.buran.coredb.iface.nodeClass.propertyTypes.string.StringType;
+import com.dcrux.buran.coredb.iface.propertyTypes.PrimSet;
+import com.dcrux.buran.coredb.iface.propertyTypes.string.StringType;
 
 import javax.annotation.Nullable;
 
