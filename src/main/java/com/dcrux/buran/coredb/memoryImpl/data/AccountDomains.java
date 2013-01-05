@@ -7,9 +7,9 @@ import java.util.Map;
  * @author caelis
  */
 public class AccountDomains {
-  private final Map<Long, DomainImpl> domainIdToDomain = new HashMap<>();
+    private final Map<Long, DomainImpl> domainIdToDomain = new HashMap<>();
 
-  public Map<Long, DomainImpl> getDomainIdToDomain() {
-    return domainIdToDomain;
-  }
+    public Map<Long, DomainImpl> getDomainIdToDomain() {
+        return domainIdToDomain;
+    }
 }

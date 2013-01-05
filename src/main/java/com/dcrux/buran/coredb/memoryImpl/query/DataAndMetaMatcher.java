@@ -15,42 +15,42 @@ import com.dcrux.buran.coredb.memoryImpl.data.NodeImpl;
  */
 public class DataAndMetaMatcher {
 
-  public boolean matches(IQNode qNode, final DataReadApi drApi, final NodeImpl node, NodeClassesApi ncApi,
-                         AccountNodes accountNodes) {
-    final DataMatacher dataMatcher = new DataMatacher(ncApi, node.getNodeSerie().getClassId());
-    final MetaMatcher metaMatcher = new MetaMatcher(drApi, accountNodes, ncApi);
-    INodeMetaCondition metaCondition = null;
-    IPropertyCondition propCondition = null;
-    Long classId = null;
-    if (qNode instanceof QNode) {
-      if (((QNode) qNode).getMetaCondition().isPresent()) {
-        metaCondition = ((QNode) qNode).getMetaCondition().get();
-      }
-    }
-    if (qNode instanceof QCdNode) {
-      if (((QCdNode) qNode).getPropertyCondition().isPresent()) {
-        propCondition = ((QCdNode) qNode).getPropertyCondition().get();
-        classId = ((QCdNode) qNode).getClassId();
-      }
-    }
+    public boolean matches(IQNode qNode, final DataReadApi drApi, final NodeImpl node,
+            NodeClassesApi ncApi, AccountNodes accountNodes) {
+        final DataMatacher dataMatcher = new DataMatacher(ncApi, node.getNodeSerie().getClassId());
+        final MetaMatcher metaMatcher = new MetaMatcher(drApi, accountNodes, ncApi);
+        INodeMetaCondition metaCondition = null;
+        IPropertyCondition propCondition = null;
+        Long classId = null;
+        if (qNode instanceof QNode) {
+            if (((QNode) qNode).getMetaCondition().isPresent()) {
+                metaCondition = ((QNode) qNode).getMetaCondition().get();
+            }
+        }
+        if (qNode instanceof QCdNode) {
+            if (((QCdNode) qNode).getPropertyCondition().isPresent()) {
+                propCondition = ((QCdNode) qNode).getPropertyCondition().get();
+                classId = ((QCdNode) qNode).getClassId();
+            }
+        }
 
     /* Match */
-    if ((classId != null) && (node.getNodeSerie().getClassId() != classId)) {
-      return false;
-    }
+        if ((classId != null) && (node.getNodeSerie().getClassId() != classId)) {
+            return false;
+        }
 
-    if (metaCondition != null) {
-      if (!metaMatcher.matches(node, metaCondition)) {
-        return false;
-      }
-    }
+        if (metaCondition != null) {
+            if (!metaMatcher.matches(node, metaCondition)) {
+                return false;
+            }
+        }
 
-    if (propCondition != null) {
-      if (!dataMatcher.matches(node.getData(), propCondition)) {
-        return false;
-      }
-    }
+        if (propCondition != null) {
+            if (!dataMatcher.matches(node.getData(), propCondition)) {
+                return false;
+            }
+        }
 
-    return true;
-  }
+        return true;
+    }
 }

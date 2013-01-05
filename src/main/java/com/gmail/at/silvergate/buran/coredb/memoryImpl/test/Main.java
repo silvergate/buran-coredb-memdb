@@ -19,6 +19,10 @@ import com.dcrux.buran.coredb.iface.nodeClass.NodeClass;
 import com.dcrux.buran.coredb.iface.nodeClass.NodeClassHash;
 import com.dcrux.buran.coredb.iface.propertyTypes.PrimGet;
 import com.dcrux.buran.coredb.iface.propertyTypes.PrimSet;
+import com.dcrux.buran.coredb.iface.propertyTypes.ftsi.FtsiAddText;
+import com.dcrux.buran.coredb.iface.propertyTypes.ftsi.FtsiMatch;
+import com.dcrux.buran.coredb.iface.propertyTypes.ftsi.FtsiType;
+import com.dcrux.buran.coredb.iface.propertyTypes.ftsi.Fuzziness;
 import com.dcrux.buran.coredb.iface.propertyTypes.string.StringEq;
 import com.dcrux.buran.coredb.iface.propertyTypes.string.StringType;
 import com.dcrux.buran.coredb.iface.query.QCdNode;
@@ -30,6 +34,7 @@ import com.dcrux.buran.coredb.memoryImpl.ApiIface;
 import com.dcrux.buran.coredb.memoryImpl.data.NodeImpl;
 import com.google.common.base.Optional;
 
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.UUID;
@@ -38,84 +43,135 @@ import java.util.UUID;
  * @author caelis
  */
 public class Main {
-  public static void main(String[] args) throws OptimisticLockingException, IncubationNodeNotFound, EdgeIndexAlreadySet,
-          NodeNotFoundException, PermissionDeniedException, InformationUnavailableException {
 
-    ApiIface apiImpl = new ApiIface();
-    IApi api = apiImpl;
+    public static void fts(Fuzziness fuzziness, String text, ApiIface apiImpl, ClassId classId,
+            UserId receiver, UserId sender) {
+        PropCondition ftsOne = new PropCondition((short) 1, FtsiMatch.c(fuzziness, text));
+        QCdNode query = new QCdNode(Optional.<INodeMetaCondition>absent(), classId.getId(),
+                Optional.<IPropertyCondition>of(ftsOne));
+        final Set<NodeImpl> result =
+                apiImpl.getQueryApi().query(receiver.getId(), sender.getId(), query);
+        boolean found = !result.isEmpty();
+        System.out.println(MessageFormat
+                .format("* FTS: ''{0}'' : fuziness: {1}, " + "found: {2} ", text, fuzziness,
+                        found));
+    }
 
-    EdgeLabel halloEdge = EdgeLabel.privateEdge("hallo");
+    public static void fts(String text, ApiIface apiImpl, ClassId classId, UserId receiver,
+            UserId sender) {
+        fts(Fuzziness.high, text, apiImpl, classId, receiver, sender);
+        fts(Fuzziness.medium, text, apiImpl, classId, receiver, sender);
+        fts(Fuzziness.low, text, apiImpl, classId, receiver, sender);
+    }
+
+    public static void main(String[] args)
+            throws OptimisticLockingException, IncubationNodeNotFound, EdgeIndexAlreadySet,
+            NodeNotFoundException, PermissionDeniedException, InformationUnavailableException {
+
+        ApiIface apiImpl = new ApiIface();
+        IApi api = apiImpl;
+
+        EdgeLabel halloEdge = EdgeLabel.privateEdge("hallo");
 
     /* Declare class */
-    final NodeClass nodeClass = NodeClass.builder().add("daName", false, new StringType(true, true, true))
-            .addEdgeClass(PrivateEdgeClass.cQueryable(halloEdge)).get();
-    final NodeClassHash ncHash = api.declareClass(nodeClass);
-    final ClassId classId = api.getClassIdByHash(ncHash);
+        final NodeClass nodeClass =
+                NodeClass.builder().add("daName", false, new StringType(true, true, true))
+                        .add("fulltext", false, new FtsiType())
+                        .addEdgeClass(PrivateEdgeClass.cQueryable(halloEdge)).get();
+        final NodeClassHash ncHash = api.declareClass(nodeClass);
+        final ClassId classId = api.getClassIdByHash(ncHash);
 
     /* Public edge label test */
-    final ClassId cls2 = new ClassId(332332l);
-    PublicEdgeClass pec = new PublicEdgeClass(UUID.randomUUID(), true, Optional.of(cls2), PublicEdgeConstraints.many,
-            Optional.of(classId));
-    final EdgeLabel label = pec.createLabel();
-    System.out.println(label.getLabel());
-    PublicEdgeClass pecParsed = PublicEdgeClass.parse(label);
-    System.out.println("Equals: " + pecParsed.createLabel().equals(label));
+        final ClassId cls2 = new ClassId(332332l);
+        PublicEdgeClass pec = new PublicEdgeClass(UUID.randomUUID(), true, Optional.of(cls2),
+                PublicEdgeConstraints.many, Optional.of(classId));
+        final EdgeLabel label = pec.createLabel();
+        System.out.println(label.getLabel());
+        PublicEdgeClass pecParsed = PublicEdgeClass.parse(label);
+        System.out.println("Equals: " + pecParsed.createLabel().equals(label));
 
     /* Domain hash */
-    DomainHashCreator dhc = new DomainHashCreator(UUID.randomUUID(), "sdjkvnjskdfnnvknsdjkfnv", "rvmsdkrfvksdmfkmvksd",
-            "skdjfvskdfkvjsdfsvkdmfj");
-    System.out.println("DomainHash:" + Arrays.toString(dhc.createHash().getHash()));
+        DomainHashCreator dhc = new DomainHashCreator(UUID.randomUUID(), "sdjkvnjskdfnnvknsdjkfnv",
+                "rvmsdkrfvksdmfkmvksd", "skdjfvskdfkvjsdfsvkdmfj");
+        System.out.println("DomainHash:" + Arrays.toString(dhc.createHash().getHash()));
 
-    final UserId receiver = UserId.c(0L);
-    final UserId sender = UserId.c(100L);
+        final UserId receiver = UserId.c(0L);
+        final UserId sender = UserId.c(100L);
 
     /* Erstellen von 2 nodes in der incubation */
 
-    CreateInfo nodeOneCreateInfo = api.createNew(receiver, sender, classId, Optional.<KeepAliveHint>absent());
-    IncNid nodeOneInc = nodeOneCreateInfo.getIncNid();
-    CreateInfo nodeTwoCreateInfo = api.createNew(receiver, sender, classId, Optional.<KeepAliveHint>absent());
-    IncNid nodeTwoInc = nodeTwoCreateInfo.getIncNid();
+        CreateInfo nodeOneCreateInfo =
+                api.createNew(receiver, sender, classId, Optional.<KeepAliveHint>absent());
+        IncNid nodeOneInc = nodeOneCreateInfo.getIncNid();
+        CreateInfo nodeTwoCreateInfo =
+                api.createNew(receiver, sender, classId, Optional.<KeepAliveHint>absent());
+        IncNid nodeTwoInc = nodeTwoCreateInfo.getIncNid();
 
     /* NodeImpl 1 mit daten & edges befüllen: Die edges von node 1 zeigen auf node 2 */
 
-    api.setEdge(receiver, sender, nodeOneInc, EdgeIndex.c(0), halloEdge, new IncVersionedEdTarget(nodeTwoInc.getId()));
-    api.setEdge(receiver, sender, nodeOneInc, EdgeIndex.c(1), halloEdge, new IncVersionedEdTarget(nodeTwoInc.getId()));
-    api.setData(receiver, sender, nodeOneInc, (short) 0, PrimSet.string("Ich bin eine Welt"));
+        api.setEdge(receiver, sender, nodeOneInc, EdgeIndex.c(0), halloEdge,
+                new IncVersionedEdTarget(nodeTwoInc.getId()));
+        api.setEdge(receiver, sender, nodeOneInc, EdgeIndex.c(1), halloEdge,
+                new IncVersionedEdTarget(nodeTwoInc.getId()));
+        api.setData(receiver, sender, nodeOneInc, (short) 0, PrimSet.string("Ich bin eine Welt"));
+        api.setData(receiver, sender, nodeOneInc, (short) 1, FtsiAddText.c("Es handelt sich " +
+                "hierbei um einen " +
+                "Text, " +
+                "wobei Apple Inc. " +
+                "das iPhone mit iOS " +
+                "herstellt, und " +
+                "Microsoft das " +
+                "Windows 8."));
 
     /* NodeImpl 2 mit daten befüllen */
 
-    api.setData(receiver, sender, nodeTwoInc, (short) 0, PrimSet.string("Text an NodeImpl 2"));
+        api.setData(receiver, sender, nodeTwoInc, (short) 0, PrimSet.string("Text an NodeImpl 2"));
 
     /* Beide nodes Committen */
 
-    final CommitResult cr = api.commit(receiver, sender, nodeOneInc, nodeTwoInc);
-    System.out.println("OID (node 1) = " + cr.getNid(nodeOneInc));
-    System.out.println("OID (node 2) = " + cr.getNid(nodeTwoInc));
+        final CommitResult cr = api.commit(receiver, sender, nodeOneInc, nodeTwoInc);
+        System.out.println("OID (node 1) = " + cr.getNid(nodeOneInc));
+        System.out.println("OID (node 2) = " + cr.getNid(nodeTwoInc));
 
     /* Von der commiteten node 1 daten lesen */
 
-    final Object value = api.getData(receiver, sender, cr.getNid(nodeOneInc), (short) 0, PrimGet.SINGLETON);
-    System.out.println("Value (NodeImpl 1) = " + value);
+        final Object value =
+                api.getData(receiver, sender, cr.getNid(nodeOneInc), (short) 0, PrimGet.SINGLETON);
+        System.out.println("Value (NodeImpl 1) = " + value);
 
         /* Von der commiteten node 2 daten lesen */
 
-    final Object value2 = api.getData(receiver, sender, cr.getNid(nodeTwoInc), (short) 0, PrimGet.SINGLETON);
-    System.out.println("Value (NodeImpl 2) = " + value2);
+        final Object value2 =
+                api.getData(receiver, sender, cr.getNid(nodeTwoInc), (short) 0, PrimGet.SINGLETON);
+        System.out.println("Value (NodeImpl 2) = " + value2);
 
-    /* Query: Bedingung: muss eine node mit "Ich bin eine Welt" und einer "hallo"-edge im index 0 sein.
+    /* Query: Bedingung: muss eine node mit "Ich bin eine Welt" und einer "hallo"-edge im index 0
+     sein.
     Am ende der Edge muss eine NodeImpl vorhanden sein, mit dem text "Text an NodeImpl 2" */
 
-    PropCondition pcNode2 = new PropCondition((short) 0, new StringEq("Text an NodeImpl 2"));
+        PropCondition pcNode2 = new PropCondition((short) 0, new StringEq("Text an NodeImpl 2"));
 
-    PropCondition pc = new PropCondition((short) 0, new StringEq("Ich bin eine Welt"));
-    INodeMetaCondition nmc = OutEdgeCondition.hasEdge(halloEdge, EdgeIndex.c(0),
-            new QCdNode(Optional.<INodeMetaCondition>absent(), classId.getId(),
-                    Optional.<IPropertyCondition>of(pcNode2)));
-    QCdNode query =
-            new QCdNode(Optional.<INodeMetaCondition>of(nmc), classId.getId(), Optional.<IPropertyCondition>of(pc));
-    final Set<NodeImpl> result = apiImpl.getQueryApi().query(receiver.getId(), sender.getId(), query);
-    System.out.println("Query Result: " + result);
+        PropCondition pc = new PropCondition((short) 0, new StringEq("Ich bin eine Welt"));
+        INodeMetaCondition nmc = OutEdgeCondition.hasEdge(halloEdge, EdgeIndex.c(0),
+                new QCdNode(Optional.<INodeMetaCondition>absent(), classId.getId(),
+                        Optional.<IPropertyCondition>of(pcNode2)));
+        QCdNode query = new QCdNode(Optional.<INodeMetaCondition>of(nmc), classId.getId(),
+                Optional.<IPropertyCondition>of(pc));
+        final Set<NodeImpl> result =
+                apiImpl.getQueryApi().query(receiver.getId(), sender.getId(), query);
+        System.out.println("Query Result: " + result);
 
-    return;
-  }
+        /* Fulltext-suchen */
+
+        fts("ZZLA OOPL", apiImpl, classId, receiver, sender);
+        fts("KAKE zSCHEISSE", apiImpl, classId, receiver, sender);
+        fts("wIndows miCROSOFT", apiImpl, classId, receiver, sender);
+        fts("Bundeshaushalsüberschuss ét Milch, Windows", apiImpl, classId, receiver, sender);
+        fts("Bundeshaushalsüberschuss Apple, Windows, iOS, herstellt, hierbei, microsoft", apiImpl,
+                classId, receiver, sender);
+        fts("mit Apple, ios, microsoft und Windows", apiImpl, classId, receiver, sender);
+
+
+        return;
+    }
 }

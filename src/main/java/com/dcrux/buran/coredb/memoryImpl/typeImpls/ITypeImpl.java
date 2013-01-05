@@ -11,11 +11,11 @@ import javax.annotation.Nullable;
  */
 @Deprecated
 public interface ITypeImpl {
-  TypeRef getRef();
+    TypeRef getRef();
 
-  @Nullable
-  Object setData(IDataSetter dataSetter, @Nullable Object currentValue);
+    @Nullable
+    Object setData(IDataSetter dataSetter, @Nullable Object currentValue);
 
-  @Nullable
-  Object getData(IDataGetter dataGetter, @Nullable Object value);
+    @Nullable
+    Object getData(IDataGetter dataGetter, @Nullable Object value);
 }

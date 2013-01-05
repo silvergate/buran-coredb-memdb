@@ -8,21 +8,21 @@ import com.dcrux.buran.coredb.iface.edgeTargets.IIncEdgeTarget;
  */
 public class IncubationEdge {
 
-  /* Target */
-  private final IIncEdgeTarget target;
+    /* Target */
+    private final IIncEdgeTarget target;
 
-  private final EdgeLabel label;
+    private final EdgeLabel label;
 
-  public IncubationEdge(IIncEdgeTarget target, EdgeLabel label) {
-    this.target = target;
-    this.label = label;
-  }
+    public IncubationEdge(IIncEdgeTarget target, EdgeLabel label) {
+        this.target = target;
+        this.label = label;
+    }
 
-  public IIncEdgeTarget getTarget() {
-    return target;
-  }
+    public IIncEdgeTarget getTarget() {
+        return target;
+    }
 
-  public EdgeLabel getLabel() {
-    return label;
-  }
+    public EdgeLabel getLabel() {
+        return label;
+    }
 }

@@ -14,35 +14,35 @@ import java.security.NoSuchAlgorithmException;
  */
 public class NodeClassesApi {
 
-  public NodeClassesApi(NodeClasses classes) {
-    this.classes = classes;
-  }
-
-  private final NodeClasses classes;
-
-  public NodeClassHash declareClass(NodeClass nodeClass) {
-    byte[] ser = SerializationUtils.serialize(nodeClass);
-    final MessageDigest md;
-    try {
-      md = MessageDigest.getInstance("SHA-256");
-      byte[] hash = md.digest(ser);
-      final String hashStr = new String(hash);
-      final NodeClassHash nch = new NodeClassHash(hashStr);
-      this.classes.storeClass(nodeClass, nch);
-      return nch;
-    } catch (NoSuchAlgorithmException e) {
-      throw new IllegalStateException(e);
+    public NodeClassesApi(NodeClasses classes) {
+        this.classes = classes;
     }
-  }
 
-  @Nullable
-  public Long getClassIdByHash(NodeClassHash hash) {
-    return this.classes.getIdByHash(hash);
-  }
+    private final NodeClasses classes;
 
-  @Nullable
-  public NodeClass getClassById(long classId) {
-    return this.classes.getClassById(classId);
-  }
+    public NodeClassHash declareClass(NodeClass nodeClass) {
+        byte[] ser = SerializationUtils.serialize(nodeClass);
+        final MessageDigest md;
+        try {
+            md = MessageDigest.getInstance("SHA-256");
+            byte[] hash = md.digest(ser);
+            final String hashStr = new String(hash);
+            final NodeClassHash nch = new NodeClassHash(hashStr);
+            this.classes.storeClass(nodeClass, nch);
+            return nch;
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    @Nullable
+    public Long getClassIdByHash(NodeClassHash hash) {
+        return this.classes.getIdByHash(hash);
+    }
+
+    @Nullable
+    public NodeClass getClassById(long classId) {
+        return this.classes.getClassById(classId);
+    }
 
 }

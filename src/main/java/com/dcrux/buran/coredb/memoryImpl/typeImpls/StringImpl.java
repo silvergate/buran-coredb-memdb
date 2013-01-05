@@ -13,20 +13,20 @@ import javax.annotation.Nullable;
  */
 @Deprecated
 public class StringImpl implements ITypeImpl {
-  @Override
-  public TypeRef getRef() {
-    return StringType.REF;
-  }
+    @Override
+    public TypeRef getRef() {
+        return StringType.REF;
+    }
 
-  @Override
-  public Object setData(IDataSetter dataSetter, Object currentValue) {
-    PrimSet ds = (PrimSet) dataSetter;
-    return ds.getValue();
-  }
+    @Override
+    public Object setData(IDataSetter dataSetter, Object currentValue) {
+        PrimSet ds = (PrimSet) dataSetter;
+        return ds.getValue();
+    }
 
-  @Nullable
-  @Override
-  public Object getData(IDataGetter dataGetter, @Nullable Object value) {
-    return (String) value;
-  }
+    @Nullable
+    @Override
+    public Object getData(IDataGetter dataGetter, @Nullable Object value) {
+        return (String) value;
+    }
 }

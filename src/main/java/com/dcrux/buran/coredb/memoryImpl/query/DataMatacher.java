@@ -8,29 +8,29 @@ import com.dcrux.buran.coredb.memoryImpl.NodeClassesApi;
  * @author caelis
  */
 public class DataMatacher {
-  private final NodeClassesApi nodeClassesApi;
-  private final long classId;
-  private NodeClass nodeClass;
+    private final NodeClassesApi nodeClassesApi;
+    private final long classId;
+    private NodeClass nodeClass;
 
-  public DataMatacher(NodeClassesApi nodeClassesApi, long classId) {
-    this.nodeClassesApi = nodeClassesApi;
-    this.classId = classId;
-  }
-
-  public boolean matches(Object[] data, IPropertyCondition propCondition) {
-    if (this.nodeClass == null) {
-      this.nodeClass = this.nodeClassesApi.getClassById(this.classId);
-      assert (this.nodeClass != null);
-    }
-    return matchesInt(data, propCondition);
-  }
-
-  private boolean matchesInt(Object[] data, IPropertyCondition propCondition) {
-    if (this.nodeClass == null) {
-      this.nodeClass = this.nodeClassesApi.getClassById(this.classId);
-      assert (this.nodeClass != null);
+    public DataMatacher(NodeClassesApi nodeClassesApi, long classId) {
+        this.nodeClassesApi = nodeClassesApi;
+        this.classId = classId;
     }
 
-    return propCondition.matches(data, this.nodeClass);
-  }
+    public boolean matches(Object[] data, IPropertyCondition propCondition) {
+        if (this.nodeClass == null) {
+            this.nodeClass = this.nodeClassesApi.getClassById(this.classId);
+            assert (this.nodeClass != null);
+        }
+        return matchesInt(data, propCondition);
+    }
+
+    private boolean matchesInt(Object[] data, IPropertyCondition propCondition) {
+        if (this.nodeClass == null) {
+            this.nodeClass = this.nodeClassesApi.getClassById(this.classId);
+            assert (this.nodeClass != null);
+        }
+
+        return propCondition.matches(data, this.nodeClass);
+    }
 }

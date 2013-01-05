@@ -7,14 +7,14 @@ import java.util.Map;
  * @author caelis
  */
 public class Domains {
-  public Map<Long, AccountDomains> accountDomains = new HashMap<>();
+    public Map<Long, AccountDomains> accountDomains = new HashMap<>();
 
-  public AccountDomains getByUserId(long userId) {
-    AccountDomains accDomains = this.accountDomains.get(userId);
-    if (accDomains == null) {
-      accDomains = new AccountDomains();
-      this.accountDomains.put(userId, accDomains);
+    public AccountDomains getByUserId(long userId) {
+        AccountDomains accDomains = this.accountDomains.get(userId);
+        if (accDomains == null) {
+            accDomains = new AccountDomains();
+            this.accountDomains.put(userId, accDomains);
+        }
+        return accDomains;
     }
-    return accDomains;
-  }
 }

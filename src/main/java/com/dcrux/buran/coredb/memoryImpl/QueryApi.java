@@ -17,47 +17,48 @@ import java.util.Set;
  * @author caelis
  */
 public class QueryApi {
-  private final Nodes nodes;
-  private final NodeClassesApi ncApi;
-  private final DataReadApi drApi;
+    private final Nodes nodes;
+    private final NodeClassesApi ncApi;
+    private final DataReadApi drApi;
 
-  public QueryApi(Nodes nodes, NodeClassesApi ncApi, DataReadApi drApi) {
-    this.nodes = nodes;
-    this.ncApi = ncApi;
-    this.drApi = drApi;
-  }
-
-  public Set<NodeImpl> query(long receiverId, long senderId, IQNode query) {
-    final DataAndMetaMatcher dataAndMetaMatcher = new DataAndMetaMatcher();
-    final AccountNodes acNodes = nodes.getByUserId(receiverId);
-
-    final Long classId;
-    if (query instanceof QCdNode) {
-      classId = ((QCdNode) query).getClassId();
-    } else {
-      classId = null;
+    public QueryApi(Nodes nodes, NodeClassesApi ncApi, DataReadApi drApi) {
+        this.nodes = nodes;
+        this.ncApi = ncApi;
+        this.drApi = drApi;
     }
 
-    Collection<NodeSerie> nodesToIterate;
-    if (classId != null) {
-      nodesToIterate = acNodes.getClassIdToAliveSeries().get(classId);
-    } else {
-      nodesToIterate = acNodes.getOidToAliveSeries().values();
-    }
+    public Set<NodeImpl> query(long receiverId, long senderId, IQNode query) {
+        final DataAndMetaMatcher dataAndMetaMatcher = new DataAndMetaMatcher();
+        final AccountNodes acNodes = nodes.getByUserId(receiverId);
 
-    if (nodesToIterate == null) {
-      return Collections.emptySet();
-    }
+        final Long classId;
+        if (query instanceof QCdNode) {
+            classId = ((QCdNode) query).getClassId();
+        } else {
+            classId = null;
+        }
 
-    final Set<NodeImpl> result = new HashSet<>();
-    for (final NodeSerie nodeSerie : nodesToIterate) {
-      final NodeImpl currentNode = nodeSerie.getNode(nodeSerie.getCurrentVersion());
-      final boolean matches = dataAndMetaMatcher.matches(query, this.drApi, currentNode, this.ncApi, acNodes);
-      if (matches) {
-        result.add(currentNode);
-      }
+        Collection<NodeSerie> nodesToIterate;
+        if (classId != null) {
+            nodesToIterate = acNodes.getClassIdToAliveSeries().get(classId);
+        } else {
+            nodesToIterate = acNodes.getOidToAliveSeries().values();
+        }
+
+        if (nodesToIterate == null) {
+            return Collections.emptySet();
+        }
+
+        final Set<NodeImpl> result = new HashSet<>();
+        for (final NodeSerie nodeSerie : nodesToIterate) {
+            final NodeImpl currentNode = nodeSerie.getNode(nodeSerie.getCurrentVersion());
+            final boolean matches =
+                    dataAndMetaMatcher.matches(query, this.drApi, currentNode, this.ncApi, acNodes);
+            if (matches) {
+                result.add(currentNode);
+            }
+        }
+        return result;
     }
-    return result;
-  }
 
 }

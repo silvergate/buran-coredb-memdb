@@ -14,125 +14,125 @@ import java.util.Map;
  * @author caelis
  */
 public class NodeSerie {
-  private final long oid;
-  private final long classId;
-  private final long receiverId;
-  private int currentVersion = Integer.MIN_VALUE;
+    private final long oid;
+    private final long classId;
+    private final long receiverId;
+    private int currentVersion = Integer.MIN_VALUE;
 
-  public static final int FIRST_VERSION = NidVer.FIRST_VERSION;
+    public static final int FIRST_VERSION = NidVer.FIRST_VERSION;
 
-  private boolean hasBeenDeleted;
+    private boolean hasBeenDeleted;
 
-  public NodeSerie(long oid, long classId, long receiverId) {
-    this.oid = oid;
-    this.classId = classId;
-    this.receiverId = receiverId;
-  }
-
-  private final Map<Integer, NodeImpl> versionToNode = new HashMap<>();
-  private final Map<NodeImpl, Integer> nodeToVersion = new HashMap<>();
-
-  private final Map<EdgeLabel, Multimap<EdgeIndex, EdgeImpl>> inEdges = new HashMap<>();
-
-  public Map<EdgeLabel, Multimap<EdgeIndex, EdgeImpl>> getInEdges() {
-    return inEdges;
-  }
-
-  void addInEdge(EdgeIndex index, EdgeImpl edgeImpl) {
-    Multimap<EdgeIndex, EdgeImpl> edges = this.inEdges.get(edgeImpl.getLabel());
-    if (edges == null) {
-      edges = HashMultimap.create();
-      this.inEdges.put(edgeImpl.getLabel(), edges);
+    public NodeSerie(long oid, long classId, long receiverId) {
+        this.oid = oid;
+        this.classId = classId;
+        this.receiverId = receiverId;
     }
-    edges.put(index, edgeImpl);
-  }
 
-  void addNewVersion(NodeImpl node) {
-    if (hasBeenDeleted()) {
-      throw new IllegalStateException("Cannot update serie, has been marked as deleted.");
+    private final Map<Integer, NodeImpl> versionToNode = new HashMap<>();
+    private final Map<NodeImpl, Integer> nodeToVersion = new HashMap<>();
+
+    private final Map<EdgeLabel, Multimap<EdgeIndex, EdgeImpl>> inEdges = new HashMap<>();
+
+    public Map<EdgeLabel, Multimap<EdgeIndex, EdgeImpl>> getInEdges() {
+        return inEdges;
     }
+
+    void addInEdge(EdgeIndex index, EdgeImpl edgeImpl) {
+        Multimap<EdgeIndex, EdgeImpl> edges = this.inEdges.get(edgeImpl.getLabel());
+        if (edges == null) {
+            edges = HashMultimap.create();
+            this.inEdges.put(edgeImpl.getLabel(), edges);
+        }
+        edges.put(index, edgeImpl);
+    }
+
+    void addNewVersion(NodeImpl node) {
+        if (hasBeenDeleted()) {
+            throw new IllegalStateException("Cannot update serie, has been marked as deleted.");
+        }
 
     /* Get node to replace - if any */
-    final NodeImpl nodeToReplace;
-    if (!hasNoVersion()) {
-      nodeToReplace = getNode(getCurrentVersion());
-    } else {
-      nodeToReplace = null;
+        final NodeImpl nodeToReplace;
+        if (!hasNoVersion()) {
+            nodeToReplace = getNode(getCurrentVersion());
+        } else {
+            nodeToReplace = null;
+        }
+
+        int newVersion;
+        if (hasNoVersion()) {
+            newVersion = FIRST_VERSION;
+        } else {
+            newVersion = getCurrentVersion() + 1;
+        }
+
+        final long validFrom = node.getValidFrom();
+        if (nodeToReplace != null) {
+            nodeToReplace.setValidTo(validFrom - 1);
+        }
+
+        this.currentVersion = newVersion;
+        this.versionToNode.put(newVersion, node);
+        this.nodeToVersion.put(node, newVersion);
     }
 
-    int newVersion;
-    if (hasNoVersion()) {
-      newVersion = FIRST_VERSION;
-    } else {
-      newVersion = getCurrentVersion() + 1;
+    void markAsDeleted(long currentTime) {
+        if (hasBeenDeleted()) {
+            throw new IllegalStateException("Cannot update serie, has been marked as deleted.");
+        }
+        if (hasNoVersion()) {
+            throw new IllegalStateException("Has no version - cannot mark as deleted");
+        }
+        final NodeImpl nodeToReplace = getNode(getCurrentVersion());
+        nodeToReplace.setValidTo(currentTime);
     }
 
-    final long validFrom = node.getValidFrom();
-    if (nodeToReplace != null) {
-      nodeToReplace.setValidTo(validFrom - 1);
+    public NodeImpl getNode(int version) {
+        final NodeImpl node = this.versionToNode.get(version);
+        if (node == null) {
+            throw new IllegalStateException("Node with given version not found");
+        }
+        return node;
     }
 
-    this.currentVersion = newVersion;
-    this.versionToNode.put(newVersion, node);
-    this.nodeToVersion.put(node, newVersion);
-  }
-
-  void markAsDeleted(long currentTime) {
-    if (hasBeenDeleted()) {
-      throw new IllegalStateException("Cannot update serie, has been marked as deleted.");
+    public boolean hasNoVersion() {
+        return (this.currentVersion == Integer.MIN_VALUE);
     }
-    if (hasNoVersion()) {
-      throw new IllegalStateException("Has no version - cannot mark as deleted");
+
+    public boolean hasBeenDeleted() {
+        return this.hasBeenDeleted;
     }
-    final NodeImpl nodeToReplace = getNode(getCurrentVersion());
-    nodeToReplace.setValidTo(currentTime);
-  }
 
-  public NodeImpl getNode(int version) {
-    final NodeImpl node = this.versionToNode.get(version);
-    if (node == null) {
-      throw new IllegalStateException("Node with given version not found");
+    public int getCurrentVersion() {
+        if (hasNoVersion()) {
+            throw new IllegalStateException("Has no version");
+        }
+        if (hasBeenDeleted()) {
+            throw new IllegalStateException("Has been deleted - has no current version");
+        }
+        return this.currentVersion;
     }
-    return node;
-  }
 
-  public boolean hasNoVersion() {
-    return (this.currentVersion == Integer.MIN_VALUE);
-  }
-
-  public boolean hasBeenDeleted() {
-    return this.hasBeenDeleted;
-  }
-
-  public int getCurrentVersion() {
-    if (hasNoVersion()) {
-      throw new IllegalStateException("Has no version");
+    public int getLatestVersionBeforeDeletion() {
+        if (hasNoVersion()) {
+            throw new IllegalStateException("Has no version");
+        }
+        if (!hasBeenDeleted()) {
+            throw new IllegalStateException("Has not yet been deleted");
+        }
+        return this.currentVersion;
     }
-    if (hasBeenDeleted()) {
-      throw new IllegalStateException("Has been deleted - has no current version");
+
+    public long getOid() {
+        return oid;
     }
-    return this.currentVersion;
-  }
 
-  public int getLatestVersionBeforeDeletion() {
-    if (hasNoVersion()) {
-      throw new IllegalStateException("Has no version");
+    public long getClassId() {
+        return classId;
     }
-    if (!hasBeenDeleted()) {
-      throw new IllegalStateException("Has not yet been deleted");
+
+    public long getReceiverId() {
+        return receiverId;
     }
-    return this.currentVersion;
-  }
-
-  public long getOid() {
-    return oid;
-  }
-
-  public long getClassId() {
-    return classId;
-  }
-
-  public long getReceiverId() {
-    return receiverId;
-  }
 }

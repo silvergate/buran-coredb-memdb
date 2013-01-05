@@ -13,23 +13,25 @@ import java.util.Set;
  * @author caelis
  */
 public class CommitApi {
-  private final Nodes nodes;
-  private final DataReadApi drApi;
-  private final NodeClassesApi ncApi;
+    private final Nodes nodes;
+    private final DataReadApi drApi;
+    private final NodeClassesApi ncApi;
 
-  public CommitApi(Nodes nodes, DataReadApi drApi, NodeClassesApi ncApi) {
-    this.nodes = nodes;
-    this.drApi = drApi;
-    this.ncApi = ncApi;
-  }
+    public CommitApi(Nodes nodes, DataReadApi drApi, NodeClassesApi ncApi) {
+        this.nodes = nodes;
+        this.drApi = drApi;
+        this.ncApi = ncApi;
+    }
 
-  public CommitResult commit(long receiverId, long senderId, IncNid... incNid) throws OptimisticLockingException {
-    Set<IncNid> incNids = new HashSet<>();
-    incNids.addAll(Arrays.asList(incNid));
-    return this.nodes.getByUserId(receiverId).commit(senderId, incNids, this.drApi, this.ncApi);
-  }
+    public CommitResult commit(long receiverId, long senderId, IncNid... incNid)
+            throws OptimisticLockingException {
+        Set<IncNid> incNids = new HashSet<>();
+        incNids.addAll(Arrays.asList(incNid));
+        return this.nodes.getByUserId(receiverId).commit(senderId, incNids, this.drApi, this.ncApi);
+    }
 
-  public CommitResult commit(long receiverId, long senderId, Set<IncNid> incNids) throws OptimisticLockingException {
-    return this.nodes.getByUserId(receiverId).commit(senderId, incNids, this.drApi, this.ncApi);
-  }
+    public CommitResult commit(long receiverId, long senderId, Set<IncNid> incNids)
+            throws OptimisticLockingException {
+        return this.nodes.getByUserId(receiverId).commit(senderId, incNids, this.drApi, this.ncApi);
+    }
 }
