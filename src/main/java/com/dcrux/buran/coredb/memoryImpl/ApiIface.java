@@ -3,8 +3,11 @@ package com.dcrux.buran.coredb.memoryImpl;
 import com.dcrux.buran.coredb.iface.*;
 import com.dcrux.buran.coredb.iface.api.*;
 import com.dcrux.buran.coredb.iface.api.exceptions.*;
+import com.dcrux.buran.coredb.iface.domains.DomainHash;
+import com.dcrux.buran.coredb.iface.domains.DomainId;
 import com.dcrux.buran.coredb.iface.edgeTargets.IIncEdgeTarget;
 import com.dcrux.buran.coredb.iface.nodeClass.*;
+import com.dcrux.buran.coredb.memoryImpl.data.Domains;
 import com.dcrux.buran.coredb.memoryImpl.data.NodeClasses;
 import com.dcrux.buran.coredb.memoryImpl.data.NodeImpl;
 import com.dcrux.buran.coredb.memoryImpl.data.Nodes;
@@ -28,17 +31,20 @@ public class ApiIface implements IApi {
     private final TypesRegistry typesRegistry;
     private final MiApi metaApi;
     private final QueryApi queryApi;
+    private final DomApi domainApi;
 
     public ApiIface() {
         this.typesRegistry = new TypesRegistry();
         Nodes nodes = new Nodes();
         NodeClasses ncs = new NodeClasses();
+        Domains doms = new Domains();
         this.nodeClassesApi = new NodeClassesApi(ncs);
         this.dataManipulationApi = new DmApi(nodes, this.nodeClassesApi, typesRegistry);
         this.dataReadApi = new DataReadApi(nodes, this.nodeClassesApi, typesRegistry);
         this.commitApi = new CommitApi(nodes, this.dataReadApi, this.nodeClassesApi);
         this.metaApi = new MiApi(this.dataReadApi, this.dataManipulationApi);
         this.queryApi = new QueryApi(nodes, getNodeClassesApi(), this.dataReadApi);
+        this.domainApi = new DomApi(doms);
     }
 
     public CommitApi getCommitApi() {
@@ -245,5 +251,17 @@ public class ApiIface implements IApi {
             throws NodeNotFoundException {
         return this.getDrApi()
                 .getLatestVersionBeforeDeletion(receiver.getId(), sender.getId(), nid);
+    }
+
+    @Override
+    public DomainId addAnonymousDomain(UserId receiver, UserId sender)
+            throws PermissionDeniedException {
+        return this.domainApi.addAnonymousDomain(receiver.getId(), sender.getId());
+    }
+
+    @Override
+    public DomainId addOrGetIdentifiedDomain(UserId receiver, UserId sender, DomainHash hash)
+            throws PermissionDeniedException {
+        return this.domainApi.addOrGetIdentifiedDomain(receiver.getId(), sender.getId(), hash);
     }
 }

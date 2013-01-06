@@ -161,8 +161,8 @@ public class AccountNodes {
         return incOidToIncNodes;
     }
 
-    private transient AtomicLong incOidCounter = new AtomicLong(0L);
-    private transient AtomicLong oidCounter = new AtomicLong(0L);
+    private final AtomicLong incOidCounter = new AtomicLong(0L);
+    private final AtomicLong oidCounter = new AtomicLong(0L);
 
     public AtomicLong getIncOidCounter() {
         return incOidCounter;

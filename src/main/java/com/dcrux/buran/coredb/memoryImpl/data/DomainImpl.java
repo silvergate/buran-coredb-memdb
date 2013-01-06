@@ -9,4 +9,8 @@ public class DomainImpl {
     public DomainImpl(long id) {
         this.id = id;
     }
+
+    public long getId() {
+        return id;
+    }
 }

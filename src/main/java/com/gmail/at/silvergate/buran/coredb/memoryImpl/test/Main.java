@@ -115,13 +115,8 @@ public class Main {
                 new IncVersionedEdTarget(nodeTwoInc.getId()));
         api.setData(receiver, sender, nodeOneInc, (short) 0, PrimSet.string("Ich bin eine Welt"));
         api.setData(receiver, sender, nodeOneInc, (short) 1, FtsiAddText.c("Es handelt sich " +
-                "hierbei um einen " +
-                "Text, " +
-                "wobei Apple Inc. " +
-                "das iPhone mit iOS " +
-                "herstellt, und " +
-                "Microsoft das " +
-                "Windows 8."));
+                "hierbei um einen Text, wobei Apple Inc. das iPhone mit iOS " +
+                "herstellt, und Microsoft das Windows 8."));
 
     /* NodeImpl 2 mit daten befüllen */
 
