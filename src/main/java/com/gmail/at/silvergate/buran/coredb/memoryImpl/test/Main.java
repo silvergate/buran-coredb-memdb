@@ -53,7 +53,7 @@ public class Main {
                 apiImpl.getQueryApi().query(receiver.getId(), sender.getId(), query);
         boolean found = !result.isEmpty();
         System.out.println(MessageFormat
-                .format("* FTS: ''{0}'' : fuziness: {1}, " + "found: {2} ", text, fuzziness,
+                .format("* FTS: ''{0}'' : fuzziness: {1}, " + "found: {2} ", text, fuzziness,
                         found));
     }
 
