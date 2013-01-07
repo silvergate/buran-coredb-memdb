@@ -7,6 +7,8 @@ import com.dcrux.buran.coredb.iface.domains.DomainHash;
 import com.dcrux.buran.coredb.iface.domains.DomainId;
 import com.dcrux.buran.coredb.iface.edgeTargets.IIncEdgeTarget;
 import com.dcrux.buran.coredb.iface.nodeClass.*;
+import com.dcrux.buran.coredb.iface.subscription.Subscription;
+import com.dcrux.buran.coredb.iface.subscription.SubscriptionId;
 import com.dcrux.buran.coredb.memoryImpl.data.Domains;
 import com.dcrux.buran.coredb.memoryImpl.data.NodeClasses;
 import com.dcrux.buran.coredb.memoryImpl.data.NodeImpl;
@@ -263,5 +265,15 @@ public class ApiIface implements IApi {
     public DomainId addOrGetIdentifiedDomain(UserId receiver, UserId sender, DomainHash hash)
             throws PermissionDeniedException {
         return this.domainApi.addOrGetIdentifiedDomain(receiver.getId(), sender.getId(), hash);
+    }
+
+    @Override
+    public SubscriptionId addSubscription(Subscription subscription) {
+        throw new NotImplementedException("Mach das mal!");
+    }
+
+    @Override
+    public void removeSubscription(SubscriptionId subscriptionId) {
+        throw new NotImplementedException("Mach das mal!");
     }
 }

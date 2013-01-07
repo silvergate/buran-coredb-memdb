@@ -82,7 +82,7 @@ public class Main {
         final ClassId classId = api.getClassIdByHash(ncHash);
 
     /* Public edge label test */
-        final ClassId cls2 = new ClassId(332332l);
+        final ClassId cls2 = ClassId.c(332332l);
         PublicEdgeClass pec = new PublicEdgeClass(UUID.randomUUID(), true, Optional.of(cls2),
                 PublicEdgeConstraints.many, Optional.of(classId));
         final EdgeLabel label = pec.createLabel();
