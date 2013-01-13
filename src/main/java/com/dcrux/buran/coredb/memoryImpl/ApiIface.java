@@ -7,6 +7,7 @@ import com.dcrux.buran.coredb.iface.domains.DomainHash;
 import com.dcrux.buran.coredb.iface.domains.DomainId;
 import com.dcrux.buran.coredb.iface.edgeTargets.IIncEdgeTarget;
 import com.dcrux.buran.coredb.iface.nodeClass.*;
+import com.dcrux.buran.coredb.iface.query.IQuery;
 import com.dcrux.buran.coredb.iface.subscription.Subscription;
 import com.dcrux.buran.coredb.iface.subscription.SubscriptionId;
 import com.dcrux.buran.coredb.memoryImpl.data.Domains;
@@ -45,7 +46,7 @@ public class ApiIface implements IApi {
         this.dataReadApi = new DataReadApi(nodes, this.nodeClassesApi, typesRegistry);
         this.commitApi = new CommitApi(nodes, this.dataReadApi, this.nodeClassesApi);
         this.metaApi = new MiApi(this.dataReadApi, this.dataManipulationApi);
-        this.queryApi = new QueryApi(nodes, getNodeClassesApi(), this.dataReadApi);
+        this.queryApi = new QueryApi(nodes, getNodeClassesApi(), this.dataReadApi, typesRegistry);
         this.domainApi = new DomApi(doms);
     }
 
@@ -275,5 +276,12 @@ public class ApiIface implements IApi {
     @Override
     public void removeSubscription(SubscriptionId subscriptionId) {
         throw new NotImplementedException("Mach das mal!");
+    }
+
+    @Override
+    public QueryResult query(UserId receiverId, UserId senderId, IQuery query,
+            boolean countNumberOfResultsWithoutLimit) throws PermissionDeniedException {
+        return this.queryApi.query(receiverId.getId(), senderId.getId(), query,
+                countNumberOfResultsWithoutLimit);
     }
 }

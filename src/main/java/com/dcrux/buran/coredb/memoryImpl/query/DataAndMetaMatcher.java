@@ -1,8 +1,8 @@
 package com.dcrux.buran.coredb.memoryImpl.query;
 
-import com.dcrux.buran.coredb.iface.query.IQNode;
-import com.dcrux.buran.coredb.iface.query.QCdNode;
-import com.dcrux.buran.coredb.iface.query.QNode;
+import com.dcrux.buran.coredb.iface.query.CondCdNode;
+import com.dcrux.buran.coredb.iface.query.CondNode;
+import com.dcrux.buran.coredb.iface.query.ICondNode;
 import com.dcrux.buran.coredb.iface.query.nodeMeta.INodeMetaCondition;
 import com.dcrux.buran.coredb.iface.query.propertyCondition.IPropertyCondition;
 import com.dcrux.buran.coredb.memoryImpl.DataReadApi;
@@ -15,22 +15,22 @@ import com.dcrux.buran.coredb.memoryImpl.data.NodeImpl;
  */
 public class DataAndMetaMatcher {
 
-    public boolean matches(IQNode qNode, final DataReadApi drApi, final NodeImpl node,
+    public boolean matches(ICondNode qNode, final DataReadApi drApi, final NodeImpl node,
             NodeClassesApi ncApi, AccountNodes accountNodes) {
         final DataMatacher dataMatcher = new DataMatacher(ncApi, node.getNodeSerie().getClassId());
         final MetaMatcher metaMatcher = new MetaMatcher(drApi, accountNodes, ncApi);
         INodeMetaCondition metaCondition = null;
         IPropertyCondition propCondition = null;
         Long classId = null;
-        if (qNode instanceof QNode) {
-            if (((QNode) qNode).getMetaCondition().isPresent()) {
-                metaCondition = ((QNode) qNode).getMetaCondition().get();
+        if (qNode instanceof CondNode) {
+            if (((CondNode) qNode).getMetaCondition().isPresent()) {
+                metaCondition = ((CondNode) qNode).getMetaCondition().get();
             }
         }
-        if (qNode instanceof QCdNode) {
-            if (((QCdNode) qNode).getPropertyCondition().isPresent()) {
-                propCondition = ((QCdNode) qNode).getPropertyCondition().get();
-                classId = ((QCdNode) qNode).getClassId();
+        if (qNode instanceof CondCdNode) {
+            if (((CondCdNode) qNode).getPropertyCondition().isPresent()) {
+                propCondition = ((CondCdNode) qNode).getPropertyCondition().get();
+                classId = ((CondCdNode) qNode).getClassId();
             }
         }
 

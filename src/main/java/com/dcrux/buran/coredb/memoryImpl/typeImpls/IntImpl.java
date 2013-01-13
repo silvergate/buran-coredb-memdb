@@ -1,8 +1,6 @@
 package com.dcrux.buran.coredb.memoryImpl.typeImpls;
 
-import com.dcrux.buran.coredb.iface.nodeClass.IDataGetter;
-import com.dcrux.buran.coredb.iface.nodeClass.IDataSetter;
-import com.dcrux.buran.coredb.iface.nodeClass.TypeRef;
+import com.dcrux.buran.coredb.iface.nodeClass.*;
 import com.dcrux.buran.coredb.iface.propertyTypes.PrimSet;
 import com.dcrux.buran.coredb.iface.propertyTypes.integer.IntType;
 
@@ -29,4 +27,12 @@ public class IntImpl implements ITypeImpl {
     public Object getData(IDataGetter dataGetter, @Nullable Object value) {
         return (Integer) value;
     }
+
+    @Nullable
+    @Override
+    public ISorter getSorter(IType type, SorterRef ref) {
+        return type.getSorter(ref);
+    }
+
+
 }
