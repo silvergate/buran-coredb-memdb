@@ -6,14 +6,17 @@ import com.dcrux.buran.coredb.iface.api.CommitResult;
 import com.dcrux.buran.coredb.iface.api.exceptions.ExpectableException;
 import com.dcrux.buran.coredb.iface.api.exceptions.OptimisticLockingException;
 import com.dcrux.buran.coredb.iface.nodeClass.NodeClass;
+import com.dcrux.buran.coredb.iface.subscription.SubscriptionEventType;
 import com.dcrux.buran.coredb.memoryImpl.DataReadApi;
 import com.dcrux.buran.coredb.memoryImpl.NodeClassesApi;
 import com.dcrux.buran.coredb.memoryImpl.PreparedComitInfo;
+import com.dcrux.buran.coredb.memoryImpl.SubscriptionApi;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
@@ -172,8 +175,27 @@ public class AccountNodes {
         return oidCounter;
     }
 
+    public static class SubscriptionTask {
+        public SubscriptionTask(NodeImpl nodeImpl, SubscriptionEventType subscriptionEventType) {
+            this.nodeImpl = nodeImpl;
+            this.subscriptionEventType = subscriptionEventType;
+        }
+
+        private final NodeImpl nodeImpl;
+        private SubscriptionEventType subscriptionEventType;
+
+        public NodeImpl getNodeImpl() {
+            return nodeImpl;
+        }
+
+        public SubscriptionEventType getSubscriptionEventType() {
+            return subscriptionEventType;
+        }
+    }
+
     public CommitResult commit(long senderId, Set<IncNid> incNids, DataReadApi drApi,
-            NodeClassesApi ncApi) throws OptimisticLockingException {
+            NodeClassesApi ncApi, SubscriptionApi subscriptionApi)
+            throws OptimisticLockingException {
         // TODO: Missing write lock
       /* OIDs von allen extrahieren */
         final Set<PreparedComitInfo> prepComInfo =
@@ -181,50 +203,89 @@ public class AccountNodes {
       /* Validate */
         this.commitUtil.validate(prepComInfo, drApi, ncApi);
 
+        /* Subscription tasks */
+        final Set<SubscriptionTask> subscriptionTasks = new HashSet<>();
+
         /* Commit node */
         for (final PreparedComitInfo pciEntry : prepComInfo) {
-            commitNodeAndEdges(prepComInfo, senderId, pciEntry);
+            commitNodeAndEdges(prepComInfo, senderId, pciEntry, subscriptionTasks);
         }
 
         final Map<IncNid, NidVer> incOidToOidVer = new HashMap<>();
         for (final PreparedComitInfo pciEntry : prepComInfo) {
             incOidToOidVer.put(pciEntry.getIoid(), pciEntry.getOidToGet());
         }
+
+        /* Invoke subscription tasks */
+        for (SubscriptionTask subscriptionTask : subscriptionTasks) {
+            subscriptionApi.invoke(subscriptionTask.getNodeImpl(),
+                    subscriptionTask.getSubscriptionEventType());
+        }
+
         return new CommitResult(incOidToOidVer);
     }
 
     private void commitNodeAndEdges(Set<PreparedComitInfo> pci, final long senderId,
-            PreparedComitInfo pciEntry) {
+            PreparedComitInfo pciEntry, final Set<SubscriptionTask> subscriptionTasks) {
         final IncNid incNid = pciEntry.getIoid();
         final long classId = pciEntry.getClassId();
 
         final IncNode incNode = pciEntry.getIncNode();
 
-    /* Remove Incubation Data */
+        /* Remove Incubation Data */
         getIncOidToIncNodes().remove(incNid.getId());
 
-    /* Set data */
+        /* Set data */
         final AccountNodes accountNodes = this;
         final long oid = pciEntry.getOidToGet().getOid();
         final int version = pciEntry.getOidToGet().getVersion();
         final NidVer nidVer = new NidVer(oid, version);
 
-    /* Set valid from time */
+        /* Set valid from time */
         long currentTime = System.currentTimeMillis();
         incNode.getNode().setValidFrom(currentTime);
 
-     /* Add edges from inc to node */
+        /* Add edges from inc to node */
         for (Map.Entry<IncNode.EdgeIndexLabel, IncubationEdge> incEdgeEntry : incNode
                 .getIncubationEdges().entrySet()) {
             this.commitUtil.addEdge(pci, incNode.getNode(), incEdgeEntry.getValue(),
                     incEdgeEntry.getKey().getIndex(), this);
         }
 
-    /* Add node */
+        /* Add node */
         if (!incNode.isMarkedToDelete()) {
             addNode(incNode.getNode());
         } else {
             markNodeAsDeleted(incNode.getNode(), currentTime);
+        }
+
+        /* Add subscription tasks */
+
+        /* New node */
+        if (!incNode.isMarkedToDelete()) {
+            if (incNode.getNode().getVersion() == NodeSerie.FIRST_VERSION) {
+                /* Adding a new node, not updating */
+                subscriptionTasks.add(new SubscriptionTask(incNode.getNode(),
+                        SubscriptionEventType.newNode));
+            } else {
+                /* Adding a new node, updating */
+                subscriptionTasks.add(new SubscriptionTask(incNode.getNode(),
+                        SubscriptionEventType.nodeUpdatingOther));
+            }
+        }
+        /* Old node */
+        if (incNode.getNode().getVersion() != NodeSerie.FIRST_VERSION) {
+            final NodeImpl oldNode =
+                    pciEntry.getNodeSerie().getNode(incNode.getNode().getVersion() - 1);
+            if (incNode.isMarkedToDelete()) {
+                /* Old node is removed without update */
+                subscriptionTasks
+                        .add(new SubscriptionTask(oldNode, SubscriptionEventType.nodeHistorized));
+            } else {
+                                /* Old node is replaced by other node */
+                subscriptionTasks.add(new SubscriptionTask(oldNode,
+                        SubscriptionEventType.nodeHistorizedReplaced));
+            }
         }
     }
 }

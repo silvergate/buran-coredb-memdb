@@ -10,10 +10,7 @@ import com.dcrux.buran.coredb.iface.nodeClass.*;
 import com.dcrux.buran.coredb.iface.query.IQuery;
 import com.dcrux.buran.coredb.iface.subscription.Subscription;
 import com.dcrux.buran.coredb.iface.subscription.SubscriptionId;
-import com.dcrux.buran.coredb.memoryImpl.data.Domains;
-import com.dcrux.buran.coredb.memoryImpl.data.NodeClasses;
-import com.dcrux.buran.coredb.memoryImpl.data.NodeImpl;
-import com.dcrux.buran.coredb.memoryImpl.data.Nodes;
+import com.dcrux.buran.coredb.memoryImpl.data.*;
 import com.dcrux.buran.coredb.memoryImpl.typeImpls.TypesRegistry;
 import com.google.common.base.Optional;
 import com.google.common.collect.Multimap;
@@ -35,16 +32,22 @@ public class ApiIface implements IApi {
     private final MiApi metaApi;
     private final QueryApi queryApi;
     private final DomApi domainApi;
+    private final SubscriptionApi subscriptionApi;
 
     public ApiIface() {
         this.typesRegistry = new TypesRegistry();
         Nodes nodes = new Nodes();
         NodeClasses ncs = new NodeClasses();
         Domains doms = new Domains();
+        Subscriptions subscriptions = new Subscriptions();
+
         this.nodeClassesApi = new NodeClassesApi(ncs);
         this.dataManipulationApi = new DmApi(nodes, this.nodeClassesApi, typesRegistry);
         this.dataReadApi = new DataReadApi(nodes, this.nodeClassesApi, typesRegistry);
-        this.commitApi = new CommitApi(nodes, this.dataReadApi, this.nodeClassesApi);
+        this.subscriptionApi =
+                new SubscriptionApi(subscriptions, nodes, this.nodeClassesApi, this.dataReadApi);
+        this.commitApi =
+                new CommitApi(nodes, this.dataReadApi, this.nodeClassesApi, this.subscriptionApi);
         this.metaApi = new MiApi(this.dataReadApi, this.dataManipulationApi);
         this.queryApi = new QueryApi(nodes, getNodeClassesApi(), this.dataReadApi, typesRegistry);
         this.domainApi = new DomApi(doms);
@@ -72,6 +75,10 @@ public class ApiIface implements IApi {
 
     public QueryApi getQueryApi() {
         return queryApi;
+    }
+
+    public SubscriptionApi getSubscriptionApi() {
+        return subscriptionApi;
     }
 
     private short keepAliveNumSeconds() {
@@ -269,13 +276,16 @@ public class ApiIface implements IApi {
     }
 
     @Override
-    public SubscriptionId addSubscription(Subscription subscription) {
-        throw new NotImplementedException("Mach das mal!");
+    public SubscriptionId addSubscription(Subscription subscription)
+            throws PermissionDeniedException {
+        return getSubscriptionApi().addSubscription(subscription);
     }
 
     @Override
-    public void removeSubscription(SubscriptionId subscriptionId) {
-        throw new NotImplementedException("Mach das mal!");
+    public boolean removeSubscription(UserId receiver, UserId sender, SubscriptionId subscriptionId)
+            throws PermissionDeniedException {
+        return getSubscriptionApi()
+                .removeSubscription(receiver.getId(), sender.getId(), subscriptionId);
     }
 
     @Override
