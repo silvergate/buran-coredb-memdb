@@ -31,6 +31,7 @@ import com.dcrux.buran.coredb.iface.query.propertyCondition.PropCondition;
 import com.dcrux.buran.coredb.memoryImpl.ApiIface;
 import com.google.common.base.Optional;
 
+import java.io.ByteArrayOutputStream;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.UUID;
@@ -62,6 +63,12 @@ public class Main {
     public static void main(String[] args)
             throws OptimisticLockingException, IncubationNodeNotFound, EdgeIndexAlreadySet,
             NodeNotFoundException, PermissionDeniedException, InformationUnavailableException {
+
+        ByteArrayOutputStream bb = new ByteArrayOutputStream();
+        bb.write((byte) 33);
+
+        System.out.println(bb.toByteArray().length);
+
 
         ApiIface apiImpl = new ApiIface();
         IApi api = apiImpl;
