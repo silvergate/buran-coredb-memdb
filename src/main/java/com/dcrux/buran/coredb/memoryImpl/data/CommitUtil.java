@@ -30,8 +30,8 @@ public class CommitUtil {
         final Set<PreparedComitInfo> toOids = new HashSet<>();
         for (final IncNid incNid : incNids) {
             final IncNode incNode = accountNodes.getIncNode(incNid.getId());
-            final long classId = incNode.getClassId();
             assert (incNode != null);
+            final long classId = incNode.getClassId();
             if (incNode.getToUpdate() != null) {
         /* Update old version */
                 final NodeSerie nodeSerie =
