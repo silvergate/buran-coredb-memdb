@@ -4,10 +4,7 @@ import com.dcrux.buran.coredb.iface.EdgeIndex;
 import com.dcrux.buran.coredb.iface.EdgeLabel;
 import com.dcrux.buran.coredb.iface.IncNid;
 import com.dcrux.buran.coredb.iface.UserId;
-import com.dcrux.buran.coredb.iface.api.CommitResult;
-import com.dcrux.buran.coredb.iface.api.CreateInfo;
-import com.dcrux.buran.coredb.iface.api.IApi;
-import com.dcrux.buran.coredb.iface.api.KeepAliveHint;
+import com.dcrux.buran.coredb.iface.api.*;
 import com.dcrux.buran.coredb.iface.api.exceptions.*;
 import com.dcrux.buran.coredb.iface.domains.DomainHashCreator;
 import com.dcrux.buran.coredb.iface.edgeClass.PrivateEdgeClass;
@@ -25,18 +22,17 @@ import com.dcrux.buran.coredb.iface.propertyTypes.ftsi.FtsiType;
 import com.dcrux.buran.coredb.iface.propertyTypes.ftsi.Fuzziness;
 import com.dcrux.buran.coredb.iface.propertyTypes.string.StringEq;
 import com.dcrux.buran.coredb.iface.propertyTypes.string.StringType;
-import com.dcrux.buran.coredb.iface.query.QCdNode;
+import com.dcrux.buran.coredb.iface.query.CondCdNode;
+import com.dcrux.buran.coredb.iface.query.QueryCdNode;
 import com.dcrux.buran.coredb.iface.query.edgeCondition.OutEdgeCondition;
 import com.dcrux.buran.coredb.iface.query.nodeMeta.INodeMetaCondition;
 import com.dcrux.buran.coredb.iface.query.propertyCondition.IPropertyCondition;
 import com.dcrux.buran.coredb.iface.query.propertyCondition.PropCondition;
 import com.dcrux.buran.coredb.memoryImpl.ApiIface;
-import com.dcrux.buran.coredb.memoryImpl.data.NodeImpl;
 import com.google.common.base.Optional;
 
 import java.text.MessageFormat;
 import java.util.Arrays;
-import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -44,21 +40,20 @@ import java.util.UUID;
  */
 public class Main {
 
-    public static void fts(Fuzziness fuzziness, String text, ApiIface apiImpl, ClassId classId,
-            UserId receiver, UserId sender) {
+    public static void fts(Fuzziness fuzziness, String text, IApi apiImpl, ClassId classId,
+            UserId receiver, UserId sender) throws PermissionDeniedException {
         PropCondition ftsOne = new PropCondition((short) 1, FtsiMatch.c(fuzziness, text));
-        QCdNode query = new QCdNode(Optional.<INodeMetaCondition>absent(), classId.getId(),
+        CondCdNode query = new CondCdNode(Optional.<INodeMetaCondition>absent(), classId.getId(),
                 Optional.<IPropertyCondition>of(ftsOne));
-        final Set<NodeImpl> result =
-                apiImpl.getQueryApi().query(receiver.getId(), sender.getId(), query);
-        boolean found = !result.isEmpty();
+        final QueryResult queryResult = apiImpl.query(receiver, sender, QueryCdNode.c(query), true);
+        boolean found = !queryResult.getNodes().isEmpty();
         System.out.println(MessageFormat
                 .format("* FTS: ''{0}'' : fuzziness: {1}, " + "found: {2} ", text, fuzziness,
                         found));
     }
 
-    public static void fts(String text, ApiIface apiImpl, ClassId classId, UserId receiver,
-            UserId sender) {
+    public static void fts(String text, IApi apiImpl, ClassId classId, UserId receiver,
+            UserId sender) throws PermissionDeniedException {
         fts(Fuzziness.high, text, apiImpl, classId, receiver, sender);
         fts(Fuzziness.medium, text, apiImpl, classId, receiver, sender);
         fts(Fuzziness.low, text, apiImpl, classId, receiver, sender);
@@ -82,7 +77,7 @@ public class Main {
         final ClassId classId = api.getClassIdByHash(ncHash);
 
     /* Public edge label test */
-        final ClassId cls2 = new ClassId(332332l);
+        final ClassId cls2 = ClassId.c(332332l);
         PublicEdgeClass pec = new PublicEdgeClass(UUID.randomUUID(), true, Optional.of(cls2),
                 PublicEdgeConstraints.many, Optional.of(classId));
         final EdgeLabel label = pec.createLabel();
@@ -148,13 +143,12 @@ public class Main {
 
         PropCondition pc = new PropCondition((short) 0, new StringEq("Ich bin eine Welt"));
         INodeMetaCondition nmc = OutEdgeCondition.hasEdge(halloEdge, EdgeIndex.c(0),
-                new QCdNode(Optional.<INodeMetaCondition>absent(), classId.getId(),
+                new CondCdNode(Optional.<INodeMetaCondition>absent(), classId.getId(),
                         Optional.<IPropertyCondition>of(pcNode2)));
-        QCdNode query = new QCdNode(Optional.<INodeMetaCondition>of(nmc), classId.getId(),
+        CondCdNode query = new CondCdNode(Optional.<INodeMetaCondition>of(nmc), classId.getId(),
                 Optional.<IPropertyCondition>of(pc));
-        final Set<NodeImpl> result =
-                apiImpl.getQueryApi().query(receiver.getId(), sender.getId(), query);
-        System.out.println("Query Result: " + result);
+        final QueryResult queryResult = api.query(receiver, sender, QueryCdNode.c(query), true);
+        System.out.println("Query Result: " + queryResult.getNodes());
 
         /* Fulltext-suchen */
 

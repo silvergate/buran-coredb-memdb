@@ -5,7 +5,7 @@ import com.dcrux.buran.coredb.iface.api.exceptions.ExpectableException;
 import com.dcrux.buran.coredb.iface.api.exceptions.NodeNotFoundException;
 import com.dcrux.buran.coredb.iface.nodeClass.NodeClass;
 import com.dcrux.buran.coredb.iface.permissions.UserNodePermission;
-import com.dcrux.buran.coredb.iface.query.IQNode;
+import com.dcrux.buran.coredb.iface.query.ICondNode;
 import com.dcrux.buran.coredb.iface.query.nodeMeta.IMetaInfoForQuery;
 import com.dcrux.buran.coredb.iface.query.nodeMeta.INodeMatcher;
 import com.dcrux.buran.coredb.iface.query.nodeMeta.INodeMetaCondition;
@@ -138,7 +138,7 @@ public class MetaMatcher {
 
     private final INodeMatcher nodeMatcher = new INodeMatcher() {
         @Override
-        public boolean matchesVersion(NidVer nidVer, IQNode qNode) {
+        public boolean matchesVersion(NidVer nidVer, ICondNode qNode) {
             final NodeImpl node = accountNodes.getNode(nidVer.getOid(), nidVer.getVersion(), true);
             if (node == null) {
                 return false;
@@ -148,7 +148,7 @@ public class MetaMatcher {
         }
 
         @Override
-        public boolean matches(long oid, IQNode qNode) {
+        public boolean matches(long oid, ICondNode qNode) {
             final NodeImpl node = accountNodes.getCurrentNode(oid);
             if (node == null) {
                 return false;

@@ -1,8 +1,6 @@
 package com.dcrux.buran.coredb.memoryImpl.typeImpls;
 
-import com.dcrux.buran.coredb.iface.nodeClass.IDataGetter;
-import com.dcrux.buran.coredb.iface.nodeClass.IDataSetter;
-import com.dcrux.buran.coredb.iface.nodeClass.TypeRef;
+import com.dcrux.buran.coredb.iface.nodeClass.*;
 import com.dcrux.buran.coredb.iface.propertyTypes.PrimSet;
 import com.dcrux.buran.coredb.iface.propertyTypes.string.StringType;
 
@@ -28,5 +26,11 @@ public class StringImpl implements ITypeImpl {
     @Override
     public Object getData(IDataGetter dataGetter, @Nullable Object value) {
         return (String) value;
+    }
+
+    @Nullable
+    @Override
+    public ISorter getSorter(IType type, SorterRef ref) {
+        return type.getSorter(ref);
     }
 }

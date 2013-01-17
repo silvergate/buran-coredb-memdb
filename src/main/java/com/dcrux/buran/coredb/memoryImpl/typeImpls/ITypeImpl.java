@@ -1,8 +1,6 @@
 package com.dcrux.buran.coredb.memoryImpl.typeImpls;
 
-import com.dcrux.buran.coredb.iface.nodeClass.IDataGetter;
-import com.dcrux.buran.coredb.iface.nodeClass.IDataSetter;
-import com.dcrux.buran.coredb.iface.nodeClass.TypeRef;
+import com.dcrux.buran.coredb.iface.nodeClass.*;
 
 import javax.annotation.Nullable;
 
@@ -18,4 +16,7 @@ public interface ITypeImpl {
 
     @Nullable
     Object getData(IDataGetter dataGetter, @Nullable Object value);
+
+    @Nullable
+    ISorter getSorter(IType type, SorterRef ref);
 }
