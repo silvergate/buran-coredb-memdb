@@ -85,13 +85,13 @@ public class DmApi {
         if (incNode == null) {
             throw new IncubationNodeNotFound("Inc Node not found");
         }
-        final Set<EdgeIndex> toRemove = new HashSet<>();
+        final Set<IncNode.EdgeIndexLabel> toRemove = new HashSet<>();
         for (final Map.Entry<IncNode.EdgeIndexLabel, IncubationEdge> item : incNode
                 .getIncubationEdges().entrySet()) {
             final boolean remove = (!label.isPresent()) ||
                     (item.getValue().getLabel().getLabel().equals(label.get().getLabel()));
             if (remove) {
-                toRemove.add(item.getKey().getIndex());
+                toRemove.add(item.getKey());
             }
         }
         incNode.getIncubationEdges().keySet().removeAll(toRemove);

@@ -16,6 +16,7 @@ import com.dcrux.buran.coredb.iface.nodeClass.NodeClass;
 import com.dcrux.buran.coredb.iface.nodeClass.NodeClassHash;
 import com.dcrux.buran.coredb.iface.propertyTypes.PrimGet;
 import com.dcrux.buran.coredb.iface.propertyTypes.PrimSet;
+import com.dcrux.buran.coredb.iface.propertyTypes.blob.*;
 import com.dcrux.buran.coredb.iface.propertyTypes.ftsi.FtsiAddText;
 import com.dcrux.buran.coredb.iface.propertyTypes.ftsi.FtsiMatch;
 import com.dcrux.buran.coredb.iface.propertyTypes.ftsi.FtsiType;
@@ -31,7 +32,6 @@ import com.dcrux.buran.coredb.iface.query.propertyCondition.PropCondition;
 import com.dcrux.buran.coredb.memoryImpl.ApiIface;
 import com.google.common.base.Optional;
 
-import java.io.ByteArrayOutputStream;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.UUID;
@@ -60,15 +60,23 @@ public class Main {
         fts(Fuzziness.low, text, apiImpl, classId, receiver, sender);
     }
 
+    private static void testBinary() {
+        BinaryBlocks bb = new BinaryBlocks();
+        final String eingabeString = "Es handelt sich um die eingabe";
+        byte[] bin = eingabeString.getBytes();
+        boolean written = bb.setData(0, bin, false);
+        if (!written) throw new IllegalStateException("written is false");
+        byte[] binClone = bb.read(0, bin.length - 1);
+
+        if (!Arrays.equals(bin, binClone)) System.out.println("Die beiden sind nicht equal!");
+
+
+    }
+
     public static void main(String[] args)
             throws OptimisticLockingException, IncubationNodeNotFound, EdgeIndexAlreadySet,
             NodeNotFoundException, PermissionDeniedException, InformationUnavailableException {
-
-        ByteArrayOutputStream bb = new ByteArrayOutputStream();
-        bb.write((byte) 33);
-
-        System.out.println(bb.toByteArray().length);
-
+        testBinary();
 
         ApiIface apiImpl = new ApiIface();
         IApi api = apiImpl;
@@ -78,7 +86,7 @@ public class Main {
     /* Declare class */
         final NodeClass nodeClass =
                 NodeClass.builder().add("daName", false, new StringType(true, true, true))
-                        .add("fulltext", false, new FtsiType())
+                        .add("fulltext", false, new FtsiType()).add("binary", false, new BlobType())
                         .addEdgeClass(PrivateEdgeClass.cQueryable(halloEdge)).get();
         final NodeClassHash ncHash = api.declareClass(nodeClass);
         final ClassId classId = api.getClassIdByHash(ncHash);
@@ -111,6 +119,8 @@ public class Main {
 
     /* NodeImpl 1 mit daten & edges befüllen: Die edges von node 1 zeigen auf node 2 */
 
+        final String blobString = "Dies ist die quelle für Binary";
+        final byte[] blobBytes = blobString.getBytes();
         api.setEdge(receiver, sender, nodeOneInc, EdgeIndex.c(0), halloEdge,
                 new IncVersionedEdTarget(nodeTwoInc.getId()));
         api.setEdge(receiver, sender, nodeOneInc, EdgeIndex.c(1), halloEdge,
@@ -119,6 +129,7 @@ public class Main {
         api.setData(receiver, sender, nodeOneInc, (short) 1, FtsiAddText.c("Es handelt sich " +
                 "hierbei um einen Text, wobei Apple Inc. das iPhone mit iOS " +
                 "herstellt, und Microsoft das Windows 8."));
+        api.setData(receiver, sender, nodeOneInc, (short) 2, BlobSet.c(0, blobBytes));
 
     /* NodeImpl 2 mit daten befüllen */
 
@@ -135,6 +146,18 @@ public class Main {
         final Object value =
                 api.getData(receiver, sender, cr.getNid(nodeOneInc), (short) 0, PrimGet.SINGLETON);
         System.out.println("Value (NodeImpl 1) = " + value);
+        /* Lesen der anzahl bytes im blob */
+        final int blobLength = (int) api
+                .getData(receiver, sender, cr.getNid(nodeOneInc), (short) 2, LengthGet.SINGLETON);
+        System.out.println("Value (NodeImpl 1): Länge des blobs: = " + blobLength);
+        /* Lesen des blobs und daraus wieder einen string konstruieren */
+        final byte[] blobData = (byte[]) api
+                .getData(receiver, sender, cr.getNid(nodeOneInc), (short) 2, BlobGet.c(blobLength));
+        final String reconstructedString = new String(blobData);
+        /* Ausgeben des rekonstruierten strings, sollte wieder dem String von oben 'blobString'
+        entsprechen */
+        System.out.println(
+                "Value (NodeImpl 1): Inhalt des blobs als String: = '" + reconstructedString + "'");
 
         /* Von der commiteten node 2 daten lesen */
 
