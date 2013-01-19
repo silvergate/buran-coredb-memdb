@@ -237,7 +237,7 @@ public class AccountNodes {
 
         /* Set data */
         final AccountNodes accountNodes = this;
-        final long oid = pciEntry.getOidToGet().getOid();
+        final long oid = pciEntry.getOidToGet().getNid();
         final int version = pciEntry.getOidToGet().getVersion();
         final NidVer nidVer = new NidVer(oid, version);
 

@@ -27,6 +27,10 @@ public class NodeClasses {
     }
 
     public long storeClass(NodeClass nodeClass, NodeClassHash hash) {
+        /* Don't store twice if already stored */
+        final Long existingClassId = this.hashesToClassIds.get(hash.getHash());
+        if (existingClassId != null) return existingClassId;
+
         long idCandidate;
         synchronized (this.classes) {
             Random random = new Random();

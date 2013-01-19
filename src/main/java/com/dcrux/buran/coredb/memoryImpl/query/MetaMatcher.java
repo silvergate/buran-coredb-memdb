@@ -139,7 +139,7 @@ public class MetaMatcher {
     private final INodeMatcher nodeMatcher = new INodeMatcher() {
         @Override
         public boolean matchesVersion(NidVer nidVer, ICondNode qNode) {
-            final NodeImpl node = accountNodes.getNode(nidVer.getOid(), nidVer.getVersion(), true);
+            final NodeImpl node = accountNodes.getNode(nidVer.getNid(), nidVer.getVersion(), true);
             if (node == null) {
                 return false;
             }

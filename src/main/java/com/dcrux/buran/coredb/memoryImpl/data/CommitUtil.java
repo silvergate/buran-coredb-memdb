@@ -35,7 +35,7 @@ public class CommitUtil {
             if (incNode.getToUpdate() != null) {
         /* Update old version */
                 final NodeSerie nodeSerie =
-                        accountNodes.getNodeSerieByOid(incNode.getToUpdate().getOid(), true);
+                        accountNodes.getNodeSerieByOid(incNode.getToUpdate().getNid(), true);
                 // TODO: Unterschiedliche fehlermeldung, bei nicht vorhanden eine expected
                 // exception, wenn gelöscht eine optimistic locking exception
                 if (nodeSerie == null) {
@@ -43,7 +43,7 @@ public class CommitUtil {
                             "Cannot update given node, node has been deletet or not found");
                 }
                 final PreparedComitInfo pci = new PreparedComitInfo(
-                        new NidVer(incNode.getToUpdate().getOid(),
+                        new NidVer(incNode.getToUpdate().getNid(),
                                 incNode.getToUpdate().getVersion() + 1), incNid, classId, true,
                         incNode.getToUpdate(), incNode.getReceiverId(), incNode, nodeSerie);
                 incNode.getNode().setNodeSerie(nodeSerie);
@@ -209,10 +209,10 @@ public class CommitUtil {
     /* No duplicate target oids*/
         final Set<Long> givenOids = new HashSet<>();
         for (final PreparedComitInfo pciEntry : prepComInfo) {
-            if (givenOids.contains(pciEntry.getOidToGet().getOid())) {
+            if (givenOids.contains(pciEntry.getOidToGet().getNid())) {
                 throw new IllegalStateException("Diesebe OID befindet sich mehrfach im commit");
             }
-            givenOids.add(pciEntry.getOidToGet().getOid());
+            givenOids.add(pciEntry.getOidToGet().getNid());
         }
 
     /* Objects to update have to exist */

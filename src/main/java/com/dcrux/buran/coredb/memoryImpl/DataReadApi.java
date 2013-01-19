@@ -40,12 +40,12 @@ public class DataReadApi {
 
     @Nullable
     NodeImpl getNodeFromCurrent(long receiverId, NidVer oid) {
-        return this.nodes.getByUserId(receiverId).getNode(oid.getOid(), oid.getVersion(), true);
+        return this.nodes.getByUserId(receiverId).getNode(oid.getNid(), oid.getVersion(), true);
     }
 
     @Nullable
     NodeImpl getNodeFromCurrentOrHistorized(long receiverId, NidVer oid) {
-        return this.nodes.getByUserId(receiverId).getNode(oid.getOid(), oid.getVersion(), false);
+        return this.nodes.getByUserId(receiverId).getNode(oid.getNid(), oid.getVersion(), false);
     }
 
     public Map<EdgeLabel, Map<EdgeIndex, EdgeImpl>> getOutEdgesImpl(long receiverId, long senderId,
@@ -189,12 +189,13 @@ public class DataReadApi {
             throw new NodeNotFoundException("Node not found");
         }
 
-        final NodeClass nodeClass;
-        if (queryablesOnly) {
+        final NodeClass nodeClass = this.ncApi.getClassById(node.getNodeSerie().getClassId());
+        //TODO: Da stimmt wohl was noch nicht
+       /* if (queryablesOnly) {
             nodeClass = this.ncApi.getClassById(node.getNodeSerie().getClassId());
         } else {
             nodeClass = null;
-        }
+        }*/
 
         final Map<EdgeLabel, Multimap<EdgeIndex, EdgeImpl>> verInEdges =
                 node.getVersionedInEdgeds();
@@ -233,7 +234,7 @@ public class DataReadApi {
     public Object getData(long receiverId, long senderId, NidVer nidVer, short typeIndex,
             IDataGetter dataGetter) throws NodeNotFoundException {
         final NodeImpl node = this.nodes.getByUserId(receiverId)
-                .getNode(nidVer.getOid(), nidVer.getVersion(), false);
+                .getNode(nidVer.getNid(), nidVer.getVersion(), false);
         if (node == null) {
             throw new NodeNotFoundException("Node not found");
         }
