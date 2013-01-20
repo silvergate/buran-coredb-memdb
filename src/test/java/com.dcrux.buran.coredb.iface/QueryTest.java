@@ -4,15 +4,24 @@ import com.dcrux.buran.coredb.iface.api.*;
 import com.dcrux.buran.coredb.iface.api.exceptions.*;
 import com.dcrux.buran.coredb.iface.base.TestsBase;
 import com.dcrux.buran.coredb.iface.common.NodeClassSimple;
+import com.dcrux.buran.coredb.iface.domains.DomainId;
 import com.dcrux.buran.coredb.iface.edgeTargets.IncVersionedEdTarget;
 import com.dcrux.buran.coredb.iface.nodeClass.ClassId;
+import com.dcrux.buran.coredb.iface.propertyTypes.PrimGet;
 import com.dcrux.buran.coredb.iface.propertyTypes.PrimSet;
 import com.dcrux.buran.coredb.iface.propertyTypes.blob.BlobSet;
 import com.dcrux.buran.coredb.iface.propertyTypes.ftsi.FtsiAddText;
 import com.dcrux.buran.coredb.iface.propertyTypes.integer.IntEq;
 import com.dcrux.buran.coredb.iface.propertyTypes.set.SetAdd;
+import com.dcrux.buran.coredb.iface.propertyTypes.string.StringEq;
 import com.dcrux.buran.coredb.iface.query.CondCdNode;
+import com.dcrux.buran.coredb.iface.query.CondNode;
 import com.dcrux.buran.coredb.iface.query.QueryCdNode;
+import com.dcrux.buran.coredb.iface.query.QueryNode;
+import com.dcrux.buran.coredb.iface.query.nodeMeta.*;
+import com.dcrux.buran.coredb.iface.query.propertyCondition.PcIntersection;
+import com.dcrux.buran.coredb.iface.query.propertyCondition.PcInverse;
+import com.dcrux.buran.coredb.iface.query.propertyCondition.PcUnion;
 import com.dcrux.buran.coredb.iface.query.propertyCondition.PropCondition;
 import com.google.common.base.Optional;
 import org.junit.Assert;
@@ -43,7 +52,8 @@ public class QueryTest extends TestsBase {
     @Test
     public void queryMainTest()
             throws PermissionDeniedException, IncubationNodeNotFound, OptimisticLockingException,
-            InformationUnavailableException, NodeNotFoundException, EdgeIndexAlreadySet {
+            InformationUnavailableException, NodeNotFoundException, EdgeIndexAlreadySet,
+            DomainNotFoundException {
         assureNodeDeclared();
         IApi api = getBuran();
 
@@ -53,6 +63,12 @@ public class QueryTest extends TestsBase {
         IncNid iNid = createInfo.getIncNid();
 
         /* Populate the node in incubation with data */
+
+        /* Add two domains to the system and assign to node */
+        DomainId domain1 = api.addAnonymousDomain(getReceiver(), getSender());
+        DomainId domain2 = api.addAnonymousDomain(getReceiver(), getSender());
+        api.addDomainToNode(getReceiver(), getSender(), iNid, domain1);
+        api.addDomainToNode(getReceiver(), getSender(), iNid, domain2);
 
         /* Integer */
         int intValue = 32323;
@@ -131,7 +147,11 @@ public class QueryTest extends TestsBase {
 
         queryForIntegerEq(intValue);
         queryForIntegerEq(intValue2);
-
+        queryForStringEq(stringValue);
+        queryForStringEq(stringValue2);
+        andOrNotQuery(intValue, intValue2, stringValue, stringValue2);
+        queryMetadata(commitResult.getNid(iNid), commitResult.getNid(iNid2), intValue, domain1,
+                domain2);
     }
 
     private void queryForIntegerEq(int realValue) throws PermissionDeniedException {
@@ -151,10 +171,118 @@ public class QueryTest extends TestsBase {
         QueryResult result2 = api.query(getReceiver(), getSender(), query2, true);
         Assert.assertTrue(!result2.getNodes().contains(foundNode));
 
-                /* Integer < (lesser): The node previously found must not be in the result-set */
+        /* Integer < (lesser): The node previously found must not be in the result-set */
         QueryCdNode query3 = QueryCdNode.c(CondCdNode.c(this.classId,
                 PropCondition.c(NodeClassSimple.PROPERTY_INT, IntEq.le(realValue))));
         QueryResult result3 = api.query(getReceiver(), getSender(), query3, true);
         Assert.assertTrue(!result3.getNodes().contains(foundNode));
+    }
+
+    private void queryForStringEq(String realValue) throws PermissionDeniedException {
+        IApi api = getBuran();
+
+        /* String-Equals: We should find exactly one node */
+        QueryCdNode query = QueryCdNode.c(CondCdNode.c(this.classId,
+                PropCondition.c(NodeClassSimple.PROPERTY_STRING, StringEq.c(realValue))));
+        QueryResult result = api.query(getReceiver(), getSender(), query, true);
+        Assert.assertEquals("Should have one result.", 1,
+                (long) result.getNumberOfResultsWithoutLimit().get());
+    }
+
+    private void andOrNotQuery(int intValue1, int intValue2, String stringValue1,
+            String stringValue2) throws PermissionDeniedException, InformationUnavailableException,
+            NodeNotFoundException {
+        IApi api = getBuran();
+
+        /* Or-Query: We should find two nodes */
+        QueryCdNode query = QueryCdNode.c(CondCdNode.c(this.classId,
+                PcUnion.c(PropCondition.c(NodeClassSimple.PROPERTY_INT, IntEq.eq(intValue1)),
+                        PropCondition.c(NodeClassSimple.PROPERTY_INT, IntEq.eq(intValue2)))));
+        QueryResult result = api.query(getReceiver(), getSender(), query, true);
+        Assert.assertEquals("Should have two results.", 2,
+                (long) result.getNumberOfResultsWithoutLimit().get());
+
+        /* And-Query: We should find no node */
+        QueryCdNode queryAnd = QueryCdNode.c(CondCdNode.c(this.classId, PcIntersection
+                .c(PropCondition.c(NodeClassSimple.PROPERTY_INT, IntEq.eq(intValue1)),
+                        PropCondition.c(NodeClassSimple.PROPERTY_INT, IntEq.eq(intValue2)))));
+        QueryResult resultAnd = api.query(getReceiver(), getSender(), queryAnd, true);
+        Assert.assertEquals("Should have no result.", 0,
+                (long) resultAnd.getNumberOfResultsWithoutLimit().get());
+
+        /* Not-query: Find nodes without string 'stringValue1' */
+        QueryCdNode queryNot = QueryCdNode.c(CondCdNode.c(this.classId, PcInverse
+                .c(PropCondition.c(NodeClassSimple.PROPERTY_STRING, StringEq.c(stringValue1)))));
+        QueryResult resultNot = api.query(getReceiver(), getSender(), queryNot, true);
+        /* Node with 'stringValue1' must not be in result set */
+        for (NidVer found : resultNot.getNodes()) {
+            Object value =
+                    api.getData(getReceiver(), getSender(), found, NodeClassSimple.PROPERTY_STRING,
+                            PrimGet.SINGLETON);
+            if (value != null) {
+                final String valueAsString = (String) value;
+                Assert.assertTrue("Must not be stringValue1", !stringValue1.equals(valueAsString));
+            }
+        }
+    }
+
+    private void queryMetadata(NidVer node1, NidVer node2, int intValue1, DomainId dom1,
+            DomainId dom2) throws PermissionDeniedException {
+        IApi api = getBuran();
+
+        /* Query for nodes where sender = getSender() */
+        QueryNode query1 = QueryNode.c(CondNode.c(SenderIsIn.c(getSender())));
+        /* Query for nodes where sender = getReceiver() */
+        QueryNode query2 = QueryNode.c(CondNode.c(SenderIsIn.c(getReceiver())));
+
+        /* Query for nodes where sender = getSender() and is in domains 'dom1' and 'dom2' */
+        QueryNode query3 = QueryNode.c(CondNode.c(McIntersection.c(SenderIsIn.c(getSender()),
+                McIntersection.c(InDomain.c(dom1), InDomain.c(dom2)))));
+
+        /* Query for nodes where sender = getSender() and is first version */
+        QueryNode query4 = QueryNode.c(CondNode
+                .c(McIntersection.c(SenderIsIn.c(getSender()), VersionEq.c(NidVer.FIRST_VERSION))));
+
+        /* Query for nodes where first version and PROPERTY_INT = 'intValue1' */
+        QueryCdNode query5 = QueryCdNode.c(CondCdNode
+                .c(this.classId, VersionEq.c(NidVer.FIRST_VERSION),
+                        PropCondition.c(NodeClassSimple.PROPERTY_INT, IntEq.eq(intValue1))));
+
+        /* Query for nodes that are not in domain 'dom1' */
+        QueryNode query6 = QueryNode.c(CondNode.c(McInverse.c(InDomain.c(dom1))));
+
+        /* Perform queries */
+        final QueryResult r1 = api.query(getReceiver(), getSender(), query1, true);
+        final QueryResult r2 = api.query(getReceiver(), getSender(), query2, true);
+        final QueryResult r3 = api.query(getReceiver(), getSender(), query3, true);
+        final QueryResult r4 = api.query(getReceiver(), getSender(), query4, true);
+        final QueryResult r5 = api.query(getReceiver(), getSender(), query5, true);
+        final QueryResult r6 = api.query(getReceiver(), getSender(), query6, true);
+
+        /* Check results */
+
+        /* Query 1: Node 1 and 2 should be in results. */
+        Assert.assertTrue(r1.getNodes().contains(node1));
+        Assert.assertTrue(r1.getNodes().contains(node2));
+
+        /* Query 2: Node 1 and 2 must not be in results, since sender != receiver */
+        Assert.assertTrue(!r2.getNodes().contains(node1));
+        Assert.assertTrue(!r2.getNodes().contains(node2));
+
+        /* Query 3: Only node 1 is in both domains */
+        Assert.assertTrue(r3.getNodes().contains(node1));
+        Assert.assertTrue(!r3.getNodes().contains(node2));
+
+        /* Query 4: Should return both nodes (both are first-version nodes). */
+        Assert.assertTrue(r4.getNodes().contains(node1));
+        Assert.assertTrue(r4.getNodes().contains(node2));
+
+        /* Query 5: Returns only first node, since second node has a different int-value. */
+        Assert.assertTrue(r5.getNodes().contains(node1));
+        Assert.assertTrue(!r5.getNodes().contains(node2));
+
+        /* Query 6: Returns only second node, since first node is in domain 'dom1'. */
+        Assert.assertTrue(!r6.getNodes().contains(node1));
+        Assert.assertTrue(r6.getNodes().contains(node2));
     }
 }

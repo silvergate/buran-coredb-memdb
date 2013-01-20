@@ -26,6 +26,11 @@ public class DomApi {
         return new DomainId(domainId);
     }
 
+    public boolean hasDomain(long receiverId, DomainId domainId) {
+        final AccountDomains accDomains = this.domains.getByUserId(receiverId);
+        return accDomains.getDomainIdToDomain().containsKey(domainId.getId());
+    }
+
     public DomainId addOrGetIdentifiedDomain(long receiverId, long senderId, DomainHash hash)
             throws PermissionDeniedException {
         final AccountDomains accDomains = this.domains.getByUserId(receiverId);

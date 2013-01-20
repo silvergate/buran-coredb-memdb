@@ -18,6 +18,7 @@ import com.google.common.collect.Multimap;
 import javax.annotation.Nullable;
 import java.util.EnumSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author caelis
@@ -47,9 +48,9 @@ public class ApiIface implements IApi {
                 new SubscriptionApi(subscriptions, nodes, this.nodeClassesApi, this.dataReadApi);
         this.commitApi =
                 new CommitApi(nodes, this.dataReadApi, this.nodeClassesApi, this.subscriptionApi);
-        this.metaApi = new MiApi(this.dataReadApi, this.dataManipulationApi);
-        this.queryApi = new QueryApi(nodes, getNodeClassesApi(), this.dataReadApi, typesRegistry);
         this.domainApi = new DomApi(doms);
+        this.metaApi = new MiApi(this.dataReadApi, this.dataManipulationApi, this.domainApi);
+        this.queryApi = new QueryApi(nodes, getNodeClassesApi(), this.dataReadApi, typesRegistry);
     }
 
     public CommitApi getCommitApi() {
@@ -272,6 +273,31 @@ public class ApiIface implements IApi {
     public DomainId addOrGetIdentifiedDomain(UserId receiver, UserId sender, DomainHash hash)
             throws PermissionDeniedException {
         return this.domainApi.addOrGetIdentifiedDomain(receiver.getId(), sender.getId(), hash);
+    }
+
+    @Override
+    public void addDomainToNode(UserId receiver, UserId sender, IncNid incNid, DomainId domainId)
+            throws IncubationNodeNotFound, DomainNotFoundException {
+        this.metaApi.addNodeDomain(receiver.getId(), sender.getId(), incNid, domainId);
+    }
+
+    @Override
+    public boolean removeDomainFromNode(UserId receiver, UserId sender, IncNid incNid,
+            DomainId domainId) throws IncubationNodeNotFound, DomainNotFoundException {
+        return this.metaApi.removeNodeDomain(receiver.getId(), sender.getId(), incNid, domainId);
+    }
+
+    @Override
+    public int clearDomainsFromNode(UserId receiver, UserId sender, IncNid incNid)
+            throws IncubationNodeNotFound {
+        return this.metaApi.removeAllNodeDomains(receiver.getId(), sender.getId(), incNid);
+    }
+
+    @Override
+    public Set<DomainId> getDomains(UserId receiver, UserId sender, NidVer nidVer)
+            throws InformationUnavailableException, PermissionDeniedException,
+            NodeNotFoundException {
+        return this.metaApi.getNodeDomains(receiver.getId(), sender.getId(), nidVer);
     }
 
     @Override
