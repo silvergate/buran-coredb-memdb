@@ -114,7 +114,8 @@ public class DataReadApi {
     public Integer getCurrentNodeVersion(long receiverId, long senderId, long nidWithoutVersion)
             throws NodeNotFoundException {
         final NodeSerie nodeSerie =
-                this.nodes.getByUserId(receiverId).getOidToAliveSeries().get(nidWithoutVersion);
+                this.nodes.getByUserId(receiverId).getOidToRemovedEmptyAndAliveSeries()
+                        .get(nidWithoutVersion);
         if (nodeSerie == null) {
             throw new NodeNotFoundException("Node not found");
         }
@@ -128,7 +129,8 @@ public class DataReadApi {
     public NidVer getLatestVersionBeforeDeletion(long receiverId, long senderId,
             long nidWithoutVersion) throws NodeNotFoundException {
         final NodeSerie nodeSerie =
-                this.nodes.getByUserId(receiverId).getOidToAliveSeries().get(nidWithoutVersion);
+                this.nodes.getByUserId(receiverId).getOidToRemovedEmptyAndAliveSeries()
+                        .get(nidWithoutVersion);
         if (nodeSerie == null) {
             throw new NodeNotFoundException("Node not found");
         }

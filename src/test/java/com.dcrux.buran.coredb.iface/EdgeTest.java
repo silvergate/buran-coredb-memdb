@@ -25,6 +25,7 @@ import java.util.Map;
 public class EdgeTest extends TestsBase {
 
     private ClassId classId;
+    private NidVer nodeOneId;
 
     private void assureNodeDeclared() throws PermissionDeniedException {
         if (this.classId == null) this.classId = NodeClassSimple.declare(getBuran());
@@ -57,6 +58,7 @@ public class EdgeTest extends TestsBase {
 
         CommitResult commitResultOne = api.commit(getReceiver(), getSender(), iNidOne);
         NidVer nidVerOne = commitResultOne.getNid(iNidOne);
+        this.nodeOneId = nidVerOne;
 
         /* Create nodes TWO and THREE in incubation */
         CreateInfo createInfoTwo = api.createNew(getReceiver(), getSender(), this.classId,

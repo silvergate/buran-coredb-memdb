@@ -44,6 +44,10 @@ public class AccountNodes {
         return oidToAliveSeries;
     }
 
+    public Map<Long, NodeSerie> getOidToRemovedEmptyAndAliveSeries() {
+        return oidToRemovedEmptyAndAliveSeries;
+    }
+
     public Multimap<Long, NodeSerie> getClassIdToAliveSeries() {
         return classIdToAliveSeries;
     }
@@ -131,17 +135,19 @@ public class AccountNodes {
 
     @Nullable
     public NodeImpl getNode(long oid, int version, boolean currentOnly) {
-        final NodeSerie ns = getNodeSerieByOid(oid, true);
+        final NodeSerie ns = getNodeSerieByOid(oid, false);
         if (ns == null) {
             return null;
         }
-        final Integer curVer = ns.getCurrentVersion();
-        if (curVer == null) {
-            return null;
+        if (currentOnly) {
+            /* Check whether it's the current version */
+            if (ns.hasBeenDeleted()) return null;
+            if (ns.hasNoVersion()) return null;
+            final Integer curVer = ns.getCurrentVersion();
+            if (curVer != version) return null;
         }
-        if ((curVer != version) && (currentOnly)) {
-            return null;
-        }
+
+        if (!ns.hasVersion(version)) return null;
         return ns.getNode(version);
     }
 

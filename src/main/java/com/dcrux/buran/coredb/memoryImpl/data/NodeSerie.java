@@ -86,6 +86,7 @@ public class NodeSerie {
         }
         final NodeImpl nodeToReplace = getNode(getCurrentVersion());
         nodeToReplace.setValidTo(currentTime);
+        this.hasBeenDeleted = true;
     }
 
     public NodeImpl getNode(int version) {
@@ -94,6 +95,10 @@ public class NodeSerie {
             throw new IllegalStateException("Node with given version not found");
         }
         return node;
+    }
+
+    public boolean hasVersion(int version) {
+        return this.versionToNode.containsKey(version);
     }
 
     public boolean hasNoVersion() {

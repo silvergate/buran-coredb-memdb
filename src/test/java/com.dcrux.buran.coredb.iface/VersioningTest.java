@@ -15,6 +15,7 @@ import org.junit.Test;
 public class VersioningTest extends TestsBase {
 
     private ClassId classId;
+    private NidVer nodeOneId;
 
     private void assureNodeDeclared() throws PermissionDeniedException {
         if (this.classId == null) this.classId = NodeClassSimple.declare(getBuran());
@@ -74,6 +75,7 @@ public class VersioningTest extends TestsBase {
                 nidVer1.getVersion());
         Assert.assertEquals("Node-ID from first and second version must be equal", nidVer0.getNid(),
                 nidVer1.getNid());
+        this.nodeOneId = nidVer1;
 
         /* Check node states */
         final NodeState v0State = api.getNodeState(getReceiver(), getSender(), nidVer0);
@@ -144,4 +146,53 @@ public class VersioningTest extends TestsBase {
                 exceptionRaised);
     }
 
+    @Test
+    public void deleteTest() throws PermissionDeniedException, InformationUnavailableException,
+            NodeNotFoundException, EdgeIndexAlreadySet, OptimisticLockingException,
+            IncubationNodeNotFound, NodeNotUpdatable, HistoryHintNotFulfillable,
+            NotUpdatingException {
+        IApi api = getBuran();
+
+        if (this.nodeOneId == null) createAndUpdateNode();
+
+        final CreateInfoUpdate createInfoUpdate =
+                api.createNewUpdate(getReceiver(), getSender(), Optional.<KeepAliveHint>absent(),
+                        this.nodeOneId, Optional.<HistoryHint>absent());
+
+        /* Mark node in incubation as deleted */
+        api.markNodeAsDeleted(getReceiver(), getSender(), createInfoUpdate.getIncNid());
+        /* Commit */
+        final CommitResult commitResult =
+                api.commit(getReceiver(), getSender(), createInfoUpdate.getIncNid());
+        NidVer nidVer = commitResult.getNid(createInfoUpdate.getIncNid());
+
+        Assert.assertEquals("Deleted node should have a new version", nidVer.getVersion() - 1,
+                this.nodeOneId.getVersion());
+        Assert.assertEquals("Deleted node should have the same node-id", nidVer.getNid(),
+                this.nodeOneId.getNid());
+
+        /* If we mark a node as deleted it will be inexistent. */
+        boolean nodeNotFoundExceptionThrown = false;
+        try {
+            final NodeState state = api.getNodeState(getReceiver(), getSender(), nidVer);
+        } catch (NodeNotFoundException nnfe) {
+            nodeNotFoundExceptionThrown = true;
+        }
+        Assert.assertTrue("A node marked as deleted should be inexistent.",
+                nodeNotFoundExceptionThrown);
+
+        /* The previous version is historized */
+        final NodeState state2 = api.getNodeState(getReceiver(), getSender(), this.nodeOneId);
+        Assert.assertTrue("The previous version should be historized.",
+                NodeState.isHistorized(state2));
+
+        NidVer currentVersion =
+                api.getCurrentNodeVersion(getReceiver(), getSender(), this.nodeOneId);
+        Assert.assertNull("There should be no current version since the node has been deleted.",
+                currentVersion);
+        NidVer currentVersionOk =
+                api.getLatestVersionBeforeDeletion(getReceiver(), getSender(), this.nodeOneId);
+        Assert.assertEquals("The latest version should be the version marked as deleted.",
+                this.nodeOneId, currentVersionOk);
+    }
 }

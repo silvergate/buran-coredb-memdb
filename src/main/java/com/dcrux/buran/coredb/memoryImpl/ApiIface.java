@@ -14,7 +14,6 @@ import com.dcrux.buran.coredb.memoryImpl.data.*;
 import com.dcrux.buran.coredb.memoryImpl.typeImpls.TypesRegistry;
 import com.google.common.base.Optional;
 import com.google.common.collect.Multimap;
-import org.apache.commons.lang.NotImplementedException;
 
 import javax.annotation.Nullable;
 import java.util.EnumSet;
@@ -182,7 +181,7 @@ public class ApiIface implements IApi {
     @Override
     public void markNodeAsDeleted(UserId receiver, UserId sender, IncNid incNid)
             throws IncubationNodeNotFound, NotUpdatingException {
-        throw new NotImplementedException("Implementation missing");
+        this.getDmApi().markAsDeleted(receiver.getId(), sender.getId(), incNid);
     }
 
     @Nullable
@@ -245,22 +244,22 @@ public class ApiIface implements IApi {
 
     @Override
     @Nullable
-    public NidVer getCurrentNodeVersion(UserId receiver, UserId sender, long nid)
+    public NidVer getCurrentNodeVersion(UserId receiver, UserId sender, Nid nid)
             throws NodeNotFoundException {
-        final Integer version =
-                this.getDrApi().getCurrentNodeVersion(receiver.getId(), sender.getId(), nid);
+        final Integer version = this.getDrApi()
+                .getCurrentNodeVersion(receiver.getId(), sender.getId(), nid.getNid());
         if (version == null) {
             return null;
         }
-        return new NidVer(nid, version);
+        return new NidVer(nid.getNid(), version);
     }
 
     @Nullable
     @Override
-    public NidVer getLatestVersionBeforeDeletion(UserId receiver, UserId sender, long nid)
+    public NidVer getLatestVersionBeforeDeletion(UserId receiver, UserId sender, Nid nid)
             throws NodeNotFoundException {
         return this.getDrApi()
-                .getLatestVersionBeforeDeletion(receiver.getId(), sender.getId(), nid);
+                .getLatestVersionBeforeDeletion(receiver.getId(), sender.getId(), nid.getNid());
     }
 
     @Override

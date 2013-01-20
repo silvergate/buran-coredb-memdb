@@ -4,10 +4,7 @@ import com.dcrux.buran.coredb.iface.EdgeIndex;
 import com.dcrux.buran.coredb.iface.EdgeLabel;
 import com.dcrux.buran.coredb.iface.IncNid;
 import com.dcrux.buran.coredb.iface.NidVer;
-import com.dcrux.buran.coredb.iface.api.exceptions.EdgeIndexAlreadySet;
-import com.dcrux.buran.coredb.iface.api.exceptions.EdgeIndexNotSet;
-import com.dcrux.buran.coredb.iface.api.exceptions.ExpectableException;
-import com.dcrux.buran.coredb.iface.api.exceptions.IncubationNodeNotFound;
+import com.dcrux.buran.coredb.iface.api.exceptions.*;
 import com.dcrux.buran.coredb.iface.edgeTargets.IIncEdgeTarget;
 import com.dcrux.buran.coredb.iface.nodeClass.IDataSetter;
 import com.dcrux.buran.coredb.iface.nodeClass.IType;
@@ -123,6 +120,22 @@ public class DmApi {
         final Object oldValue = incNode.getNode().getData()[typeIndex];
         final Object newValue = type.setData(dataSetter, oldValue);
         incNode.getNode().getData()[typeIndex] = newValue;
+    }
+
+    public void markAsDeleted(long receiverId, long senderId, IncNid incNid)
+            throws IncubationNodeNotFound, NotUpdatingException {
+        final IncNode incNode =
+                this.nodes.getByUserId(receiverId).getIncOidToIncNodes().get(incNid.getId());
+        if (incNode == null) {
+            throw new IncubationNodeNotFound("NodeImpl in incubation not found");
+        }
+        if (incNode.getNode().getSenderId() != senderId) {
+            throw new ExpectableException(
+                    "The sender id is not the same as the one given at creation.");
+        }
+        if (incNode.getToUpdate() == null)
+            throw new NotUpdatingException("This node is not updating another node.");
+        incNode.setMarkedToDelete(true);
     }
 
 }
