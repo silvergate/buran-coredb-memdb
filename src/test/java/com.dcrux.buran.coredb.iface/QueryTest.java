@@ -38,17 +38,6 @@ public class QueryTest extends TestsBase {
         if (this.classId == null) this.classId = NodeClassSimple.declare(getBuran());
     }
 
-    /**
-     * Try to declare a node-class.
-     *
-     * @throws com.dcrux.buran.coredb.iface.api.exceptions.PermissionDeniedException
-     *
-     */
-    @Test
-    public void declareNode() throws PermissionDeniedException {
-        assureNodeDeclared();
-    }
-
     @Test
     public void queryMainTest()
             throws PermissionDeniedException, IncubationNodeNotFound, OptimisticLockingException,
