@@ -59,7 +59,7 @@ public class SubscriptionTest extends TestsBase {
         final Subscription subscription1 = new Subscription(getReceiver(), getSender(),
                 EnumSet.allOf(SubscriptionEventType.class), sub1Cond, sub1Handler);
 
-        api.addSubscription(subscription1);
+        final SubscriptionId sub2Id = api.addSubscription(subscription1);
 
         /* Create subscription 2 */
         final int intGtValue = 4453;
@@ -77,7 +77,7 @@ public class SubscriptionTest extends TestsBase {
         final Subscription subscription2 = new Subscription(getReceiver(), getSender(),
                 EnumSet.allOf(SubscriptionEventType.class), sub2Cond, sub2Handler);
 
-        api.addSubscription(subscription2);
+        final SubscriptionId sub1Id = api.addSubscription(subscription2);
 
         /* Do some modifications and check result */
 
@@ -127,6 +127,15 @@ public class SubscriptionTest extends TestsBase {
         Assert.assertTrue(
                 raisedEvents.contains(new RaiseInfo(nidVer5, SubscriptionEventType.newNode, 2)));
         raisedEvents.clear();
+
+        /* Remove subscriptions */
+        api.removeSubscription(getReceiver(), getSender(), sub1Id);
+        api.removeSubscription(getReceiver(), getSender(), sub2Id);
+
+        /* Add a new node 6 */
+        NidVer nidVer6 = addNodeWithIntValue(api, intGtValue + 10);
+        /* No subscription event should be raised, since we've removed the subscriptions. */
+        Assert.assertEquals(0, raisedEvents.size());
     }
 
     private NidVer addNodeWithIntValue(IApi api, int intValue)
