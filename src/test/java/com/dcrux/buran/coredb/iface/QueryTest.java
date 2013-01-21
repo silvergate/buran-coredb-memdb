@@ -18,6 +18,7 @@ import com.dcrux.buran.coredb.iface.query.CondCdNode;
 import com.dcrux.buran.coredb.iface.query.CondNode;
 import com.dcrux.buran.coredb.iface.query.QueryCdNode;
 import com.dcrux.buran.coredb.iface.query.QueryNode;
+import com.dcrux.buran.coredb.iface.query.edgeCondition.OutEdgeCondition;
 import com.dcrux.buran.coredb.iface.query.nodeMeta.*;
 import com.dcrux.buran.coredb.iface.query.propertyCondition.PcIntersection;
 import com.dcrux.buran.coredb.iface.query.propertyCondition.PcInverse;
@@ -141,6 +142,7 @@ public class QueryTest extends TestsBase {
         andOrNotQuery(intValue, intValue2, stringValue, stringValue2);
         queryMetadata(commitResult.getNid(iNid), commitResult.getNid(iNid2), intValue, domain1,
                 domain2);
+        queryUsingEdges(commitResult.getNid(iNid), commitResult.getNid(iNid2), intValue, intValue2);
     }
 
     private void queryForIntegerEq(int realValue) throws PermissionDeniedException {
@@ -273,5 +275,27 @@ public class QueryTest extends TestsBase {
         /* Query 6: Returns only second node, since first node is in domain 'dom1'. */
         Assert.assertTrue(!r6.getNodes().contains(node1));
         Assert.assertTrue(r6.getNodes().contains(node2));
+    }
+
+    private void queryUsingEdges(NidVer node1, NidVer node2, int intValue1, int intValue2)
+            throws PermissionDeniedException {
+        IApi api = getBuran();
+
+        /* Query for a nodes where first version and PROPERTY_INT = 'intValue1' and that has an
+        outgoing edge to another node where PROPERTY_INT = 'intValue2' */
+
+        CondCdNode qNode2 = CondCdNode.c(this.classId, SenderIsIn.c(getSender()),
+                PropCondition.c(NodeClassSimple.PROPERTY_INT, IntEq.eq(intValue2)));
+
+        QueryCdNode query = QueryCdNode.c(CondCdNode.c(this.classId, McIntersection
+                .c(VersionEq.c(NidVer.FIRST_VERSION),
+                        OutEdgeCondition.c(NodeClassSimple.EDGE_ONE, EdgeIndex.c(0), qNode2)),
+                PropCondition.c(NodeClassSimple.PROPERTY_INT, IntEq.eq(intValue1))));
+
+        final QueryResult r = api.query(getReceiver(), getSender(), query, true);
+
+        /* We should find node 1 and not node 2 */
+        Assert.assertTrue(r.getNodes().contains(node1));
+        Assert.assertTrue(!r.getNodes().contains(node2));
     }
 }
