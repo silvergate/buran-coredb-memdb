@@ -7,9 +7,12 @@ import com.dcrux.buran.coredb.iface.edgeClass.PrivateEdgeClass;
 import com.dcrux.buran.coredb.iface.nodeClass.ClassId;
 import com.dcrux.buran.coredb.iface.nodeClass.NodeClass;
 import com.dcrux.buran.coredb.iface.nodeClass.NodeClassHash;
+import com.dcrux.buran.coredb.iface.propertyTypes.binary.BinaryType;
 import com.dcrux.buran.coredb.iface.propertyTypes.blob.BlobType;
+import com.dcrux.buran.coredb.iface.propertyTypes.bool.BoolType;
 import com.dcrux.buran.coredb.iface.propertyTypes.ftsi.FtsiType;
 import com.dcrux.buran.coredb.iface.propertyTypes.integer.IntType;
+import com.dcrux.buran.coredb.iface.propertyTypes.longInt.LongType;
 import com.dcrux.buran.coredb.iface.propertyTypes.set.SetType;
 import com.dcrux.buran.coredb.iface.propertyTypes.string.StringType;
 
@@ -25,16 +28,21 @@ public class NodeClassSimple {
     public static final short PROPERTY_BLOB = 3;
     public static final short PROPERTY_FTSI = 4;
 
+    public static final short PROPERTY_BINARY = 5;
+    public static final short PROPERTY_LONGINT = 6;
+    public static final short PROPERTY_BOOLEAN = 7;
+
     public static final EdgeLabel EDGE_ONE = EdgeLabel.privateEdge("edgeOne");
     public static final EdgeLabel EDGE_TWO = EdgeLabel.privateEdge("edgeTwo");
-
 
     public static NodeClass create() {
         final NodeClass nodeClass = NodeClass.builder().add("anInteger", false, IntType.indexed())
                 .add("aString", false, StringType.indexed(StringType.MAX_LEN_INDEXED))
                 .add("aSetProperty", false, SetType.cMaxQueryable())
                 .add("binaryBloebchen", false, BlobType.cIndexed())
-                .add("daaFulltext", false, FtsiType.c())
+                .add("daaFulltext", false, FtsiType.c()).add("daBinary", false, BinaryType.c())
+                .add("daLongInt", false, LongType.cQueryable())
+                .add("daBoolean", false, BoolType.indexed())
                 .addEdgeClass(PrivateEdgeClass.cQueryable(EDGE_ONE))
                 .addEdgeClass(PrivateEdgeClass.cQueryable(EDGE_TWO)).get();
         return nodeClass;
