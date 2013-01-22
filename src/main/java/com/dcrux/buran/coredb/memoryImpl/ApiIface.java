@@ -140,6 +140,15 @@ public class ApiIface implements IApi {
     }
 
     @Override
+    public void transferData(UserId receiver, UserId sender, IncNid target, NidVer src,
+            TransferExclusion transferExclusion)
+            throws IncubationNodeNotFound, InformationUnavailableException,
+            PermissionDeniedException, NodeNotFoundException, IncompatibleClassException {
+        this.dataManipulationApi
+                .transferData(receiver.getId(), sender.getId(), target, src, transferExclusion);
+    }
+
+    @Override
     public void setEdge(UserId receiver, UserId sender, IncNid incNid, EdgeIndex index,
             EdgeLabel label, IIncEdgeTarget target)
             throws EdgeIndexAlreadySet, IncubationNodeNotFound {
@@ -197,10 +206,9 @@ public class ApiIface implements IApi {
 
     @Override
     public Map<EdgeLabel, Map<EdgeIndex, Edge>> getOutEdges(UserId receiver, UserId sender,
-            NidVer nid, EnumSet<EdgeType> types, Optional<EdgeLabel> label) throws
-
-
-            NodeNotFoundException, InformationUnavailableException, PermissionDeniedException {
+            NidVer nid, EnumSet<EdgeType> types, Optional<EdgeLabel> label)
+            throws NodeNotFoundException, InformationUnavailableException,
+            PermissionDeniedException {
         return getDrApi().getOutEdges(receiver.getId(), sender.getId(), nid, types, false);
     }
 
