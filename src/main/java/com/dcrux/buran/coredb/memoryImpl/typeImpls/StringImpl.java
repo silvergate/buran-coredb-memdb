@@ -2,7 +2,7 @@ package com.dcrux.buran.coredb.memoryImpl.typeImpls;
 
 import com.dcrux.buran.coredb.iface.nodeClass.*;
 import com.dcrux.buran.coredb.iface.propertyTypes.PrimSet;
-import com.dcrux.buran.coredb.iface.propertyTypes.string.StringType;
+import com.dcrux.buran.coredb.iface.propertyTypes.binary.BinaryType;
 
 import javax.annotation.Nullable;
 
@@ -13,7 +13,7 @@ import javax.annotation.Nullable;
 public class StringImpl implements ITypeImpl {
     @Override
     public TypeRef getRef() {
-        return StringType.REF;
+        return BinaryType.REF;
     }
 
     @Override

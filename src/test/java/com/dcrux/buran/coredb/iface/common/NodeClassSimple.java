@@ -30,14 +30,13 @@ public class NodeClassSimple {
 
 
     public static NodeClass create() {
-        final NodeClass nodeClass =
-                NodeClass.builder().add("anInteger", false, IntType.cQueryable())
-                        .add("aString", false, new StringType(true, true, true))
-                        .add("aSetProperty", false, SetType.cMaxQueryable())
-                        .add("binaryBloebchen", false, BlobType.cIndexed())
-                        .add("daaFulltext", false, FtsiType.c())
-                        .addEdgeClass(PrivateEdgeClass.cQueryable(EDGE_ONE))
-                        .addEdgeClass(PrivateEdgeClass.cQueryable(EDGE_TWO)).get();
+        final NodeClass nodeClass = NodeClass.builder().add("anInteger", false, IntType.indexed())
+                .add("aString", false, StringType.indexed(StringType.MAX_LEN_INDEXED))
+                .add("aSetProperty", false, SetType.cMaxQueryable())
+                .add("binaryBloebchen", false, BlobType.cIndexed())
+                .add("daaFulltext", false, FtsiType.c())
+                .addEdgeClass(PrivateEdgeClass.cQueryable(EDGE_ONE))
+                .addEdgeClass(PrivateEdgeClass.cQueryable(EDGE_TWO)).get();
         return nodeClass;
     }
 

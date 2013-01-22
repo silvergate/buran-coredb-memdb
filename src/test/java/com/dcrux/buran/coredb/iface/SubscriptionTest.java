@@ -47,7 +47,7 @@ public class SubscriptionTest extends TestsBase {
         final String sub1String = "This is a string to query in subscription 1";
         /* Subscription condition */
         final CondCdNode sub1Cond = CondCdNode.c(this.classId, SenderIsIn.c(getSender()),
-                PropCondition.c(NodeClassSimple.PROPERTY_STRING, StringEq.c(sub1String)));
+                PropCondition.c(NodeClassSimple.PROPERTY_STRING, StringEq.eq(sub1String)));
         final ISubscriptionEventHandler sub1Handler = new ISubscriptionEventHandler() {
             @Override
             public void handle(NidVer node, SubscriptionEventType eventType, SubscriptionId id) {

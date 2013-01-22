@@ -84,11 +84,10 @@ public class Main {
         EdgeLabel halloEdge = EdgeLabel.privateEdge("hallo");
 
     /* Declare class */
-        final NodeClass nodeClass =
-                NodeClass.builder().add("daName", false, new StringType(true, true, true))
-                        .add("fulltext", false, new FtsiType())
-                        .add("binary", false, BlobType.cIndexed())
-                        .addEdgeClass(PrivateEdgeClass.cQueryable(halloEdge)).get();
+        final NodeClass nodeClass = NodeClass.builder()
+                .add("daName", false, StringType.indexed(StringType.MAX_LEN_INDEXED))
+                .add("fulltext", false, new FtsiType()).add("binary", false, BlobType.cIndexed())
+                .addEdgeClass(PrivateEdgeClass.cQueryable(halloEdge)).get();
         final NodeClassHash ncHash = api.declareClass(nodeClass);
         final ClassId classId = api.getClassIdByHash(ncHash);
 
@@ -170,9 +169,9 @@ public class Main {
      sein.
     Am ende der Edge muss eine NodeImpl vorhanden sein, mit dem text "Text an NodeImpl 2" */
 
-        PropCondition pcNode2 = new PropCondition((short) 0, new StringEq("Text an NodeImpl 2"));
+        PropCondition pcNode2 = new PropCondition((short) 0, StringEq.eq("Text an NodeImpl 2"));
 
-        PropCondition pc = new PropCondition((short) 0, new StringEq("Ich bin eine Welt"));
+        PropCondition pc = new PropCondition((short) 0, StringEq.eq("Ich bin eine Welt"));
         INodeMetaCondition nmc = OutEdgeCondition.hasEdge(halloEdge, EdgeIndex.c(0),
                 new CondCdNode(Optional.<INodeMetaCondition>absent(), classId.getId(),
                         Optional.<IPropertyCondition>of(pcNode2)));

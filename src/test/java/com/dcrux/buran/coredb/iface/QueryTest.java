@@ -174,7 +174,7 @@ public class QueryTest extends TestsBase {
 
         /* String-Equals: We should find exactly one node */
         QueryCdNode query = QueryCdNode.c(CondCdNode.c(this.classId,
-                PropCondition.c(NodeClassSimple.PROPERTY_STRING, StringEq.c(realValue))));
+                PropCondition.c(NodeClassSimple.PROPERTY_STRING, StringEq.eq(realValue))));
         QueryResult result = api.query(getReceiver(), getSender(), query, true);
         Assert.assertEquals("Should have one result.", 1,
                 (long) result.getNumberOfResultsWithoutLimit().get());
@@ -203,7 +203,7 @@ public class QueryTest extends TestsBase {
 
         /* Not-query: Find nodes without string 'stringValue1' */
         QueryCdNode queryNot = QueryCdNode.c(CondCdNode.c(this.classId, PcInverse
-                .c(PropCondition.c(NodeClassSimple.PROPERTY_STRING, StringEq.c(stringValue1)))));
+                .c(PropCondition.c(NodeClassSimple.PROPERTY_STRING, StringEq.eq(stringValue1)))));
         QueryResult resultNot = api.query(getReceiver(), getSender(), queryNot, true);
         /* Node with 'stringValue1' must not be in result set */
         for (NidVer found : resultNot.getNodes()) {
