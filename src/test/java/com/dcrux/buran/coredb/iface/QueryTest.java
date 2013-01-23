@@ -35,7 +35,7 @@ public class QueryTest extends TestsBase {
 
     private ClassId classId;
 
-    private void assureNodeDeclared() throws PermissionDeniedException {
+    private void assureNodeDeclared() throws PermissionDeniedException, QuotaExceededException {
         if (this.classId == null) this.classId = NodeClassSimple.declare(getBuran());
     }
 
@@ -43,7 +43,7 @@ public class QueryTest extends TestsBase {
     public void queryMainTest()
             throws PermissionDeniedException, IncubationNodeNotFound, OptimisticLockingException,
             InformationUnavailableException, NodeNotFoundException, EdgeIndexAlreadySet,
-            DomainNotFoundException {
+            DomainNotFoundException, QuotaExceededException {
         assureNodeDeclared();
         IApi api = getBuran();
 
@@ -145,7 +145,8 @@ public class QueryTest extends TestsBase {
         queryUsingEdges(commitResult.getNid(iNid), commitResult.getNid(iNid2), intValue, intValue2);
     }
 
-    private void queryForIntegerEq(int realValue) throws PermissionDeniedException {
+    private void queryForIntegerEq(int realValue)
+            throws PermissionDeniedException, QuotaExceededException {
         IApi api = getBuran();
 
         /* Integer-Equals: We should find exactly one node */
@@ -169,7 +170,8 @@ public class QueryTest extends TestsBase {
         Assert.assertTrue(!result3.getNodes().contains(foundNode));
     }
 
-    private void queryForStringEq(String realValue) throws PermissionDeniedException {
+    private void queryForStringEq(String realValue)
+            throws PermissionDeniedException, QuotaExceededException {
         IApi api = getBuran();
 
         /* String-Equals: We should find exactly one node */
@@ -182,7 +184,7 @@ public class QueryTest extends TestsBase {
 
     private void andOrNotQuery(int intValue1, int intValue2, String stringValue1,
             String stringValue2) throws PermissionDeniedException, InformationUnavailableException,
-            NodeNotFoundException {
+            NodeNotFoundException, QuotaExceededException {
         IApi api = getBuran();
 
         /* Or-Query: We should find two nodes */
@@ -218,7 +220,7 @@ public class QueryTest extends TestsBase {
     }
 
     private void queryMetadata(NidVer node1, NidVer node2, int intValue1, DomainId dom1,
-            DomainId dom2) throws PermissionDeniedException {
+            DomainId dom2) throws PermissionDeniedException, QuotaExceededException {
         IApi api = getBuran();
 
         /* Query for nodes where sender = getSender() */
@@ -278,7 +280,7 @@ public class QueryTest extends TestsBase {
     }
 
     private void queryUsingEdges(NidVer node1, NidVer node2, int intValue1, int intValue2)
-            throws PermissionDeniedException {
+            throws PermissionDeniedException, QuotaExceededException {
         IApi api = getBuran();
 
         /* Query for a nodes where first version and PROPERTY_INT = 'intValue1' and that has an

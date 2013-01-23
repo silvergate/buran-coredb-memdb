@@ -26,7 +26,7 @@ public class PartialUpdateTest extends TestsBase {
     private ClassId classId;
 
     @Before
-    public void assureNodeDeclared() throws PermissionDeniedException {
+    public void assureNodeDeclared() throws PermissionDeniedException, QuotaExceededException {
         if (this.classId == null) this.classId = NodeClassSimple.declare(getBuran());
     }
 
@@ -40,7 +40,7 @@ public class PartialUpdateTest extends TestsBase {
 
     private NidVer createNodeAndPopulateWithTestData()
             throws IncubationNodeNotFound, OptimisticLockingException, PermissionDeniedException,
-            EdgeIndexAlreadySet, DomainNotFoundException {
+            EdgeIndexAlreadySet, DomainNotFoundException, QuotaExceededException {
         IApi api = getBuran();
 
          /* Create a node in incubation - don't update an existing node */
@@ -107,7 +107,7 @@ public class PartialUpdateTest extends TestsBase {
             throws PermissionDeniedException, IncubationNodeNotFound, OptimisticLockingException,
             InformationUnavailableException, NodeNotFoundException, EdgeIndexAlreadySet,
             NodeNotUpdatable, HistoryHintNotFulfillable, IncompatibleClassException,
-            DomainNotFoundException {
+            DomainNotFoundException, QuotaExceededException {
         IApi api = getBuran();
 
         final NidVer originalNode1 = createNodeAndPopulateWithTestData();

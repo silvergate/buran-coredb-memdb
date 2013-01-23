@@ -27,7 +27,7 @@ public class SubscriptionTest extends TestsBase {
 
     private ClassId classId;
 
-    private void assureNodeDeclared() throws PermissionDeniedException {
+    private void assureNodeDeclared() throws PermissionDeniedException, QuotaExceededException {
         if (this.classId == null) this.classId = NodeClassSimple.declare(getBuran());
     }
 
@@ -36,7 +36,7 @@ public class SubscriptionTest extends TestsBase {
             throws PermissionDeniedException, IncubationNodeNotFound, OptimisticLockingException,
             InformationUnavailableException, NodeNotFoundException, EdgeIndexAlreadySet,
             DomainNotFoundException, NodeNotUpdatable, HistoryHintNotFulfillable,
-            NotUpdatingException {
+            NotUpdatingException, QuotaExceededException {
         assureNodeDeclared();
         IApi api = getBuran();
 
@@ -139,7 +139,8 @@ public class SubscriptionTest extends TestsBase {
     }
 
     private NidVer addNodeWithIntValue(IApi api, int intValue)
-            throws PermissionDeniedException, IncubationNodeNotFound, OptimisticLockingException {
+            throws PermissionDeniedException, IncubationNodeNotFound, OptimisticLockingException,
+            QuotaExceededException {
         /* Create a node in incubation - don't update an existing node */
         CreateInfo createInfo = api.createNew(getReceiver(), getSender(), this.classId,
                 Optional.<KeepAliveHint>absent());
@@ -152,7 +153,8 @@ public class SubscriptionTest extends TestsBase {
 
     private NidVer deleteNode(IApi api, NidVer toUpdate)
             throws PermissionDeniedException, IncubationNodeNotFound, OptimisticLockingException,
-            NodeNotUpdatable, HistoryHintNotFulfillable, NotUpdatingException {
+            NodeNotUpdatable, HistoryHintNotFulfillable, NotUpdatingException,
+            QuotaExceededException {
         /* Create a node in incubation - don't update an existing node */
         CreateInfoUpdate createInfo =
                 api.createNewUpdate(getReceiver(), getSender(), Optional.<KeepAliveHint>absent(),
@@ -165,7 +167,7 @@ public class SubscriptionTest extends TestsBase {
 
     private NidVer updateNodeWithIntValue(IApi api, NidVer toUpdate, int intValue)
             throws PermissionDeniedException, IncubationNodeNotFound, OptimisticLockingException,
-            NodeNotUpdatable, HistoryHintNotFulfillable {
+            NodeNotUpdatable, HistoryHintNotFulfillable, QuotaExceededException {
         /* Create a node in incubation - don't update an existing node */
         CreateInfoUpdate createInfo =
                 api.createNewUpdate(getReceiver(), getSender(), Optional.<KeepAliveHint>absent(),
@@ -179,7 +181,7 @@ public class SubscriptionTest extends TestsBase {
 
     private NidVer updateNodeWithStringValue(IApi api, NidVer toUpdate, String strValue)
             throws PermissionDeniedException, IncubationNodeNotFound, OptimisticLockingException,
-            NodeNotUpdatable, HistoryHintNotFulfillable {
+            NodeNotUpdatable, HistoryHintNotFulfillable, QuotaExceededException {
         /* Create a node in incubation - don't update an existing node */
         CreateInfoUpdate createInfo =
                 api.createNewUpdate(getReceiver(), getSender(), Optional.<KeepAliveHint>absent(),

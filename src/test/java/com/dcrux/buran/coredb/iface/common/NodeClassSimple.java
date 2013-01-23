@@ -3,6 +3,7 @@ package com.dcrux.buran.coredb.iface.common;
 import com.dcrux.buran.coredb.iface.EdgeLabel;
 import com.dcrux.buran.coredb.iface.api.IApi;
 import com.dcrux.buran.coredb.iface.api.exceptions.PermissionDeniedException;
+import com.dcrux.buran.coredb.iface.api.exceptions.QuotaExceededException;
 import com.dcrux.buran.coredb.iface.edgeClass.PrivateEdgeClass;
 import com.dcrux.buran.coredb.iface.nodeClass.ClassId;
 import com.dcrux.buran.coredb.iface.nodeClass.NodeClass;
@@ -51,7 +52,8 @@ public class NodeClassSimple {
         return nodeClass;
     }
 
-    public static ClassId declare(IApi api) throws PermissionDeniedException {
+    public static ClassId declare(IApi api)
+            throws PermissionDeniedException, QuotaExceededException {
         final NodeClass nodeClass = create();
         final NodeClassHash ncHash = api.declareClass(nodeClass);
         final ClassId classId = api.getClassIdByHash(ncHash);

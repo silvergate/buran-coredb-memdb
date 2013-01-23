@@ -27,19 +27,20 @@ public class EdgeTest extends TestsBase {
     private ClassId classId;
     private NidVer nodeOneId;
 
-    private void assureNodeDeclared() throws PermissionDeniedException {
+    private void assureNodeDeclared() throws PermissionDeniedException, QuotaExceededException {
         if (this.classId == null) this.classId = NodeClassSimple.declare(getBuran());
     }
 
     @Before
-    public void setup() throws PermissionDeniedException {
+    public void setup() throws PermissionDeniedException, QuotaExceededException {
         assureNodeDeclared();
     }
 
     @Test
     public void createIncubationNode()
             throws PermissionDeniedException, IncubationNodeNotFound, OptimisticLockingException,
-            InformationUnavailableException, NodeNotFoundException, EdgeIndexAlreadySet {
+            InformationUnavailableException, NodeNotFoundException, EdgeIndexAlreadySet,
+            QuotaExceededException {
         IApi api = getBuran();
 
         /* Create a node ONE in incubation */

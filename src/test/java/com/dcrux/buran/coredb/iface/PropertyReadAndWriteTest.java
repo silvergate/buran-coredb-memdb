@@ -26,7 +26,7 @@ public class PropertyReadAndWriteTest extends TestsBase {
 
     private ClassId classId;
 
-    private void assureNodeDeclared() throws PermissionDeniedException {
+    private void assureNodeDeclared() throws PermissionDeniedException, QuotaExceededException {
         if (this.classId == null) this.classId = NodeClassSimple.declare(getBuran());
     }
 
@@ -34,7 +34,7 @@ public class PropertyReadAndWriteTest extends TestsBase {
      * Declaring the same node-class twice should return the same hash.
      */
     @Test
-    public void sameHashTest() throws PermissionDeniedException {
+    public void sameHashTest() throws PermissionDeniedException, QuotaExceededException {
         NodeClassHash hash1 = getBuran().declareClass(NodeClassSimple.create());
         NodeClassHash hash2 = getBuran().declareClass(NodeClassSimple.create());
 
@@ -47,14 +47,14 @@ public class PropertyReadAndWriteTest extends TestsBase {
      * @throws PermissionDeniedException
      */
     @Test
-    public void declareNode() throws PermissionDeniedException {
+    public void declareNode() throws PermissionDeniedException, QuotaExceededException {
         assureNodeDeclared();
     }
 
     @Test
     public void createIncubationNode()
             throws PermissionDeniedException, IncubationNodeNotFound, OptimisticLockingException,
-            InformationUnavailableException, NodeNotFoundException {
+            InformationUnavailableException, NodeNotFoundException, QuotaExceededException {
         assureNodeDeclared();
         IApi api = getBuran();
 

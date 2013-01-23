@@ -48,13 +48,14 @@ public class SortTest extends TestsBase {
     private SorterRef sortRef;
 
     @Before
-    public void assureNodeDeclared() throws PermissionDeniedException {
+    public void assureNodeDeclared() throws PermissionDeniedException, QuotaExceededException {
         if (this.classId == null) this.classId = NodeClassSimple.declare(getBuran());
     }
 
     private void addNodesWithData(UserId receiver, UserId sender, ClassId classId,
             SetValueList setValueList)
-            throws PermissionDeniedException, IncubationNodeNotFound, OptimisticLockingException {
+            throws PermissionDeniedException, IncubationNodeNotFound, OptimisticLockingException,
+            QuotaExceededException {
         IApi api = getBuran();
         for (final Map<Short, IDataSetter> valueRow : setValueList.getValues().values()) {
             final CreateInfo createResult =
@@ -71,7 +72,7 @@ public class SortTest extends TestsBase {
     public void sortingMainTest()
             throws PermissionDeniedException, IncubationNodeNotFound, OptimisticLockingException,
             InformationUnavailableException, NodeNotFoundException, EdgeIndexAlreadySet,
-            DomainNotFoundException {
+            DomainNotFoundException, QuotaExceededException {
         IApi api = getBuran();
 
         /* Create data */
@@ -186,7 +187,7 @@ public class SortTest extends TestsBase {
 
     private Object querySortGetAtIndex(short typeIndex, SortDirection sortDir, int index)
             throws PermissionDeniedException, InformationUnavailableException,
-            NodeNotFoundException {
+            NodeNotFoundException, QuotaExceededException {
         IApi api = getBuran();
         QueryCdNode query = QueryCdNode.cSorted(CondCdNode.c(this.classId),
                 PropertySort.c(typeIndex, this.sortRef, sortDir));

@@ -17,12 +17,12 @@ public class VersioningTest extends TestsBase {
     private ClassId classId;
     private NidVer nodeOneId;
 
-    private void assureNodeDeclared() throws PermissionDeniedException {
+    private void assureNodeDeclared() throws PermissionDeniedException, QuotaExceededException {
         if (this.classId == null) this.classId = NodeClassSimple.declare(getBuran());
     }
 
     @Before
-    public void setup() throws PermissionDeniedException {
+    public void setup() throws PermissionDeniedException, QuotaExceededException {
         assureNodeDeclared();
     }
 
@@ -30,7 +30,7 @@ public class VersioningTest extends TestsBase {
     public void createAndUpdateNode()
             throws PermissionDeniedException, IncubationNodeNotFound, OptimisticLockingException,
             NodeNotUpdatable, HistoryHintNotFulfillable, NodeNotFoundException,
-            InformationUnavailableException {
+            InformationUnavailableException, QuotaExceededException {
         IApi api = getBuran();
 
         /* Create a node in incubation */
@@ -108,7 +108,7 @@ public class VersioningTest extends TestsBase {
     @Test
     public void optimisticLockingExceptionTest()
             throws PermissionDeniedException, OptimisticLockingException, IncubationNodeNotFound,
-            NodeNotUpdatable, HistoryHintNotFulfillable {
+            NodeNotUpdatable, HistoryHintNotFulfillable, QuotaExceededException {
         IApi api = getBuran();
 
         /* Create a node in incubation */
@@ -150,7 +150,7 @@ public class VersioningTest extends TestsBase {
     public void deleteTest() throws PermissionDeniedException, InformationUnavailableException,
             NodeNotFoundException, EdgeIndexAlreadySet, OptimisticLockingException,
             IncubationNodeNotFound, NodeNotUpdatable, HistoryHintNotFulfillable,
-            NotUpdatingException {
+            NotUpdatingException, QuotaExceededException {
         IApi api = getBuran();
 
         if (this.nodeOneId == null) createAndUpdateNode();

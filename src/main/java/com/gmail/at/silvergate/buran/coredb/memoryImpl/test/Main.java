@@ -42,7 +42,8 @@ import java.util.UUID;
 public class Main {
 
     public static void fts(Fuzziness fuzziness, String text, IApi apiImpl, ClassId classId,
-            UserId receiver, UserId sender) throws PermissionDeniedException {
+            UserId receiver, UserId sender)
+            throws PermissionDeniedException, QuotaExceededException {
         PropCondition ftsOne = new PropCondition((short) 1, FtsiMatch.c(fuzziness, text));
         CondCdNode query = new CondCdNode(Optional.<INodeMetaCondition>absent(), classId.getId(),
                 Optional.<IPropertyCondition>of(ftsOne));
@@ -54,7 +55,7 @@ public class Main {
     }
 
     public static void fts(String text, IApi apiImpl, ClassId classId, UserId receiver,
-            UserId sender) throws PermissionDeniedException {
+            UserId sender) throws PermissionDeniedException, QuotaExceededException {
         fts(Fuzziness.high, text, apiImpl, classId, receiver, sender);
         fts(Fuzziness.medium, text, apiImpl, classId, receiver, sender);
         fts(Fuzziness.low, text, apiImpl, classId, receiver, sender);
@@ -75,7 +76,8 @@ public class Main {
 
     public static void main(String[] args)
             throws OptimisticLockingException, IncubationNodeNotFound, EdgeIndexAlreadySet,
-            NodeNotFoundException, PermissionDeniedException, InformationUnavailableException {
+            NodeNotFoundException, PermissionDeniedException, InformationUnavailableException,
+            QuotaExceededException {
         testBinary();
 
         ApiIface apiImpl = new ApiIface();
