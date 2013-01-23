@@ -12,6 +12,7 @@ import com.dcrux.buran.coredb.iface.propertyTypes.blob.BlobType;
 import com.dcrux.buran.coredb.iface.propertyTypes.bool.BoolType;
 import com.dcrux.buran.coredb.iface.propertyTypes.ftsi.FtsiType;
 import com.dcrux.buran.coredb.iface.propertyTypes.integer.IntType;
+import com.dcrux.buran.coredb.iface.propertyTypes.longFloat.LongFloatType;
 import com.dcrux.buran.coredb.iface.propertyTypes.longInt.LongType;
 import com.dcrux.buran.coredb.iface.propertyTypes.set.SetType;
 import com.dcrux.buran.coredb.iface.propertyTypes.string.StringType;
@@ -31,6 +32,7 @@ public class NodeClassSimple {
     public static final short PROPERTY_BINARY = 5;
     public static final short PROPERTY_LONGINT = 6;
     public static final short PROPERTY_BOOLEAN = 7;
+    public static final short PROPERTY_LONGFLOAT = 8;
 
     public static final EdgeLabel EDGE_ONE = EdgeLabel.privateEdge("edgeOne");
     public static final EdgeLabel EDGE_TWO = EdgeLabel.privateEdge("edgeTwo");
@@ -43,6 +45,7 @@ public class NodeClassSimple {
                 .add("daaFulltext", false, FtsiType.c()).add("daBinary", false, BinaryType.c())
                 .add("daLongInt", false, LongType.cQueryable())
                 .add("daBoolean", false, BoolType.indexed())
+                .add("longFloat", false, LongFloatType.cIndexed())
                 .addEdgeClass(PrivateEdgeClass.cQueryable(EDGE_ONE))
                 .addEdgeClass(PrivateEdgeClass.cQueryable(EDGE_TWO)).get();
         return nodeClass;

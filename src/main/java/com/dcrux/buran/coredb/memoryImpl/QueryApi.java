@@ -2,6 +2,7 @@ package com.dcrux.buran.coredb.memoryImpl;
 
 import com.dcrux.buran.coredb.iface.NidVer;
 import com.dcrux.buran.coredb.iface.api.QueryResult;
+import com.dcrux.buran.coredb.iface.api.exceptions.ExpectableException;
 import com.dcrux.buran.coredb.iface.nodeClass.ISorter;
 import com.dcrux.buran.coredb.iface.nodeClass.NodeClass;
 import com.dcrux.buran.coredb.iface.nodeClass.SorterRef;
@@ -15,6 +16,7 @@ import com.dcrux.buran.coredb.memoryImpl.typeImpls.TypesRegistry;
 import com.google.common.base.Optional;
 import org.apache.commons.lang.NotImplementedException;
 
+import java.text.MessageFormat;
 import java.util.*;
 
 /**
@@ -71,6 +73,9 @@ public class QueryApi {
     private Comparator<NodeImpl> getComparator(final NodeClass nodeClass, final short typeIndex,
             SorterRef ref) {
         final ISorter sorter = nodeClass.getType(typeIndex).getSorter(ref);
+        if (sorter == null) throw new ExpectableException(MessageFormat
+                .format("Sorter {0} for class {1} at " + "type index {2} is not available", ref,
+                        nodeClass, typeIndex));
         return new Comparator<NodeImpl>() {
             @Override
             public int compare(NodeImpl o1, NodeImpl o2) {
