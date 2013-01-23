@@ -130,7 +130,7 @@ public class PropertyReadAndWriteTest extends TestsBase {
         Assert.assertTrue(rSetValue.contains(new ByteContainer(setEntry3.getBytes())));
 
         /* Read binary length & data */
-        int rLength = (int) api
+        long rLength = (Long) api
                 .getData(getReceiver(), getSender(), nid, NodeClassSimple.PROPERTY_BLOB,
                         LengthGet.SINGLETON);
         int expectedLength = binaryData.length + binaryData2.length;

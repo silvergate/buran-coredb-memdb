@@ -88,7 +88,8 @@ public class Main {
     /* Declare class */
         final NodeClass nodeClass = NodeClass.builder()
                 .add("daName", false, StringType.indexed(StringType.MAX_LEN_INDEXED))
-                .add("fulltext", false, new FtsiType()).add("binary", false, BlobType.cIndexed())
+                .add("fulltext", false, new FtsiType())
+                .add("binary", false, BlobType.indexed(BlobType.MAX_LENGTH))
                 .addEdgeClass(PrivateEdgeClass.cQueryable(halloEdge)).get();
         final NodeClassHash ncHash = api.declareClass(nodeClass);
         final ClassId classId = api.getClassIdByHash(ncHash);

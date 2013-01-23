@@ -41,12 +41,14 @@ public class NodeClassSimple {
     public static NodeClass create() {
         final NodeClass nodeClass = NodeClass.builder().add("anInteger", false, IntType.indexed())
                 .add("aString", false, StringType.indexed(StringType.MAX_LEN_INDEXED))
-                .add("aSetProperty", false, SetType.cMaxQueryable())
-                .add("binaryBloebchen", false, BlobType.cIndexed())
-                .add("daaFulltext", false, FtsiType.c()).add("daBinary", false, BinaryType.c())
-                .add("daLongInt", false, LongType.cQueryable())
+                .add("aSetProperty", false,
+                        SetType.indexed(SetType.MAX_NUM_OF_ELEMENTS, SetType.MAX_LEN_BYTES))
+                .add("binaryBloebchen", false, BlobType.indexed(BlobType.MAX_LENGTH))
+                .add("daaFulltext", false, FtsiType.c())
+                .add("daBinary", false, BinaryType.indexed(BinaryType.MAX_LEN))
+                .add("daLongInt", false, LongType.indexed())
                 .add("daBoolean", false, BoolType.indexed())
-                .add("longFloat", false, LongFloatType.cIndexed())
+                .add("longFloat", false, LongFloatType.indexed())
                 .addEdgeClass(PrivateEdgeClass.cQueryable(EDGE_ONE))
                 .addEdgeClass(PrivateEdgeClass.cQueryable(EDGE_TWO)).get();
         return nodeClass;
