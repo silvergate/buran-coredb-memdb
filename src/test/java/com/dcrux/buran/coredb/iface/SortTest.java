@@ -141,7 +141,6 @@ public class SortTest extends TestsBase {
         Assert.assertEquals(0, l2);
         Assert.assertEquals(null, l3);
 
-
         boolean b1 =
                 (boolean) querySortGetAtIndex(NodeClassSimple.PROPERTY_BOOLEAN, SortDirection.desc,
                         0);

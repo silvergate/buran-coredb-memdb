@@ -4,6 +4,7 @@ import com.dcrux.buran.coredb.iface.*;
 import com.dcrux.buran.coredb.iface.api.*;
 import com.dcrux.buran.coredb.iface.api.exceptions.*;
 import com.dcrux.buran.coredb.iface.domains.DomainHash;
+import com.dcrux.buran.coredb.iface.domains.DomainHashCreator;
 import com.dcrux.buran.coredb.iface.domains.DomainId;
 import com.dcrux.buran.coredb.iface.edgeTargets.IIncEdgeTarget;
 import com.dcrux.buran.coredb.iface.nodeClass.*;
@@ -19,6 +20,7 @@ import javax.annotation.Nullable;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * @author caelis
@@ -88,6 +90,8 @@ public class ApiIface implements IApi {
     @Override
     public CreateInfo createNew(UserId receiver, UserId sender, ClassId classId,
             Optional<KeepAliveHint> keepAliveHint) {
+        if (receiver == null) throw new IllegalArgumentException("receiver==null");
+        if (sender == null) throw new IllegalArgumentException("sender==null");
         IncNid incNid =
                 getDmApi().createNew(receiver.getId(), sender.getId(), classId.getId(), null);
         return new CreateInfo(incNid, new KeepAliveInfo(keepAliveNumSeconds(),
@@ -272,6 +276,12 @@ public class ApiIface implements IApi {
     }
 
     @Override
+    public ClassId getClassId(UserId receiver, UserId sender, NidVer nid)
+            throws NodeNotFoundException, PermissionDeniedException, QuotaExceededException {
+        return ClassId.c(this.metaApi.getClassId(receiver.getId(), sender.getId(), nid));
+    }
+
+    @Override
     public DomainId addAnonymousDomain(UserId receiver, UserId sender)
             throws PermissionDeniedException {
         return this.domainApi.addAnonymousDomain(receiver.getId(), sender.getId());
@@ -306,6 +316,13 @@ public class ApiIface implements IApi {
             throws InformationUnavailableException, PermissionDeniedException,
             NodeNotFoundException {
         return this.metaApi.getNodeDomains(receiver.getId(), sender.getId(), nidVer);
+    }
+
+    @Override
+    public DomainHash createDomainHash(UUID uuid, String creatorName, String creatorEmail,
+            String description) throws QuotaExceededException {
+        DomainHashCreator dhc = new DomainHashCreator(uuid, creatorName, creatorEmail, description);
+        return dhc.createHash();
     }
 
     @Override

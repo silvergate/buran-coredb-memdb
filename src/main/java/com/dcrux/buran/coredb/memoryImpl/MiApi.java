@@ -44,6 +44,15 @@ public class MiApi {
         return null;
     }
 
+    public long getClassId(long receiverId, long senderId, NidVer nidVer)
+            throws NodeNotFoundException {
+        final NodeImpl inCurrent = this.dataReadApi.getNodeFromCurrent(receiverId, nidVer);
+        if (inCurrent == null) {
+            throw new NodeNotFoundException("Node not found");
+        }
+        return inCurrent.getNodeSerie().getClassId();
+    }
+
     private void assureDomainExists(long receiverId, DomainId domainId)
             throws DomainNotFoundException {
         final boolean hasDomain = this.domApi.hasDomain(receiverId, domainId);
