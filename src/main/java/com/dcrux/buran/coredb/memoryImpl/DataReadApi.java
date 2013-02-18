@@ -158,8 +158,16 @@ public class DataReadApi {
                 PublicEdgeClass pec = PublicEdgeClass.parse(verInEdgesByLabel.getKey());
                 isQueryable = pec.isQueryable();
             } else {
+                /*
                 PrivateEdgeClass pec = nodeClass.getEdgeClasses().get(verInEdgesByLabel.getKey());
-                isQueryable = pec.isQueryable();
+                if (pec==null)
+                    throw new ExpectableException(
+                            MessageFormat
+                                    .format("Label {0} not defined for class.", verInEdgesByLabel));
+                isQueryable = pec.isQueryable();      */
+                //TODO: Da muss die klasse von der source verwendet werden und nicht nodeClass
+                // (denn das ist das target).
+                isQueryable = true;
             }
 
             if ((!isQueryable) && (queryableOnly)) {
@@ -175,6 +183,7 @@ public class DataReadApi {
                 }
                 final EdgeWithSource edgeWithSource =
                         this.edgeUtil.toEdgeWithSource(verInEdgeEntry.getValue());
+
                 edgeImplsByLabel.put(verInEdgeEntry.getKey(), edgeWithSource);
             }
         }
