@@ -3,6 +3,7 @@ package com.dcrux.buran.coredb.memoryImpl.query;
 import com.dcrux.buran.coredb.iface.*;
 import com.dcrux.buran.coredb.iface.api.exceptions.ExpectableException;
 import com.dcrux.buran.coredb.iface.api.exceptions.NodeNotFoundException;
+import com.dcrux.buran.coredb.iface.nodeClass.ClassId;
 import com.dcrux.buran.coredb.iface.nodeClass.NodeClass;
 import com.dcrux.buran.coredb.iface.permissions.UserNodePermission;
 import com.dcrux.buran.coredb.iface.query.ICondNode;
@@ -155,6 +156,15 @@ public class MetaMatcher {
             }
             DataAndMetaMatcher dataAndMetaMatcher = new DataAndMetaMatcher();
             return dataAndMetaMatcher.matches(qNode, drApi, node, ncApi, accountNodes);
+        }
+
+        @Override
+        public boolean matches(long oid, ClassId classId) {
+            final NodeImpl node = accountNodes.getCurrentNode(oid);
+            if (node == null) {
+                return false;
+            }
+            return classId.getId() == node.getNodeSerie().getClassId();
         }
     };
 
