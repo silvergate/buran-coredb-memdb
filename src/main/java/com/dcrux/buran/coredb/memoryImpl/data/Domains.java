@@ -1,12 +1,13 @@
 package com.dcrux.buran.coredb.memoryImpl.data;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * @author caelis
  */
-public class Domains {
+public class Domains implements Serializable {
     public Map<Long, AccountDomains> accountDomains = new HashMap<>();
 
     public AccountDomains getByUserId(long userId) {

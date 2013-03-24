@@ -2,10 +2,12 @@ package com.dcrux.buran.coredb.memoryImpl.edge;
 
 import com.dcrux.buran.coredb.iface.EdgeLabel;
 
+import java.io.Serializable;
+
 /**
  * @author caelis
  */
-public class EdgeImpl {
+public class EdgeImpl implements Serializable {
     private final EdgeLabel label;
     private final IEdgeImplTarget source;
     private final IEdgeImplTarget target;

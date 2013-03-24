@@ -49,8 +49,8 @@ public class NodeClassSimple {
                 .add("daLongInt", false, LongType.indexed())
                 .add("daBoolean", false, BoolType.indexed())
                 .add("longFloat", false, LongFloatType.indexed())
-                .addEdgeClass(PrivateEdgeClass.cQueryable(EDGE_ONE))
-                .addEdgeClass(PrivateEdgeClass.cQueryable(EDGE_TWO)).get();
+                .addEdgeClass(PrivateEdgeClass.cQueryableMany(EDGE_ONE))
+                .addEdgeClass(PrivateEdgeClass.cQueryableMany(EDGE_TWO)).get();
         return nodeClass;
     }
 

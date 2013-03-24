@@ -1,5 +1,6 @@
 package com.dcrux.buran.coredb.memoryImpl.data;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -8,8 +9,8 @@ import java.util.Map;
  *
  * @author: ${USER} Date: 13.01.13 Time: 14:36
  */
-public class Subscriptions {
-    private Map<Long, AccountSubscriptions> receiverIdToSubscriptions = new HashMap<>();
+public class Subscriptions implements Serializable {
+    private transient Map<Long, AccountSubscriptions> receiverIdToSubscriptions = new HashMap<>();
 
     public AccountSubscriptions getByUserId(final long userId) {
         AccountSubscriptions as = this.receiverIdToSubscriptions.get(userId);

@@ -15,6 +15,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
 import javax.annotation.Nullable;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -24,7 +25,7 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * @author caelis
  */
-public class AccountNodes {
+public class AccountNodes implements Serializable {
 
     private final long receiverId;
 
@@ -34,7 +35,7 @@ public class AccountNodes {
 
     private Map<Long, IncNode> incOidToIncNodes = new HashMap<>();
 
-    private final CommitUtil commitUtil = new CommitUtil();
+    private final transient CommitUtil commitUtil = new CommitUtil();
 
     public AccountNodes(long receiverId) {
         this.receiverId = receiverId;

@@ -4,6 +4,7 @@ import com.dcrux.buran.coredb.iface.nodeClass.NodeClass;
 import com.dcrux.buran.coredb.iface.nodeClass.NodeClassHash;
 
 import javax.annotation.Nullable;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -11,7 +12,7 @@ import java.util.Random;
 /**
  * @author caelis
  */
-public class NodeClasses {
+public class NodeClasses implements Serializable {
     private Map<Long, NodeClass> classes = new HashMap<>();
     private Map<String, NodeClass> hashesToClasses = new HashMap<>();
     private Map<String, Long> hashesToClassIds = new HashMap<>();

@@ -32,6 +32,8 @@ import com.dcrux.buran.coredb.iface.query.propertyCondition.PropCondition;
 import com.dcrux.buran.coredb.memoryImpl.ApiIface;
 import com.google.common.base.Optional;
 
+import java.io.File;
+import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.UUID;
@@ -70,17 +72,24 @@ public class Main {
         byte[] binClone = bb.read(0, bin.length - 1);
 
         if (!Arrays.equals(bin, binClone)) System.out.println("Die beiden sind nicht equal!");
+    }
 
-
+    private static File getPersistenceFile() throws IOException {
+        String userHome = System.getProperty("user.home");
+        File serFile = new File(new File(userHome), "buran.1.ser");
+        if (!serFile.exists()) {
+            serFile.createNewFile();
+        }
+        return serFile;
     }
 
     public static void main(String[] args)
             throws OptimisticLockingException, IncubationNodeNotFound, EdgeIndexAlreadySet,
             NodeNotFoundException, PermissionDeniedException, InformationUnavailableException,
-            QuotaExceededException {
+            QuotaExceededException, IOException {
         testBinary();
 
-        ApiIface apiImpl = new ApiIface();
+        ApiIface apiImpl = new ApiIface(getPersistenceFile());
         IApi api = apiImpl;
 
         EdgeLabel halloEdge = EdgeLabel.privateEdge("hallo");
@@ -90,7 +99,7 @@ public class Main {
                 .add("daName", false, StringType.indexed(StringType.MAX_LEN_INDEXED))
                 .add("fulltext", false, new FtsiType())
                 .add("binary", false, BlobType.indexed(BlobType.MAX_LENGTH))
-                .addEdgeClass(PrivateEdgeClass.cQueryable(halloEdge)).get();
+                .addEdgeClass(PrivateEdgeClass.cQueryableMany(halloEdge)).get();
         final NodeClassHash ncHash = api.declareClass(nodeClass);
         final ClassId classId = api.getClassIdByHash(ncHash);
 

@@ -7,13 +7,14 @@ import com.dcrux.buran.coredb.memoryImpl.edge.EdgeImpl;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * @author caelis
  */
-public class NodeSerie {
+public class NodeSerie implements Serializable {
     private final long oid;
     private final long classId;
     private final long receiverId;

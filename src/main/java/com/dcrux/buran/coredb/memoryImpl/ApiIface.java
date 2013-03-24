@@ -11,12 +11,14 @@ import com.dcrux.buran.coredb.iface.nodeClass.*;
 import com.dcrux.buran.coredb.iface.query.IQuery;
 import com.dcrux.buran.coredb.iface.subscription.Subscription;
 import com.dcrux.buran.coredb.iface.subscription.SubscriptionId;
-import com.dcrux.buran.coredb.memoryImpl.data.*;
+import com.dcrux.buran.coredb.memoryImpl.data.NodeImpl;
+import com.dcrux.buran.coredb.memoryImpl.data.SerPersistentData;
 import com.dcrux.buran.coredb.memoryImpl.typeImpls.TypesRegistry;
 import com.google.common.base.Optional;
 import com.google.common.collect.Multimap;
 
 import javax.annotation.Nullable;
+import java.io.*;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
@@ -36,23 +38,97 @@ public class ApiIface implements IApi {
     private final DomApi domainApi;
     private final SubscriptionApi subscriptionApi;
 
-    public ApiIface() {
-        this.typesRegistry = new TypesRegistry();
-        Nodes nodes = new Nodes();
-        NodeClasses ncs = new NodeClasses();
-        Domains doms = new Domains();
-        Subscriptions subscriptions = new Subscriptions();
+    private SerPersistentData serPersistentData;
 
-        this.nodeClassesApi = new NodeClassesApi(ncs);
-        this.dataManipulationApi = new DmApi(nodes, this.nodeClassesApi, typesRegistry);
-        this.dataReadApi = new DataReadApi(nodes, this.nodeClassesApi, typesRegistry);
-        this.subscriptionApi =
-                new SubscriptionApi(subscriptions, nodes, this.nodeClassesApi, this.dataReadApi);
-        this.commitApi =
-                new CommitApi(nodes, this.dataReadApi, this.nodeClassesApi, this.subscriptionApi);
-        this.domainApi = new DomApi(doms);
+    private File serFile;
+
+    public ApiIface(File file) {
+        this.serFile = file;
+        this.serPersistentData = deserialize(file);
+
+        this.typesRegistry = new TypesRegistry();
+        this.nodeClassesApi = new NodeClassesApi(this.serPersistentData.getNodeClasses());
+        this.dataManipulationApi =
+                new DmApi(this.serPersistentData.getNodes(), this.nodeClassesApi, typesRegistry);
+        this.dataReadApi = new DataReadApi(this.serPersistentData.getNodes(), this.nodeClassesApi,
+                typesRegistry);
+        this.subscriptionApi = new SubscriptionApi(this.serPersistentData.getSubscriptions(),
+                this.serPersistentData.getNodes(), this.nodeClassesApi, this.dataReadApi);
+        this.commitApi = new CommitApi(this.serPersistentData.getNodes(), this.dataReadApi,
+                this.nodeClassesApi, this.subscriptionApi);
+        this.domainApi = new DomApi(this.serPersistentData.getDomains());
         this.metaApi = new MiApi(this.dataReadApi, this.dataManipulationApi, this.domainApi);
-        this.queryApi = new QueryApi(nodes, getNodeClassesApi(), this.dataReadApi, typesRegistry);
+        this.queryApi = new QueryApi(this.serPersistentData.getNodes(), getNodeClassesApi(),
+                this.dataReadApi, typesRegistry);
+    }
+
+    public void persist() {
+        serialize(this.serFile);
+    }
+
+    private SerPersistentData deserialize(File file) {
+        SerPersistentData data = null;
+        FileInputStream fis = null;
+        ObjectInputStream os = null;
+        try {
+            fis = new FileInputStream(file);
+            os = new ObjectInputStream(fis);
+            data = (SerPersistentData) os.readObject();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } finally {
+            if (os != null) {
+                try {
+                    os.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (fis != null) {
+                try {
+                    fis.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        if (data == null) {
+            data = new SerPersistentData();
+        }
+        return data;
+    }
+
+    public void serialize(File file) {
+        FileOutputStream fos = null;
+        ObjectOutputStream oos = null;
+        try {
+            fos = new FileOutputStream(file);
+            oos = new ObjectOutputStream(fos);
+            oos.writeObject(this.serPersistentData);
+        } catch (Exception e) {
+
+        } finally {
+
+            if (oos != null) {
+                try {
+                    oos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings
+                    // | File Templates.
+                }
+            }
+            if (fos != null) {
+                try {
+                    fos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings
+                    // | File Templates.
+                }
+
+            }
+        }
     }
 
     public CommitApi getCommitApi() {

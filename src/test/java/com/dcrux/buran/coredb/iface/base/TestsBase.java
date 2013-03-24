@@ -3,6 +3,7 @@ package com.dcrux.buran.coredb.iface.base;
 import com.dcrux.buran.coredb.iface.UserId;
 import com.dcrux.buran.coredb.iface.api.IApi;
 
+import java.io.IOException;
 import java.util.Random;
 
 /**
@@ -21,13 +22,18 @@ public class TestsBase {
     public TestsBase() {
     }
 
-    public IApi createBuran() {
+    public IApi createBuran() throws IOException {
         return factory.createBuran();
     }
 
     public IApi getBuran() {
         if (this.buran == null) {
-            this.buran = createBuran();
+            try {
+                this.buran = createBuran();
+            } catch (IOException e) {
+                e.printStackTrace();  //To change body of catch statement use File | Settings |
+                // File Templates.
+            }
         }
         return this.buran;
     }

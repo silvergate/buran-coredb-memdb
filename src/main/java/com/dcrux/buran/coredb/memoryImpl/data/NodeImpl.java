@@ -6,6 +6,7 @@ import com.dcrux.buran.coredb.memoryImpl.edge.EdgeImpl;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -14,8 +15,7 @@ import java.util.Set;
 /**
  * @author caelis
  */
-//TODO: Rename to NodeImpl
-public class NodeImpl {
+public class NodeImpl implements Serializable {
 
     public long getSenderId() {
         return senderId;

@@ -5,6 +5,7 @@ import com.dcrux.buran.coredb.iface.subscription.SubscriptionEventType;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -14,7 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @author: ${USER} Date: 13.01.13 Time: 14:37
  */
-public class AccountSubscriptions {
+public class AccountSubscriptions implements Serializable {
     private final long receiverId;
 
     public AccountSubscriptions(long receiverId) {

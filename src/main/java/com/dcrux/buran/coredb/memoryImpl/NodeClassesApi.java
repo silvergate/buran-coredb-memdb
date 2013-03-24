@@ -6,13 +6,14 @@ import com.dcrux.buran.coredb.memoryImpl.data.NodeClasses;
 import org.apache.commons.lang.SerializationUtils;
 
 import javax.annotation.Nullable;
+import java.io.Serializable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 /**
  * @author caelis
  */
-public class NodeClassesApi {
+public class NodeClassesApi implements Serializable {
 
     public NodeClassesApi(NodeClasses classes) {
         this.classes = classes;
