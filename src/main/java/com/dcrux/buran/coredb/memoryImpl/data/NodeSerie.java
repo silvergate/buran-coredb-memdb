@@ -15,7 +15,11 @@ import java.util.Map;
  * @author caelis
  */
 public class NodeSerie implements Serializable {
-    private final long oid;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -7443880879598278485L;
+	private final long oid;
     private final long classId;
     private final long receiverId;
     private int currentVersion = Integer.MIN_VALUE;

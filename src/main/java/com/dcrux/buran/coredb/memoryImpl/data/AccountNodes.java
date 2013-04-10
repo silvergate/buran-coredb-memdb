@@ -27,7 +27,12 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class AccountNodes implements Serializable {
 
-    private final long receiverId;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 6054712860670086243L;
+
+	private final long receiverId;
 
     private Map<Long, NodeSerie> oidToAliveSeries = new HashMap<>();
     private Multimap<Long, NodeSerie> classIdToAliveSeries = HashMultimap.create();

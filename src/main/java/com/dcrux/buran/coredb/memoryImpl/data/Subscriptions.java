@@ -10,7 +10,11 @@ import java.util.Map;
  * @author: ${USER} Date: 13.01.13 Time: 14:36
  */
 public class Subscriptions implements Serializable {
-    private transient Map<Long, AccountSubscriptions> receiverIdToSubscriptions = new HashMap<>();
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8619259023036487903L;
+	private transient Map<Long, AccountSubscriptions> receiverIdToSubscriptions = new HashMap<>();
 
     public AccountSubscriptions getByUserId(final long userId) {
         AccountSubscriptions as = this.receiverIdToSubscriptions.get(userId);

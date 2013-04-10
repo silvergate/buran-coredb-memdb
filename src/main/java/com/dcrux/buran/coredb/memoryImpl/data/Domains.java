@@ -8,7 +8,11 @@ import java.util.Map;
  * @author caelis
  */
 public class Domains implements Serializable {
-    public Map<Long, AccountDomains> accountDomains = new HashMap<>();
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 7418706529691453111L;
+	public Map<Long, AccountDomains> accountDomains = new HashMap<>();
 
     public AccountDomains getByUserId(long userId) {
         AccountDomains accDomains = this.accountDomains.get(userId);

@@ -16,7 +16,11 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author: ${USER} Date: 13.01.13 Time: 14:37
  */
 public class AccountSubscriptions implements Serializable {
-    private final long receiverId;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 3778490215059336614L;
+	private final long receiverId;
 
     public AccountSubscriptions(long receiverId) {
         this.receiverId = receiverId;

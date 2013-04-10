@@ -17,7 +17,12 @@ import java.util.Set;
  */
 public class NodeImpl implements Serializable {
 
-    public long getSenderId() {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -4936515447721013089L;
+
+	public long getSenderId() {
         return senderId;
     }
 

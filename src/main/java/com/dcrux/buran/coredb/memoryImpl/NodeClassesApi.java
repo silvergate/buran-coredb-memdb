@@ -15,7 +15,12 @@ import java.security.NoSuchAlgorithmException;
  */
 public class NodeClassesApi implements Serializable {
 
-    public NodeClassesApi(NodeClasses classes) {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -4616040291213810392L;
+
+	public NodeClassesApi(NodeClasses classes) {
         this.classes = classes;
     }
 
