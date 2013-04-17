@@ -35,10 +35,17 @@ public class AccountNodes implements Serializable {
 
     private Map<Long, IncNode> incOidToIncNodes = new HashMap<>();
 
-    private final transient CommitUtil commitUtil = new CommitUtil();
+    private transient CommitUtil commitUtil;
 
     public AccountNodes(long receiverId) {
         this.receiverId = receiverId;
+    }
+
+    private CommitUtil getCommitUtil() {
+        if (this.commitUtil == null) {
+            this.commitUtil = new CommitUtil();
+        }
+        return this.commitUtil;
     }
 
     public Map<Long, NodeSerie> getOidToAliveSeries() {
@@ -206,9 +213,9 @@ public class AccountNodes implements Serializable {
         // TODO: Missing write lock
       /* OIDs von allen extrahieren */
         final Set<PreparedComitInfo> prepComInfo =
-                this.commitUtil.generateOidsFromIoids(senderId, incNids, this);
+                getCommitUtil().generateOidsFromIoids(senderId, incNids, this);
       /* Validate */
-        this.commitUtil.validate(prepComInfo, drApi, ncApi);
+        getCommitUtil().validate(prepComInfo, drApi, ncApi);
 
         /* Subscription tasks */
         final Set<SubscriptionTask> subscriptionTasks = new HashSet<>();
@@ -252,10 +259,10 @@ public class AccountNodes implements Serializable {
         long currentTime = System.currentTimeMillis();
         incNode.getNode().setValidFrom(currentTime);
 
-        /* Add edges from inc to node */
+        /* Add edge from inc to node */
         for (Map.Entry<IncNode.EdgeIndexLabel, IncubationEdge> incEdgeEntry : incNode
                 .getIncubationEdges().entrySet()) {
-            this.commitUtil.addEdge(pci, incNode.getNode(), incEdgeEntry.getValue(),
+            getCommitUtil().addEdge(pci, incNode.getNode(), incEdgeEntry.getValue(),
                     incEdgeEntry.getKey().getIndex(), this);
         }
 

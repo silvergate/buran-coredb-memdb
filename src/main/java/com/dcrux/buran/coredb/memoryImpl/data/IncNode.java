@@ -1,17 +1,18 @@
 package com.dcrux.buran.coredb.memoryImpl.data;
 
-import com.dcrux.buran.coredb.iface.EdgeIndex;
-import com.dcrux.buran.coredb.iface.EdgeLabel;
 import com.dcrux.buran.coredb.iface.NidVer;
+import com.dcrux.buran.coredb.iface.edge.EdgeIndex;
+import com.dcrux.buran.coredb.iface.edge.EdgeLabel;
 
 import javax.annotation.Nullable;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * @author caelis
  */
-public class IncNode {
+public class IncNode implements Serializable {
 
     @Nullable
     private final NidVer toUpdate;
@@ -57,7 +58,7 @@ public class IncNode {
         return incubationEdges;
     }
 
-    public static class EdgeIndexLabel {
+    public static class EdgeIndexLabel implements Serializable {
         private final EdgeLabel label;
         private final EdgeIndex index;
 

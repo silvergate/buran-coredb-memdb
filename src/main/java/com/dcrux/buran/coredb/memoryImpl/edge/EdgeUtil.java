@@ -1,7 +1,6 @@
 package com.dcrux.buran.coredb.memoryImpl.edge;
 
-import com.dcrux.buran.coredb.iface.Edge;
-import com.dcrux.buran.coredb.iface.EdgeWithSource;
+import com.dcrux.buran.coredb.iface.edge.Edge;
 import com.dcrux.buran.coredb.iface.edgeTargets.*;
 
 /**
@@ -31,9 +30,8 @@ public class EdgeUtil {
         }
     }
 
-    public EdgeWithSource toEdgeWithSource(EdgeImpl edgeImpl) {
-        final IEdgeTarget source = toEdgeTarget(edgeImpl.getSource());
+    public Edge toEdge(EdgeImpl edgeImpl) {
         final IEdgeTarget target = toEdgeTarget(edgeImpl.getTarget());
-        return new EdgeWithSource(new Edge(target, edgeImpl.getLabel()), source);
+        return (new Edge(target, edgeImpl.getLabel()));
     }
 }

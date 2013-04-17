@@ -1,10 +1,10 @@
 package com.dcrux.buran.coredb.iface.common;
 
-import com.dcrux.buran.coredb.iface.EdgeLabel;
 import com.dcrux.buran.coredb.iface.api.IApi;
 import com.dcrux.buran.coredb.iface.api.exceptions.PermissionDeniedException;
 import com.dcrux.buran.coredb.iface.api.exceptions.QuotaExceededException;
-import com.dcrux.buran.coredb.iface.edgeClass.PrivateEdgeClass;
+import com.dcrux.buran.coredb.iface.edge.EdgeLabelIndex;
+import com.dcrux.buran.coredb.iface.edgeClass.EdgeClass;
 import com.dcrux.buran.coredb.iface.nodeClass.ClassId;
 import com.dcrux.buran.coredb.iface.nodeClass.NodeClass;
 import com.dcrux.buran.coredb.iface.nodeClass.NodeClassHash;
@@ -35,8 +35,8 @@ public class NodeClassSimple {
     public static final short PROPERTY_BOOLEAN = 7;
     public static final short PROPERTY_LONGFLOAT = 8;
 
-    public static final EdgeLabel EDGE_ONE = EdgeLabel.privateEdge("edgeOne");
-    public static final EdgeLabel EDGE_TWO = EdgeLabel.privateEdge("edgeTwo");
+    public static final EdgeLabelIndex EDGE_ONE = EdgeLabelIndex.fromString("edgeOne");
+    public static final EdgeLabelIndex EDGE_TWO = EdgeLabelIndex.fromString("edgeTwo");
 
     public static NodeClass create() {
         final NodeClass nodeClass = NodeClass.builder().add("anInteger", false, IntType.indexed())
@@ -49,8 +49,8 @@ public class NodeClassSimple {
                 .add("daLongInt", false, LongType.indexed())
                 .add("daBoolean", false, BoolType.indexed())
                 .add("longFloat", false, LongFloatType.indexed())
-                .addEdgeClass(PrivateEdgeClass.cQueryableMany(EDGE_ONE))
-                .addEdgeClass(PrivateEdgeClass.cQueryableMany(EDGE_TWO)).get();
+                .addEdgeClass(EdgeClass.cQueryableMany(EDGE_ONE))
+                .addEdgeClass(EdgeClass.cQueryableMany(EDGE_TWO)).get();
         return nodeClass;
     }
 

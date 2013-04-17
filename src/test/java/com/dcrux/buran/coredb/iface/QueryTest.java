@@ -5,6 +5,8 @@ import com.dcrux.buran.coredb.iface.api.exceptions.*;
 import com.dcrux.buran.coredb.iface.base.TestsBase;
 import com.dcrux.buran.coredb.iface.common.NodeClassSimple;
 import com.dcrux.buran.coredb.iface.domains.DomainId;
+import com.dcrux.buran.coredb.iface.edge.EdgeIndex;
+import com.dcrux.buran.coredb.iface.edge.EdgeLabel;
 import com.dcrux.buran.coredb.iface.edgeTargets.IncVersionedEdTarget;
 import com.dcrux.buran.coredb.iface.nodeClass.ClassId;
 import com.dcrux.buran.coredb.iface.propertyTypes.PrimGet;
@@ -126,9 +128,11 @@ public class QueryTest extends TestsBase {
 
         /* Mutually link the two nodes */
 
-        api.setEdge(getReceiver(), getSender(), iNid, EdgeIndex.c(0), NodeClassSimple.EDGE_ONE,
+        api.setEdge(getReceiver(), getSender(), iNid, EdgeIndex.c(0),
+                EdgeLabel.privateEdge(this.classId, NodeClassSimple.EDGE_ONE),
                 IncVersionedEdTarget.c(iNid2));
-        api.setEdge(getReceiver(), getSender(), iNid2, EdgeIndex.c(0), NodeClassSimple.EDGE_ONE,
+        api.setEdge(getReceiver(), getSender(), iNid2, EdgeIndex.c(0),
+                EdgeLabel.privateEdge(this.classId, NodeClassSimple.EDGE_ONE),
                 IncVersionedEdTarget.c(iNid));
 
         /* Commit node (from incubation to live) */
@@ -290,8 +294,9 @@ public class QueryTest extends TestsBase {
                 PropCondition.c(NodeClassSimple.PROPERTY_INT, IntEq.eq(intValue2)));
 
         QueryCdNode query = QueryCdNode.c(CondCdNode.c(this.classId, McIntersection
-                .c(VersionEq.c(NidVer.FIRST_VERSION),
-                        OutEdgeCondition.c(NodeClassSimple.EDGE_ONE, EdgeIndex.c(0), qNode2)),
+                .c(VersionEq.c(NidVer.FIRST_VERSION), OutEdgeCondition.c(this.classId,
+                        EdgeLabel.privateEdge(this.classId, NodeClassSimple.EDGE_ONE),
+                        EdgeIndex.c(0), qNode2)),
                 PropCondition.c(NodeClassSimple.PROPERTY_INT, IntEq.eq(intValue1))));
 
         final QueryResult r = api.query(getReceiver(), getSender(), query, true);

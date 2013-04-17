@@ -1,11 +1,11 @@
 package com.dcrux.buran.coredb.memoryImpl;
 
-import com.dcrux.buran.coredb.iface.EdgeIndex;
-import com.dcrux.buran.coredb.iface.EdgeLabel;
 import com.dcrux.buran.coredb.iface.IncNid;
 import com.dcrux.buran.coredb.iface.NidVer;
 import com.dcrux.buran.coredb.iface.api.TransferExclusion;
 import com.dcrux.buran.coredb.iface.api.exceptions.*;
+import com.dcrux.buran.coredb.iface.edge.EdgeIndex;
+import com.dcrux.buran.coredb.iface.edge.EdgeLabel;
 import com.dcrux.buran.coredb.iface.edgeTargets.IEdgeTarget;
 import com.dcrux.buran.coredb.iface.edgeTargets.IIncEdgeTarget;
 import com.dcrux.buran.coredb.iface.nodeClass.IDataSetter;
@@ -94,8 +94,8 @@ public class DmApi {
         final Set<IncNode.EdgeIndexLabel> toRemove = new HashSet<>();
         for (final Map.Entry<IncNode.EdgeIndexLabel, IncubationEdge> item : incNode
                 .getIncubationEdges().entrySet()) {
-            final boolean remove = (!label.isPresent()) ||
-                    (item.getValue().getLabel().getLabel().equals(label.get().getLabel()));
+            final boolean remove =
+                    (!label.isPresent()) || (item.getValue().getLabel().equals(label.get()));
             if (remove) {
                 toRemove.add(item.getKey());
             }
@@ -176,7 +176,7 @@ public class DmApi {
         if ((!transferExclusion.isExcludeAllProperties()) ||
                 (!transferExclusion.isExcludeAllEdges())) {
             if (incNode.getClassId() != node.getNodeSerie().getClassId())
-                throw new IncompatibleClassException("If we try to transfer properties or edges " +
+                throw new IncompatibleClassException("If we try to transfer properties or edge " +
                         "from one to another node they must both be of the same class.");
         }
 
@@ -208,7 +208,7 @@ public class DmApi {
             incNode.getNode().getDomainIds().addAll(node.getDomainIds());
         }
 
-        /* Transfer edges */
+        /* Transfer edge */
         if (!transferExclusion.isExcludeAllEdges()) {
             final Map<EdgeLabel, Map<EdgeIndex, EdgeImpl>> outEdges = node.getOutEdges();
             for (final Map.Entry<EdgeLabel, Map<EdgeIndex, EdgeImpl>> edgeLabelEntry : outEdges

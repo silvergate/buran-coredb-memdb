@@ -1,6 +1,6 @@
 package com.dcrux.buran.coredb.memoryImpl.edge;
 
-import com.dcrux.buran.coredb.iface.EdgeLabel;
+import com.dcrux.buran.coredb.iface.edge.EdgeLabel;
 
 import java.io.Serializable;
 
