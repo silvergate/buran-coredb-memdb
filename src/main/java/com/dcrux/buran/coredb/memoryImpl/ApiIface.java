@@ -18,7 +18,6 @@ import com.dcrux.buran.coredb.iface.subscription.Subscription;
 import com.dcrux.buran.coredb.iface.subscription.SubscriptionId;
 import com.dcrux.buran.coredb.memoryImpl.data.NodeImpl;
 import com.dcrux.buran.coredb.memoryImpl.data.SerPersistentData;
-import com.dcrux.buran.coredb.memoryImpl.typeImpls.TypesRegistry;
 import com.google.common.base.Optional;
 import com.google.common.collect.Multimap;
 
@@ -34,7 +33,6 @@ public class ApiIface implements IApi {
     private final DmApi dataManipulationApi;
     private final DataReadApi dataReadApi;
     private final NodeClassesApi nodeClassesApi;
-    private final TypesRegistry typesRegistry;
     private final MiApi metaApi;
     private final QueryApi queryApi;
     private final DomApi domainApi;
@@ -52,12 +50,10 @@ public class ApiIface implements IApi {
             this.serPersistentData = deserialize(file);
         }
 
-        this.typesRegistry = new TypesRegistry();
         this.nodeClassesApi = new NodeClassesApi(this.serPersistentData.getNodeClasses());
         this.dataManipulationApi =
-                new DmApi(this.serPersistentData.getNodes(), this.nodeClassesApi, typesRegistry);
-        this.dataReadApi = new DataReadApi(this.serPersistentData.getNodes(), this.nodeClassesApi,
-                typesRegistry);
+                new DmApi(this.serPersistentData.getNodes(), this.nodeClassesApi);
+        this.dataReadApi = new DataReadApi(this.serPersistentData.getNodes(), this.nodeClassesApi);
         this.subscriptionApi = new SubscriptionApi(this.serPersistentData.getSubscriptions(),
                 this.serPersistentData.getNodes(), this.nodeClassesApi, this.dataReadApi);
         this.commitApi = new CommitApi(this.serPersistentData.getNodes(), this.dataReadApi,
@@ -65,7 +61,7 @@ public class ApiIface implements IApi {
         this.domainApi = new DomApi(this.serPersistentData.getDomains());
         this.metaApi = new MiApi(this.dataReadApi, this.dataManipulationApi, this.domainApi);
         this.queryApi = new QueryApi(this.serPersistentData.getNodes(), getNodeClassesApi(),
-                this.dataReadApi, typesRegistry);
+                this.dataReadApi);
     }
 
     public void persist() {
@@ -312,24 +308,15 @@ public class ApiIface implements IApi {
         return result;
     }
 
-    @Deprecated
-    @Override
-    public Map<EdgeLabel, Multimap<EdgeIndex, IEdgeTarget>> getInEdges(UserId receiver,
-            UserId sender, NidVer nid, EnumSet<EdgeType> types, Optional<EdgeLabel> label)
-            throws NodeNotFoundException, InformationUnavailableException,
-            PermissionDeniedException, QuotaExceededException {
-        return getInEdges(receiver, sender, nid, EnumSet.of(HistoryState.active),
-                Optional.<ClassId>absent(), types, label);
-    }
-
     @Override
     public Map<EdgeLabel, Multimap<EdgeIndex, IEdgeTarget>> getInEdges(UserId receiver,
             UserId sender, NidVer nid, EnumSet<HistoryState> sourceHistoryStates,
-            Optional<ClassId> sourceClassId, EnumSet<EdgeType> types, Optional<EdgeLabel> label)
+            Optional<ClassId> sourceClassId, EnumSet<EdgeType> types,
+            Optional<EdgeIndexRange> indexRange, Optional<EdgeLabel> label)
             throws NodeNotFoundException, InformationUnavailableException,
             PermissionDeniedException, QuotaExceededException {
         return getDrApi().getInEdges(receiver.getId(), sender.getId(), nid, sourceHistoryStates,
-                sourceClassId, types, label, false);
+                sourceClassId, types, indexRange, label, false);
     }
 
     @Override

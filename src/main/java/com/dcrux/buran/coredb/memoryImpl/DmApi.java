@@ -18,7 +18,6 @@ import com.dcrux.buran.coredb.memoryImpl.data.Nodes;
 import com.dcrux.buran.coredb.memoryImpl.edge.EdgeImpl;
 import com.dcrux.buran.coredb.memoryImpl.edge.EdgeUtil;
 import com.dcrux.buran.coredb.memoryImpl.edge.IEdgeImplTarget;
-import com.dcrux.buran.coredb.memoryImpl.typeImpls.TypesRegistry;
 import com.google.common.base.Optional;
 import org.apache.commons.lang.SerializationUtils;
 
@@ -34,13 +33,11 @@ import java.util.Set;
 public class DmApi {
     private final Nodes nodes;
     private final NodeClassesApi ncApi;
-    private final TypesRegistry typesRegistry;
     private final EdgeUtil edgeUtil = new EdgeUtil();
 
-    public DmApi(Nodes nodes, NodeClassesApi ncApi, TypesRegistry typesRegistry) {
+    public DmApi(Nodes nodes, NodeClassesApi ncApi) {
         this.nodes = nodes;
         this.ncApi = ncApi;
-        this.typesRegistry = typesRegistry;
     }
 
     public IncNid createNew(long receiverId, long senderId, long classId,

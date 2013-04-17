@@ -12,7 +12,6 @@ import com.dcrux.buran.coredb.memoryImpl.data.NodeImpl;
 import com.dcrux.buran.coredb.memoryImpl.data.NodeSerie;
 import com.dcrux.buran.coredb.memoryImpl.data.Nodes;
 import com.dcrux.buran.coredb.memoryImpl.query.DataAndMetaMatcher;
-import com.dcrux.buran.coredb.memoryImpl.typeImpls.TypesRegistry;
 import com.google.common.base.Optional;
 import org.apache.commons.lang.NotImplementedException;
 
@@ -26,14 +25,11 @@ public class QueryApi {
     private final Nodes nodes;
     private final NodeClassesApi ncApi;
     private final DataReadApi drApi;
-    private final TypesRegistry typeRegistry;
 
-    public QueryApi(Nodes nodes, NodeClassesApi ncApi, DataReadApi drApi,
-            TypesRegistry typeRegistry) {
+    public QueryApi(Nodes nodes, NodeClassesApi ncApi, DataReadApi drApi) {
         this.nodes = nodes;
         this.ncApi = ncApi;
         this.drApi = drApi;
-        this.typeRegistry = typeRegistry;
     }
 
     public Set<NodeImpl> query(long receiverId, long senderId, ICondNode query) {

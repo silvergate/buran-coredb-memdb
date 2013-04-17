@@ -1,6 +1,7 @@
 package com.dcrux.buran.coredb.memoryImpl.query;
 
 import com.dcrux.buran.coredb.iface.NidVer;
+import com.dcrux.buran.coredb.iface.api.EdgeIndexRange;
 import com.dcrux.buran.coredb.iface.api.HistoryState;
 import com.dcrux.buran.coredb.iface.api.exceptions.ExpectableException;
 import com.dcrux.buran.coredb.iface.api.exceptions.NodeNotFoundException;
@@ -128,7 +129,8 @@ public class MetaMatcher {
                                 EnumSet.of(HistoryState.active), Optional.<ClassId>absent(),
                                 EnumSet.of(com.dcrux.buran.coredb.iface.edge.EdgeType.privateMod,
                                         com.dcrux.buran.coredb.iface.edge.EdgeType.publicMod),
-                                Optional.<EdgeLabel>of(label), true);
+                                Optional.<EdgeIndexRange>absent(), Optional.<EdgeLabel>of(label),
+                                true);
                 if (!inEdges.containsKey(label)) {
                     return HashMultimap.create();
                 }

@@ -1,9 +1,6 @@
 package com.dcrux.buran.coredb.iface;
 
-import com.dcrux.buran.coredb.iface.api.CommitResult;
-import com.dcrux.buran.coredb.iface.api.CreateInfo;
-import com.dcrux.buran.coredb.iface.api.IApi;
-import com.dcrux.buran.coredb.iface.api.KeepAliveHint;
+import com.dcrux.buran.coredb.iface.api.*;
 import com.dcrux.buran.coredb.iface.api.exceptions.*;
 import com.dcrux.buran.coredb.iface.base.TestsBase;
 import com.dcrux.buran.coredb.iface.common.NodeClassSimple;
@@ -115,7 +112,10 @@ public class EdgeTest extends TestsBase {
 
         final Map<EdgeLabel, Multimap<EdgeIndex, IEdgeTarget>> ieNodeOne =
                 api.getInEdges(getReceiver(), getSender(), nidVerOne,
-                        EnumSet.of(EdgeType.privateMod), Optional.<EdgeLabel>absent());
+                        EnumSet.of(HistoryState.active), Optional.<ClassId>absent(),
+                        EnumSet.of(EdgeType.privateMod), Optional.<EdgeIndexRange>absent(),
+                        Optional.<EdgeLabel>absent());
+
         /* See E and F: Should have two in-edge */
         Multimap<EdgeIndex, IEdgeTarget> ieNodeOneEdgeOne =
                 ieNodeOne.get(EdgeLabel.privateEdge(this.classId, NodeClassSimple.EDGE_ONE));
@@ -139,7 +139,10 @@ public class EdgeTest extends TestsBase {
 
         final Map<EdgeLabel, Multimap<EdgeIndex, IEdgeTarget>> ieNodeTwo =
                 api.getInEdges(getReceiver(), getSender(), nidVerTwo,
-                        EnumSet.of(EdgeType.privateMod), Optional.<EdgeLabel>absent());
+                        EnumSet.of(HistoryState.active), Optional.<ClassId>absent(),
+                        EnumSet.of(EdgeType.privateMod), Optional.<EdgeIndexRange>absent(),
+                        Optional.<EdgeLabel>absent());
+
         Assert.assertEquals("Should have two labels, see C & D.", 2, ieNodeTwo.keySet().size());
         Multimap<EdgeIndex, IEdgeTarget> ieNodeTwoKeyOne =
                 ieNodeTwo.get(EdgeLabel.privateEdge(this.classId, NodeClassSimple.EDGE_ONE));
@@ -170,7 +173,10 @@ public class EdgeTest extends TestsBase {
 
         final Map<EdgeLabel, Multimap<EdgeIndex, IEdgeTarget>> ieNodeThree =
                 api.getInEdges(getReceiver(), getSender(), nidVerThree,
-                        EnumSet.of(EdgeType.privateMod), Optional.<EdgeLabel>absent());
+                        EnumSet.of(HistoryState.active), Optional.<ClassId>absent(),
+                        EnumSet.of(EdgeType.privateMod), Optional.<EdgeIndexRange>absent(),
+                        Optional.<EdgeLabel>absent());
+
         Assert.assertEquals("Should have one label, see A & B.", 1, ieNodeThree.keySet().size());
         final Multimap<EdgeIndex, IEdgeTarget> ieNodeThreeL1 =
                 ieNodeThree.get(EdgeLabel.privateEdge(this.classId, NodeClassSimple.EDGE_ONE));

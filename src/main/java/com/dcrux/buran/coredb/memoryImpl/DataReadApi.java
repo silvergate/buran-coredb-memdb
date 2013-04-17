@@ -1,6 +1,7 @@
 package com.dcrux.buran.coredb.memoryImpl;
 
 import com.dcrux.buran.coredb.iface.NidVer;
+import com.dcrux.buran.coredb.iface.api.EdgeIndexRange;
 import com.dcrux.buran.coredb.iface.api.HistoryState;
 import com.dcrux.buran.coredb.iface.api.exceptions.ExpectableException;
 import com.dcrux.buran.coredb.iface.api.exceptions.NodeNotFoundException;
@@ -19,7 +20,6 @@ import com.dcrux.buran.coredb.memoryImpl.data.NodeSerie;
 import com.dcrux.buran.coredb.memoryImpl.data.Nodes;
 import com.dcrux.buran.coredb.memoryImpl.edge.EdgeImpl;
 import com.dcrux.buran.coredb.memoryImpl.edge.EdgeUtil;
-import com.dcrux.buran.coredb.memoryImpl.typeImpls.TypesRegistry;
 import com.google.common.base.Optional;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -35,13 +35,11 @@ import java.util.Map;
 public class DataReadApi {
     private final Nodes nodes;
     private final NodeClassesApi ncApi;
-    private final TypesRegistry typesRegistry;
     private final EdgeUtil edgeUtil = new EdgeUtil();
 
-    public DataReadApi(Nodes nodes, NodeClassesApi ncApi, TypesRegistry typesRegistry) {
+    public DataReadApi(Nodes nodes, NodeClassesApi ncApi) {
         this.nodes = nodes;
         this.ncApi = ncApi;
-        this.typesRegistry = typesRegistry;
     }
 
     @Nullable
@@ -180,8 +178,8 @@ public class DataReadApi {
     }
 
     private void addToEdges(final Map<EdgeLabel, Multimap<EdgeIndex, IEdgeTarget>> combination,
-            Optional<EdgeLabel> label, boolean queryableOnly, NodeClass nodeClass,
-            Map<EdgeLabel, Multimap<EdgeIndex, EdgeImpl>> edgeImpls,
+            Optional<EdgeLabel> label, Optional<EdgeIndexRange> indexRange, boolean queryableOnly,
+            NodeClass nodeClass, Map<EdgeLabel, Multimap<EdgeIndex, EdgeImpl>> edgeImpls,
             EnumSet<HistoryState> sourceHistoryStates) {
         for (Map.Entry<EdgeLabel, Multimap<EdgeIndex, EdgeImpl>> verInEdgesByLabel : edgeImpls
                 .entrySet()) {
@@ -211,6 +209,14 @@ public class DataReadApi {
             }
             for (Map.Entry<EdgeIndex, EdgeImpl> verInEdgeEntry : verInEdgesByLabel.getValue()
                     .entries()) {
+                /* Is in range?*/
+                if (indexRange.isPresent()) {
+                    if (!indexRange.get().contains(verInEdgeEntry.getKey())) {
+                        /* Skip */
+                        continue;
+                    }
+                }
+
                 Multimap<EdgeIndex, IEdgeTarget> edgeImplsByLabel =
                         combination.get(verInEdgesByLabel.getKey());
                 if (edgeImplsByLabel == null) {
@@ -225,14 +231,13 @@ public class DataReadApi {
 
     public Map<EdgeLabel, Multimap<EdgeIndex, IEdgeTarget>> getInEdges(long receiverId,
             long senderId, NidVer oid, EnumSet<HistoryState> sourceHistoryStates,
-            Optional<ClassId> sourceClassId, EnumSet<EdgeType> types, Optional<EdgeLabel> label,
-            boolean queryablesOnly) throws NodeNotFoundException {
-        if (types.isEmpty()) {
-            throw new ExpectableException("Types cannot be empty");
-        }
+            Optional<ClassId> sourceClassId, EnumSet<EdgeType> types,
+            Optional<EdgeIndexRange> indexRange, Optional<EdgeLabel> label, boolean queryablesOnly)
+            throws NodeNotFoundException {
+        /*
         if ((label.isPresent() && label.get().isPrivate()) && (!sourceClassId.isPresent())) {
             throw new ExpectableException("Need the source class if a private label is given.");
-        }
+        } ist nicht mehr notwendig, da im label neu die classID drinn ist. */
         if (types.isEmpty()) {
             throw new ExpectableException("types.isEmpty()");
         }
@@ -251,10 +256,11 @@ public class DataReadApi {
         final Map<EdgeLabel, Multimap<EdgeIndex, IEdgeTarget>> combination = new HashMap<>();
 
           /* Add versioned edge */
-        addToEdges(combination, label, queryablesOnly, nodeClass, verInEdges, sourceHistoryStates);
+        addToEdges(combination, label, indexRange, queryablesOnly, nodeClass, verInEdges,
+                sourceHistoryStates);
 
           /* Add unversioned edge */
-        addToEdges(combination, label, queryablesOnly, nodeClass, unverInEdges,
+        addToEdges(combination, label, indexRange, queryablesOnly, nodeClass, unverInEdges,
                 sourceHistoryStates);
 
         return combination;
