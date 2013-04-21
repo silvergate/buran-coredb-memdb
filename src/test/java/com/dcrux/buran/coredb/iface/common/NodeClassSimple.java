@@ -6,6 +6,7 @@ import com.dcrux.buran.coredb.iface.api.exceptions.QuotaExceededException;
 import com.dcrux.buran.coredb.iface.edge.EdgeLabelIndex;
 import com.dcrux.buran.coredb.iface.edgeClass.EdgeClass;
 import com.dcrux.buran.coredb.iface.nodeClass.ClassId;
+import com.dcrux.buran.coredb.iface.nodeClass.FieldIndex;
 import com.dcrux.buran.coredb.iface.nodeClass.NodeClass;
 import com.dcrux.buran.coredb.iface.nodeClass.NodeClassHash;
 import com.dcrux.buran.coredb.iface.propertyTypes.binary.BinaryType;
@@ -24,16 +25,16 @@ import com.dcrux.buran.coredb.iface.propertyTypes.string.StringType;
  * @author: ${USER} Date: 19.01.13 Time: 09:26
  */
 public class NodeClassSimple {
-    public static final short PROPERTY_INT = 0;
-    public static final short PROPERTY_STRING = 1;
-    public static final short PROPERTY_SET = 2;
-    public static final short PROPERTY_BLOB = 3;
-    public static final short PROPERTY_FTSI = 4;
+    public static final FieldIndex PROPERTY_INT = FieldIndex.c(0);
+    public static final FieldIndex PROPERTY_STRING = FieldIndex.c(1);
+    public static final FieldIndex PROPERTY_SET = FieldIndex.c(2);
+    public static final FieldIndex PROPERTY_BLOB = FieldIndex.c(3);
+    public static final FieldIndex PROPERTY_FTSI = FieldIndex.c(4);
 
-    public static final short PROPERTY_BINARY = 5;
-    public static final short PROPERTY_LONGINT = 6;
-    public static final short PROPERTY_BOOLEAN = 7;
-    public static final short PROPERTY_LONGFLOAT = 8;
+    public static final FieldIndex PROPERTY_BINARY = FieldIndex.c(5);
+    public static final FieldIndex PROPERTY_LONGINT = FieldIndex.c(6);
+    public static final FieldIndex PROPERTY_BOOLEAN = FieldIndex.c(7);
+    public static final FieldIndex PROPERTY_LONGFLOAT = FieldIndex.c(8);
 
     public static final EdgeLabelIndex EDGE_ONE = EdgeLabelIndex.fromString("edgeOne");
     public static final EdgeLabelIndex EDGE_TWO = EdgeLabelIndex.fromString("edgeTwo");

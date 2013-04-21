@@ -8,6 +8,7 @@ import com.dcrux.buran.coredb.iface.api.exceptions.*;
 import com.dcrux.buran.coredb.iface.base.TestsBase;
 import com.dcrux.buran.coredb.iface.common.NodeClassSimple;
 import com.dcrux.buran.coredb.iface.nodeClass.ClassId;
+import com.dcrux.buran.coredb.iface.nodeClass.FieldIndex;
 import com.dcrux.buran.coredb.iface.nodeClass.IDataSetter;
 import com.dcrux.buran.coredb.iface.nodeClass.SorterRef;
 import com.dcrux.buran.coredb.iface.propertyTypes.PrimGet;
@@ -28,18 +29,22 @@ import java.util.Map;
 public class SortTest extends TestsBase {
 
     private static class SetValueList {
-        private final Map<Integer, Map<Short, IDataSetter>> values = new HashMap<>();
+        private final Map<Integer, Map<FieldIndex, IDataSetter>> values = new HashMap<>();
 
-        public void setValue(int row, short typeIndex, IDataSetter dataSetter) {
-            Map<Short, IDataSetter> rowValues = this.values.get(row);
+        public void setValue(int row, int typeIndex, IDataSetter dataSetter) {
+            setValue(row, FieldIndex.c(typeIndex), dataSetter);
+        }
+
+        public void setValue(int row, FieldIndex fieldIndex, IDataSetter dataSetter) {
+            Map<FieldIndex, IDataSetter> rowValues = this.values.get(row);
             if (rowValues == null) {
                 rowValues = new HashMap<>();
                 this.values.put(row, rowValues);
             }
-            rowValues.put(typeIndex, dataSetter);
+            rowValues.put(fieldIndex, dataSetter);
         }
 
-        public Map<Integer, Map<Short, IDataSetter>> getValues() {
+        public Map<Integer, Map<FieldIndex, IDataSetter>> getValues() {
             return values;
         }
     }
@@ -57,11 +62,11 @@ public class SortTest extends TestsBase {
             throws PermissionDeniedException, IncubationNodeNotFound, OptimisticLockingException,
             QuotaExceededException {
         IApi api = getBuran();
-        for (final Map<Short, IDataSetter> valueRow : setValueList.getValues().values()) {
+        for (final Map<FieldIndex, IDataSetter> valueRow : setValueList.getValues().values()) {
             final CreateInfo createResult =
                     api.createNew(receiver, sender, classId, Optional.<KeepAliveHint>absent());
             final IncNid iNid = createResult.getIncNid();
-            for (final Map.Entry<Short, IDataSetter> singleValue : valueRow.entrySet()) {
+            for (final Map.Entry<FieldIndex, IDataSetter> singleValue : valueRow.entrySet()) {
                 api.setData(receiver, sender, iNid, singleValue.getKey(), singleValue.getValue());
             }
             api.commit(receiver, sender, iNid);
@@ -184,14 +189,14 @@ public class SortTest extends TestsBase {
         Assert.assertNull(null5);
     }
 
-    private Object querySortGetAtIndex(short typeIndex, SortDirection sortDir, int index)
+    private Object querySortGetAtIndex(FieldIndex fieldIndex, SortDirection sortDir, int index)
             throws PermissionDeniedException, InformationUnavailableException,
             NodeNotFoundException, QuotaExceededException {
         IApi api = getBuran();
         QueryCdNode query = QueryCdNode.cSorted(CondCdNode.c(this.classId),
-                PropertySort.c(typeIndex, this.sortRef, sortDir));
+                PropertySort.c(fieldIndex, this.sortRef, sortDir));
         final QueryResult result = api.query(getReceiver(), getSender(), query, true);
         NidVer nidVer = result.getNodes().get(index);
-        return api.getData(getReceiver(), getSender(), nidVer, typeIndex, PrimGet.ANY);
+        return api.getData(getReceiver(), getSender(), nidVer, fieldIndex, PrimGet.ANY);
     }
 }

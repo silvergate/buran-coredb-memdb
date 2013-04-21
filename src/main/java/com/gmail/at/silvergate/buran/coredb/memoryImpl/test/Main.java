@@ -11,6 +11,7 @@ import com.dcrux.buran.coredb.iface.edge.EdgeLabelIndex;
 import com.dcrux.buran.coredb.iface.edgeClass.EdgeClass;
 import com.dcrux.buran.coredb.iface.edgeTargets.IncVersionedEdTarget;
 import com.dcrux.buran.coredb.iface.nodeClass.ClassId;
+import com.dcrux.buran.coredb.iface.nodeClass.FieldIndex;
 import com.dcrux.buran.coredb.iface.nodeClass.NodeClass;
 import com.dcrux.buran.coredb.iface.nodeClass.NodeClassHash;
 import com.dcrux.buran.coredb.iface.propertyTypes.PrimGet;
@@ -45,7 +46,7 @@ public class Main {
     public static void fts(Fuzziness fuzziness, String text, IApi apiImpl, ClassId classId,
             UserId receiver, UserId sender)
             throws PermissionDeniedException, QuotaExceededException {
-        PropCondition ftsOne = new PropCondition((short) 1, FtsiMatch.c(fuzziness, text));
+        PropCondition ftsOne = PropCondition.c(FieldIndex.c(1), FtsiMatch.c(fuzziness, text));
         CondCdNode query = new CondCdNode(Optional.<INodeMetaCondition>absent(), classId.getId(),
                 Optional.<IPropertyCondition>of(ftsOne));
         final QueryResult queryResult = apiImpl.query(receiver, sender, QueryCdNode.c(query), true);
@@ -133,15 +134,19 @@ public class Main {
                 new IncVersionedEdTarget(nodeTwoInc.getId()));
         api.setEdge(receiver, sender, nodeOneInc, EdgeIndex.c(1), halloEdge,
                 new IncVersionedEdTarget(nodeTwoInc.getId()));
-        api.setData(receiver, sender, nodeOneInc, (short) 0, PrimSet.string("Ich bin eine Welt"));
-        api.setData(receiver, sender, nodeOneInc, (short) 1, FtsiAddText.c("Es handelt sich " +
-                "hierbei um einen Text, wobei Apple Inc. das iPhone mit iOS " +
-                "herstellt, und Microsoft das Windows 8."));
-        api.setData(receiver, sender, nodeOneInc, (short) 2, BlobSet.c(0, blobBytes));
+        api.setData(receiver, sender, nodeOneInc, nodeClass.getTypeIndex("daName"),
+                PrimSet.string("Ich bin eine Welt"));
+        api.setData(receiver, sender, nodeOneInc, nodeClass.getTypeIndex("fulltext"),
+                FtsiAddText.c("Es handelt sich " +
+                        "hierbei um einen Text, wobei Apple Inc. das iPhone mit iOS " +
+                        "herstellt, und Microsoft das Windows 8."));
+        api.setData(receiver, sender, nodeOneInc, nodeClass.getTypeIndex("binary"),
+                BlobSet.c(0, blobBytes));
 
     /* NodeImpl 2 mit daten befüllen */
 
-        api.setData(receiver, sender, nodeTwoInc, (short) 0, PrimSet.string("Text an NodeImpl 2"));
+        api.setData(receiver, sender, nodeTwoInc, nodeClass.getTypeIndex("daName"),
+                PrimSet.string("Text an NodeImpl " + "2"));
 
     /* Beide nodes Committen */
 
@@ -151,16 +156,18 @@ public class Main {
 
     /* Von der commiteten node 1 daten lesen */
 
-        final Object value =
-                api.getData(receiver, sender, cr.getNid(nodeOneInc), (short) 0, PrimGet.STRING);
+        final Object value = api.getData(receiver, sender, cr.getNid(nodeOneInc),
+                nodeClass.getTypeIndex("daName"), PrimGet.STRING);
         System.out.println("Value (NodeImpl 1) = " + value);
         /* Lesen der anzahl bytes im blob */
         final Long blobLength = (Long) api
-                .getData(receiver, sender, cr.getNid(nodeOneInc), (short) 2, LengthGet.SINGLETON);
+                .getData(receiver, sender, cr.getNid(nodeOneInc), nodeClass.getTypeIndex("binary"),
+                        LengthGet.SINGLETON);
         System.out.println("Value (NodeImpl 1): Länge des blobs: = " + blobLength);
         /* Lesen des blobs und daraus wieder einen string konstruieren */
         final byte[] blobData = (byte[]) api
-                .getData(receiver, sender, cr.getNid(nodeOneInc), (short) 2, BlobGet.c(blobLength));
+                .getData(receiver, sender, cr.getNid(nodeOneInc), nodeClass.getTypeIndex("binary"),
+                        BlobGet.c(blobLength));
         final String reconstructedString = new String(blobData);
         /* Ausgeben des rekonstruierten strings, sollte wieder dem String von oben 'blobString'
         entsprechen */
@@ -169,17 +176,19 @@ public class Main {
 
         /* Von der commiteten node 2 daten lesen */
 
-        final Object value2 =
-                api.getData(receiver, sender, cr.getNid(nodeTwoInc), (short) 0, PrimGet.STRING);
+        final Object value2 = api.getData(receiver, sender, cr.getNid(nodeTwoInc),
+                nodeClass.getTypeIndex("daName"), PrimGet.STRING);
         System.out.println("Value (NodeImpl 2) = " + value2);
 
     /* Query: Bedingung: muss eine node mit "Ich bin eine Welt" und einer "hallo"-edge im index 0
      sein.
     Am ende der Edge muss eine NodeImpl vorhanden sein, mit dem text "Text an NodeImpl 2" */
 
-        PropCondition pcNode2 = new PropCondition((short) 0, StringEq.eq("Text an NodeImpl 2"));
+        PropCondition pcNode2 = PropCondition
+                .c(nodeClass.getTypeIndex("daName"), StringEq.eq("Text an NodeImpl 2"));
 
-        PropCondition pc = new PropCondition((short) 0, StringEq.eq("Ich bin eine Welt"));
+        PropCondition pc =
+                PropCondition.c(nodeClass.getTypeIndex("daName"), StringEq.eq("Ich bin eine Welt"));
         INodeMetaCondition nmc = OutEdgeCondition.hasEdge(halloEdge, EdgeIndex.c(0),
                 new CondCdNode(Optional.<INodeMetaCondition>absent(), classId.getId(),
                         Optional.<IPropertyCondition>of(pcNode2)));

@@ -218,9 +218,10 @@ public class ApiIface implements IApi {
     }
 
     @Override
-    public void setData(UserId receiver, UserId sender, IncNid incNid, short typeIndex,
+    public void setData(UserId receiver, UserId sender, IncNid incNid, FieldIndex fieldIndex,
             IDataSetter dataSetter) throws IncubationNodeNotFound {
-        getDmApi().setData(receiver.getId(), sender.getId(), incNid, typeIndex, dataSetter);
+        getDmApi().setData(receiver.getId(), sender.getId(), incNid, fieldIndex.getIndex(),
+                dataSetter);
     }
 
     @Override
@@ -280,12 +281,13 @@ public class ApiIface implements IApi {
 
     @Nullable
     @Override
-    public <TData> TData getData(UserId receiver, UserId sender, NidVer nidVersion, short typeIndex,
-            IDataGetter<TData> dataGetter)
+    public <TData> TData getData(UserId receiver, UserId sender, NidVer nidVersion,
+            FieldIndex fieldIndex, IDataGetter<TData> dataGetter)
             throws InformationUnavailableException, PermissionDeniedException,
             NodeNotFoundException {
         return (TData) getDrApi()
-                .getData(receiver.getId(), sender.getId(), nidVersion, typeIndex, dataGetter);
+                .getData(receiver.getId(), sender.getId(), nidVersion, fieldIndex.getIndex(),
+                        dataGetter);
     }
 
     @Override
