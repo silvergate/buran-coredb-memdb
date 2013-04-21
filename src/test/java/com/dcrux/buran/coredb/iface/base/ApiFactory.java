@@ -15,9 +15,9 @@ public class ApiFactory {
 
     private static File getPersistenceFile() throws IOException {
         String userHome = System.getProperty("user.home");
-        File serFile = new File(new File(userHome), "buran.1.ser");
-        if (!serFile.exists()) {
-            serFile.createNewFile();
+        File serFile = new File(new File(userHome), "buran.tests.1.ser");
+        if (serFile.exists()) {
+            serFile.delete();
         }
         return serFile;
     }

@@ -1,15 +1,14 @@
 package com.gmail.at.silvergate.buran.coredb.memoryImpl.test;
 
-import com.dcrux.buran.coredb.iface.EdgeIndex;
-import com.dcrux.buran.coredb.iface.EdgeLabel;
 import com.dcrux.buran.coredb.iface.IncNid;
 import com.dcrux.buran.coredb.iface.UserId;
 import com.dcrux.buran.coredb.iface.api.*;
 import com.dcrux.buran.coredb.iface.api.exceptions.*;
 import com.dcrux.buran.coredb.iface.domains.DomainHashCreator;
-import com.dcrux.buran.coredb.iface.edgeClass.PrivateEdgeClass;
-import com.dcrux.buran.coredb.iface.edgeClass.PublicEdgeClass;
-import com.dcrux.buran.coredb.iface.edgeClass.PublicEdgeConstraints;
+import com.dcrux.buran.coredb.iface.edge.EdgeIndex;
+import com.dcrux.buran.coredb.iface.edge.EdgeLabel;
+import com.dcrux.buran.coredb.iface.edge.EdgeLabelIndex;
+import com.dcrux.buran.coredb.iface.edgeClass.EdgeClass;
 import com.dcrux.buran.coredb.iface.edgeTargets.IncVersionedEdTarget;
 import com.dcrux.buran.coredb.iface.nodeClass.ClassId;
 import com.dcrux.buran.coredb.iface.nodeClass.NodeClass;
@@ -92,25 +91,22 @@ public class Main {
         ApiIface apiImpl = new ApiIface(getPersistenceFile());
         IApi api = apiImpl;
 
-        EdgeLabel halloEdge = EdgeLabel.privateEdge("hallo");
+        String halloEdgeLabel = "hallo";
 
     /* Declare class */
         final NodeClass nodeClass = NodeClass.builder()
                 .add("daName", false, StringType.indexed(StringType.MAX_LEN_INDEXED))
                 .add("fulltext", false, new FtsiType())
                 .add("binary", false, BlobType.indexed(BlobType.MAX_LENGTH))
-                .addEdgeClass(PrivateEdgeClass.cQueryableMany(halloEdge)).get();
+                .addEdgeClass(EdgeClass.cQueryableMany(EdgeLabelIndex.fromString(halloEdgeLabel)))
+                .get();
         final NodeClassHash ncHash = api.declareClass(nodeClass);
         final ClassId classId = api.getClassIdByHash(ncHash);
+        EdgeLabel halloEdge = EdgeLabel.privateEdge(classId, "hallo");
 
     /* Public edge label test */
         final ClassId cls2 = ClassId.c(332332l);
-        PublicEdgeClass pec = new PublicEdgeClass(UUID.randomUUID(), true, Optional.of(cls2),
-                PublicEdgeConstraints.many, Optional.of(classId));
-        final EdgeLabel label = pec.createLabel();
-        System.out.println(label.getLabel());
-        PublicEdgeClass pecParsed = PublicEdgeClass.parse(label);
-        System.out.println("Equals: " + pecParsed.createLabel().equals(label));
+        final EdgeLabel label = EdgeLabel.createPublic(true);
 
     /* Domain hash */
         DomainHashCreator dhc = new DomainHashCreator(UUID.randomUUID(), "sdjkvnjskdfnnvknsdjkfnv",
@@ -129,7 +125,7 @@ public class Main {
                 api.createNew(receiver, sender, classId, Optional.<KeepAliveHint>absent());
         IncNid nodeTwoInc = nodeTwoCreateInfo.getIncNid();
 
-    /* NodeImpl 1 mit daten & edges befüllen: Die edges von node 1 zeigen auf node 2 */
+    /* NodeImpl 1 mit daten & edge befüllen: Die edge von node 1 zeigen auf node 2 */
 
         final String blobString = "Dies ist die quelle für Binary";
         final byte[] blobBytes = blobString.getBytes();

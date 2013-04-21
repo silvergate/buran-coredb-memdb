@@ -1,16 +1,13 @@
 package com.dcrux.buran.coredb.iface;
 
-import com.dcrux.buran.coredb.iface.api.CommitResult;
-import com.dcrux.buran.coredb.iface.api.CreateInfo;
-import com.dcrux.buran.coredb.iface.api.IApi;
-import com.dcrux.buran.coredb.iface.api.KeepAliveHint;
+import com.dcrux.buran.coredb.iface.api.*;
 import com.dcrux.buran.coredb.iface.api.exceptions.*;
 import com.dcrux.buran.coredb.iface.base.TestsBase;
 import com.dcrux.buran.coredb.iface.common.NodeClassSimple;
-import com.dcrux.buran.coredb.iface.edgeTargets.IncUnversionedEdTarget;
-import com.dcrux.buran.coredb.iface.edgeTargets.IncVersionedEdTarget;
-import com.dcrux.buran.coredb.iface.edgeTargets.UnversionedEdTarget;
-import com.dcrux.buran.coredb.iface.edgeTargets.VersionedEdTarget;
+import com.dcrux.buran.coredb.iface.edge.EdgeIndex;
+import com.dcrux.buran.coredb.iface.edge.EdgeLabel;
+import com.dcrux.buran.coredb.iface.edge.EdgeType;
+import com.dcrux.buran.coredb.iface.edgeTargets.*;
 import com.dcrux.buran.coredb.iface.nodeClass.ClassId;
 import com.dcrux.buran.coredb.iface.propertyTypes.PrimSet;
 import com.google.common.base.Optional;
@@ -70,28 +67,34 @@ public class EdgeTest extends TestsBase {
         IncNid iNidThree = createInfoThree.getIncNid();
 
         /* A: Add an edge from node two to node three @index 0, unversioned */
-        api.setEdge(getReceiver(), getSender(), iNidTwo, EdgeIndex.c(0), NodeClassSimple.EDGE_ONE,
+        api.setEdge(getReceiver(), getSender(), iNidTwo, EdgeIndex.c(0),
+                EdgeLabel.privateEdge(this.classId, NodeClassSimple.EDGE_ONE),
                 IncUnversionedEdTarget.c(iNidThree));
 
         /* B: Add an edge from node two to node three @index 1, unversioned */
-        api.setEdge(getReceiver(), getSender(), iNidTwo, EdgeIndex.c(1), NodeClassSimple.EDGE_ONE,
+        api.setEdge(getReceiver(), getSender(), iNidTwo, EdgeIndex.c(1),
+                EdgeLabel.privateEdge(this.classId, NodeClassSimple.EDGE_ONE),
                 IncUnversionedEdTarget.c(iNidThree));
 
         /* C: Add an edge from node three to node two @index 0, unversioned */
-        api.setEdge(getReceiver(), getSender(), iNidThree, EdgeIndex.c(0), NodeClassSimple.EDGE_ONE,
+        api.setEdge(getReceiver(), getSender(), iNidThree, EdgeIndex.c(0),
+                EdgeLabel.privateEdge(this.classId, NodeClassSimple.EDGE_ONE),
                 IncUnversionedEdTarget.c(iNidTwo));
 
         /* D: Add an edge from node three to node two @index 0, versioned */
-        api.setEdge(getReceiver(), getSender(), iNidThree, EdgeIndex.c(1), NodeClassSimple.EDGE_TWO,
+        api.setEdge(getReceiver(), getSender(), iNidThree, EdgeIndex.c(1),
+                EdgeLabel.privateEdge(this.classId, NodeClassSimple.EDGE_TWO),
                 IncVersionedEdTarget.c(iNidTwo));
 
         /* E: Now create an unversioned edge from node three (in incubation) to committed node
         one */
-        api.setEdge(getReceiver(), getSender(), iNidThree, EdgeIndex.c(4), NodeClassSimple.EDGE_ONE,
+        api.setEdge(getReceiver(), getSender(), iNidThree, EdgeIndex.c(4),
+                EdgeLabel.privateEdge(this.classId, NodeClassSimple.EDGE_ONE),
                 UnversionedEdTarget.c(nidVerOne));
 
         /* F: Now create an versioned edge from node three (in incubation) to committed node one */
-        api.setEdge(getReceiver(), getSender(), iNidThree, EdgeIndex.c(5), NodeClassSimple.EDGE_ONE,
+        api.setEdge(getReceiver(), getSender(), iNidThree, EdgeIndex.c(5),
+                EdgeLabel.privateEdge(this.classId, NodeClassSimple.EDGE_ONE),
                 VersionedEdTarget.c(nidVerOne));
 
         /* Commit nodes two and three */
@@ -102,17 +105,20 @@ public class EdgeTest extends TestsBase {
 
         /* Check node ONE */
 
-        final Map<EdgeLabel, Map<EdgeIndex, Edge>> oeNodeOne =
+        final Map<EdgeLabel, Map<EdgeIndex, IEdgeTarget>> oeNodeOne =
                 api.getOutEdges(getReceiver(), getSender(), nidVerOne,
                         EnumSet.of(EdgeType.privateMod), Optional.<EdgeLabel>absent());
-        Assert.assertEquals("Node one should not have any out edges.", 0, oeNodeOne.size());
+        Assert.assertEquals("Node one should not have any out edge.", 0, oeNodeOne.size());
 
-        final Map<EdgeLabel, Multimap<EdgeIndex, EdgeWithSource>> ieNodeOne =
+        final Map<EdgeLabel, Multimap<EdgeIndex, IEdgeTarget>> ieNodeOne =
                 api.getInEdges(getReceiver(), getSender(), nidVerOne,
-                        EnumSet.of(EdgeType.privateMod), Optional.<EdgeLabel>absent());
-        /* See E and F: Should have two in-edges */
-        Multimap<EdgeIndex, EdgeWithSource> ieNodeOneEdgeOne =
-                ieNodeOne.get(NodeClassSimple.EDGE_ONE);
+                        EnumSet.of(HistoryState.active), Optional.<ClassId>absent(),
+                        EnumSet.of(EdgeType.privateMod), Optional.<EdgeIndexRange>absent(),
+                        Optional.<EdgeLabel>absent());
+
+        /* See E and F: Should have two in-edge */
+        Multimap<EdgeIndex, IEdgeTarget> ieNodeOneEdgeOne =
+                ieNodeOne.get(EdgeLabel.privateEdge(this.classId, NodeClassSimple.EDGE_ONE));
         Assert.assertEquals("Should have two in-nodes", 2, ieNodeOneEdgeOne.size());
         Assert.assertNotNull("Should have an edge @index 4, see E.",
                 ieNodeOneEdgeOne.get(EdgeIndex.c(4)));
@@ -121,23 +127,28 @@ public class EdgeTest extends TestsBase {
 
         /* Check node TWO */
 
-        final Map<EdgeLabel, Map<EdgeIndex, Edge>> oeNodeTwo =
+        final Map<EdgeLabel, Map<EdgeIndex, IEdgeTarget>> oeNodeTwo =
                 api.getOutEdges(getReceiver(), getSender(), nidVerTwo,
                         EnumSet.of(EdgeType.privateMod), Optional.<EdgeLabel>absent());
         Assert.assertEquals("Should have one label.", 1, oeNodeTwo.size());
-        Assert.assertNotNull("Should have one label.", oeNodeTwo.get(NodeClassSimple.EDGE_ONE));
-        Map<EdgeIndex, Edge> oeNodeTwoLabel = oeNodeTwo.get(NodeClassSimple.EDGE_ONE);
-        Assert.assertEquals("Should have two edges, see A and B.", 2, oeNodeTwoLabel.size());
+        Assert.assertNotNull("Should have one label.",
+                oeNodeTwo.get(EdgeLabel.privateEdge(this.classId, NodeClassSimple.EDGE_ONE)));
+        Map<EdgeIndex, IEdgeTarget> oeNodeTwoLabel =
+                oeNodeTwo.get(EdgeLabel.privateEdge(this.classId, NodeClassSimple.EDGE_ONE));
+        Assert.assertEquals("Should have two edge, see A and B.", 2, oeNodeTwoLabel.size());
 
-        final Map<EdgeLabel, Multimap<EdgeIndex, EdgeWithSource>> ieNodeTwo =
+        final Map<EdgeLabel, Multimap<EdgeIndex, IEdgeTarget>> ieNodeTwo =
                 api.getInEdges(getReceiver(), getSender(), nidVerTwo,
-                        EnumSet.of(EdgeType.privateMod), Optional.<EdgeLabel>absent());
+                        EnumSet.of(HistoryState.active), Optional.<ClassId>absent(),
+                        EnumSet.of(EdgeType.privateMod), Optional.<EdgeIndexRange>absent(),
+                        Optional.<EdgeLabel>absent());
+
         Assert.assertEquals("Should have two labels, see C & D.", 2, ieNodeTwo.keySet().size());
-        Multimap<EdgeIndex, EdgeWithSource> ieNodeTwoKeyOne =
-                ieNodeTwo.get(NodeClassSimple.EDGE_ONE);
+        Multimap<EdgeIndex, IEdgeTarget> ieNodeTwoKeyOne =
+                ieNodeTwo.get(EdgeLabel.privateEdge(this.classId, NodeClassSimple.EDGE_ONE));
         Assert.assertNotNull("Label missing, see C & D", ieNodeTwoKeyOne);
-        Multimap<EdgeIndex, EdgeWithSource> ieNodeTwoKeyTwo =
-                ieNodeTwo.get(NodeClassSimple.EDGE_TWO);
+        Multimap<EdgeIndex, IEdgeTarget> ieNodeTwoKeyTwo =
+                ieNodeTwo.get(EdgeLabel.privateEdge(this.classId, NodeClassSimple.EDGE_ONE));
         Assert.assertNotNull("Label missing, see C & D", ieNodeTwoKeyTwo);
         Assert.assertEquals("Index missing, see C & D", 1, ieNodeTwoKeyOne.entries().size());
         Assert.assertEquals("Index missing, see C & D", 1, ieNodeTwoKeyTwo.entries().size());
@@ -146,24 +157,29 @@ public class EdgeTest extends TestsBase {
 
         /* Check node THREE */
 
-        final Map<EdgeLabel, Map<EdgeIndex, Edge>> oeNodeThree =
+        final Map<EdgeLabel, Map<EdgeIndex, IEdgeTarget>> oeNodeThree =
                 api.getOutEdges(getReceiver(), getSender(), nidVerThree,
                         EnumSet.of(EdgeType.privateMod), Optional.<EdgeLabel>absent());
         Assert.assertEquals("Should be 2 Labels, see C, D, E & F.", 2, oeNodeThree.keySet().size());
-        final Map<EdgeIndex, Edge> oeNodeThreeL1 = oeNodeThree.get(NodeClassSimple.EDGE_ONE);
-        final Map<EdgeIndex, Edge> oeNodeThreeL2 = oeNodeThree.get(NodeClassSimple.EDGE_TWO);
+        final Map<EdgeIndex, IEdgeTarget> oeNodeThreeL1 =
+                oeNodeThree.get(EdgeLabel.privateEdge(this.classId, NodeClassSimple.EDGE_ONE));
+        final Map<EdgeIndex, IEdgeTarget> oeNodeThreeL2 =
+                oeNodeThree.get(EdgeLabel.privateEdge(this.classId, NodeClassSimple.EDGE_TWO));
         Assert.assertNotNull("Label should be set, see C, E & F.", oeNodeThreeL1);
         Assert.assertNotNull("Label should be set, see D.", oeNodeThreeL2);
         Assert.assertNotNull("Index 0 missing, see C.", oeNodeThreeL1.get(EdgeIndex.c(0)));
         Assert.assertNotNull("Index 4 missing, see E.", oeNodeThreeL1.get(EdgeIndex.c(4)));
         Assert.assertNotNull("Index 5 missing, see F.", oeNodeThreeL1.get(EdgeIndex.c(5)));
 
-        final Map<EdgeLabel, Multimap<EdgeIndex, EdgeWithSource>> ieNodeThree =
+        final Map<EdgeLabel, Multimap<EdgeIndex, IEdgeTarget>> ieNodeThree =
                 api.getInEdges(getReceiver(), getSender(), nidVerThree,
-                        EnumSet.of(EdgeType.privateMod), Optional.<EdgeLabel>absent());
+                        EnumSet.of(HistoryState.active), Optional.<ClassId>absent(),
+                        EnumSet.of(EdgeType.privateMod), Optional.<EdgeIndexRange>absent(),
+                        Optional.<EdgeLabel>absent());
+
         Assert.assertEquals("Should have one label, see A & B.", 1, ieNodeThree.keySet().size());
-        final Multimap<EdgeIndex, EdgeWithSource> ieNodeThreeL1 =
-                ieNodeThree.get(NodeClassSimple.EDGE_ONE);
+        final Multimap<EdgeIndex, IEdgeTarget> ieNodeThreeL1 =
+                ieNodeThree.get(EdgeLabel.privateEdge(this.classId, NodeClassSimple.EDGE_ONE));
         Assert.assertNotNull("Need index 0, see A.", ieNodeThreeL1.get(EdgeIndex.c(0)));
         Assert.assertNotNull("Need index 1, see B.", ieNodeThreeL1.get(EdgeIndex.c(1)));
     }

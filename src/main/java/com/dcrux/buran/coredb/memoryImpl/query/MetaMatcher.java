@@ -1,8 +1,14 @@
 package com.dcrux.buran.coredb.memoryImpl.query;
 
-import com.dcrux.buran.coredb.iface.*;
+import com.dcrux.buran.coredb.iface.NidVer;
+import com.dcrux.buran.coredb.iface.api.EdgeIndexRange;
+import com.dcrux.buran.coredb.iface.api.HistoryState;
 import com.dcrux.buran.coredb.iface.api.exceptions.ExpectableException;
 import com.dcrux.buran.coredb.iface.api.exceptions.NodeNotFoundException;
+import com.dcrux.buran.coredb.iface.edge.Edge;
+import com.dcrux.buran.coredb.iface.edge.EdgeIndex;
+import com.dcrux.buran.coredb.iface.edge.EdgeLabel;
+import com.dcrux.buran.coredb.iface.edgeTargets.IEdgeTarget;
 import com.dcrux.buran.coredb.iface.nodeClass.ClassId;
 import com.dcrux.buran.coredb.iface.nodeClass.NodeClass;
 import com.dcrux.buran.coredb.iface.permissions.UserNodePermission;
@@ -101,8 +107,9 @@ public class MetaMatcher {
                 final Map<EdgeLabel, Map<EdgeIndex, Edge>> edges =
                         drApi.getOutEdges(getReceiver(), getSender(),
                                 new NidVer(node.getNodeSerie().getOid(), node.getVersion()),
-                                EnumSet.of(com.dcrux.buran.coredb.iface.EdgeType.privateMod,
-                                        com.dcrux.buran.coredb.iface.EdgeType.publicMod), true);
+                                EnumSet.of(com.dcrux.buran.coredb.iface.edge.EdgeType.privateMod,
+                                        com.dcrux.buran.coredb.iface.edge.EdgeType.publicMod), true,
+                                Optional.<EdgeLabel>absent(), false);
                 if (!edges.containsKey(label)) {
                     return Collections.emptyMap();
                 } else {
@@ -114,14 +121,16 @@ public class MetaMatcher {
         }
 
         @Override
-        public Multimap<EdgeIndex, EdgeWithSource> getQueryableInEdges(EdgeLabel label) {
+        public Multimap<EdgeIndex, IEdgeTarget> getQueryableInEdges(EdgeLabel label) {
             try {
-                final Map<EdgeLabel, Multimap<EdgeIndex, EdgeWithSource>> inEdges =
+                final Map<EdgeLabel, Multimap<EdgeIndex, IEdgeTarget>> inEdges =
                         drApi.getInEdges(getReceiver(), getSender(),
                                 new NidVer(node.getNodeSerie().getOid(), node.getVersion()),
-                                EnumSet.of(com.dcrux.buran.coredb.iface.EdgeType.privateMod,
-                                        com.dcrux.buran.coredb.iface.EdgeType.publicMod),
-                                Optional.<EdgeLabel>of(label), true);
+                                EnumSet.of(HistoryState.active), Optional.<ClassId>absent(),
+                                EnumSet.of(com.dcrux.buran.coredb.iface.edge.EdgeType.privateMod,
+                                        com.dcrux.buran.coredb.iface.edge.EdgeType.publicMod),
+                                Optional.<EdgeIndexRange>absent(), Optional.<EdgeLabel>of(label),
+                                true);
                 if (!inEdges.containsKey(label)) {
                     return HashMultimap.create();
                 }

@@ -5,6 +5,10 @@ import com.dcrux.buran.coredb.iface.api.exceptions.*;
 import com.dcrux.buran.coredb.iface.base.TestsBase;
 import com.dcrux.buran.coredb.iface.common.NodeClassSimple;
 import com.dcrux.buran.coredb.iface.domains.DomainId;
+import com.dcrux.buran.coredb.iface.edge.EdgeIndex;
+import com.dcrux.buran.coredb.iface.edge.EdgeLabel;
+import com.dcrux.buran.coredb.iface.edge.EdgeType;
+import com.dcrux.buran.coredb.iface.edgeTargets.IEdgeTarget;
 import com.dcrux.buran.coredb.iface.edgeTargets.IncVersionedEdTarget;
 import com.dcrux.buran.coredb.iface.nodeClass.ClassId;
 import com.dcrux.buran.coredb.iface.propertyTypes.PrimGet;
@@ -86,14 +90,15 @@ public class PartialUpdateTest extends TestsBase {
         api.setData(getReceiver(), getSender(), iNid, NodeClassSimple.PROPERTY_BLOB,
                 BlobSet.cAppendOnly(binaryData.length, binaryData2));
 
-        /* Add another node for linking by edges */
+        /* Add another node for linking by edge */
         CreateInfo createInfo2 = api.createNew(getReceiver(), getSender(), this.classId,
                 Optional.<KeepAliveHint>absent());
         IncNid iNid2 = createInfo.getIncNid();
 
         /* Link the two nodes by an edge */
 
-        api.setEdge(getReceiver(), getSender(), iNid, EdgeIndex.c(0), NodeClassSimple.EDGE_ONE,
+        api.setEdge(getReceiver(), getSender(), iNid, EdgeIndex.c(0),
+                EdgeLabel.privateEdge(this.classId, NodeClassSimple.EDGE_ONE),
                 IncVersionedEdTarget.c(iNid2));
 
         /* Commit node (from incubation to live) */
@@ -141,12 +146,13 @@ public class PartialUpdateTest extends TestsBase {
                 .getData(getReceiver(), getSender(), newNode1, NodeClassSimple.PROPERTY_STRING,
                         PrimGet.SINGLETON));
         /* The edge should still be there */
-        final Map<EdgeLabel, Map<EdgeIndex, Edge>> edges =
+        final Map<EdgeLabel, Map<EdgeIndex, IEdgeTarget>> edges =
                 api.getOutEdges(getReceiver(), getSender(), newNode1, EnumSet.allOf(EdgeType.class),
-                        Optional.of(NodeClassSimple.EDGE_ONE));
+                        Optional.of(EdgeLabel.privateEdge(this.classId, NodeClassSimple.EDGE_ONE)));
         Assert.assertEquals("Should have one entry.", 1, edges.size());
         Assert.assertTrue("The edge with label EDGE_ONE at index 0 must be available.",
-                edges.get(NodeClassSimple.EDGE_ONE).containsKey(EdgeIndex.c(0)));
+                edges.get(EdgeLabel.privateEdge(this.classId, NodeClassSimple.EDGE_ONE))
+                        .containsKey(EdgeIndex.c(0)));
         /* The domains should still be there */
         final Set<DomainId> domains = api.getDomains(getReceiver(), getSender(), newNode1);
         Assert.assertEquals("Should be in two domains.", 2, domains.size());

@@ -1,10 +1,17 @@
 package com.dcrux.buran.coredb.memoryImpl;
 
-import com.dcrux.buran.coredb.iface.*;
+import com.dcrux.buran.coredb.iface.NidVer;
+import com.dcrux.buran.coredb.iface.api.EdgeIndexRange;
+import com.dcrux.buran.coredb.iface.api.HistoryState;
 import com.dcrux.buran.coredb.iface.api.exceptions.ExpectableException;
 import com.dcrux.buran.coredb.iface.api.exceptions.NodeNotFoundException;
-import com.dcrux.buran.coredb.iface.edgeClass.PrivateEdgeClass;
-import com.dcrux.buran.coredb.iface.edgeClass.PublicEdgeClass;
+import com.dcrux.buran.coredb.iface.edge.Edge;
+import com.dcrux.buran.coredb.iface.edge.EdgeIndex;
+import com.dcrux.buran.coredb.iface.edge.EdgeLabel;
+import com.dcrux.buran.coredb.iface.edge.EdgeType;
+import com.dcrux.buran.coredb.iface.edgeClass.EdgeClass;
+import com.dcrux.buran.coredb.iface.edgeTargets.IEdgeTarget;
+import com.dcrux.buran.coredb.iface.nodeClass.ClassId;
 import com.dcrux.buran.coredb.iface.nodeClass.IDataGetter;
 import com.dcrux.buran.coredb.iface.nodeClass.IType;
 import com.dcrux.buran.coredb.iface.nodeClass.NodeClass;
@@ -13,7 +20,6 @@ import com.dcrux.buran.coredb.memoryImpl.data.NodeSerie;
 import com.dcrux.buran.coredb.memoryImpl.data.Nodes;
 import com.dcrux.buran.coredb.memoryImpl.edge.EdgeImpl;
 import com.dcrux.buran.coredb.memoryImpl.edge.EdgeUtil;
-import com.dcrux.buran.coredb.memoryImpl.typeImpls.TypesRegistry;
 import com.google.common.base.Optional;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -29,13 +35,11 @@ import java.util.Map;
 public class DataReadApi {
     private final Nodes nodes;
     private final NodeClassesApi ncApi;
-    private final TypesRegistry typesRegistry;
     private final EdgeUtil edgeUtil = new EdgeUtil();
 
-    public DataReadApi(Nodes nodes, NodeClassesApi ncApi, TypesRegistry typesRegistry) {
+    public DataReadApi(Nodes nodes, NodeClassesApi ncApi) {
         this.nodes = nodes;
         this.ncApi = ncApi;
-        this.typesRegistry = typesRegistry;
     }
 
     @Nullable
@@ -49,10 +53,8 @@ public class DataReadApi {
     }
 
     public Map<EdgeLabel, Map<EdgeIndex, EdgeImpl>> getOutEdgesImpl(long receiverId, long senderId,
-            NidVer oid, EnumSet<EdgeType> types, boolean queryableOnly) throws
-
-
-            NodeNotFoundException {
+            NidVer oid, EnumSet<EdgeType> types, boolean queryableOnly)
+            throws NodeNotFoundException {
         if (types.isEmpty()) {
             throw new ExpectableException("Types cannot be empty");
         }
@@ -69,10 +71,10 @@ public class DataReadApi {
       /* Is queryable? */
             final boolean isQueryable;
             if (edgesEntry.getKey().isPublic()) {
-                PublicEdgeClass pec = PublicEdgeClass.parse(edgesEntry.getKey());
-                isQueryable = pec.isQueryable();
+                isQueryable = edgesEntry.getKey().isPublicQueryable();
             } else {
-                PrivateEdgeClass pec = nodeClass.getEdgeClasses().get(edgesEntry.getKey());
+                EdgeClass pec =
+                        nodeClass.getEdgeClasses().get(edgesEntry.getKey().getPrivateEdgeIndex());
                 isQueryable = pec.isQueryable();
             }
 
@@ -90,8 +92,35 @@ public class DataReadApi {
     }
 
     public Map<EdgeLabel, Map<EdgeIndex, Edge>> getOutEdges(long receiverId, long senderId,
-            NidVer oid, EnumSet<EdgeType> types, boolean queryableOnly)
+            NidVer oid, EnumSet<EdgeType> types, boolean queryableOnly,
+            Optional<EdgeLabel> labelFilter, boolean checkExistenceOfPrivateLabelFilter)
             throws NodeNotFoundException {
+          /* Check modifier */
+        if (labelFilter.isPresent()) {
+            if (labelFilter.get().isPublic() && (!types.contains(EdgeType.publicMod))) {
+                throw new IllegalArgumentException(
+                        "Public label is given and EdgeType.publicMod " + "is missing");
+            }
+            if ((!labelFilter.get().isPublic()) && (!types.contains(EdgeType.privateMod))) {
+                throw new IllegalArgumentException(
+                        "Private label is given and EdgeType.privateMod" + "is missing");
+            }
+        }
+
+        /* Check label filter */
+        if (checkExistenceOfPrivateLabelFilter && (labelFilter.isPresent()) &&
+                (!labelFilter.get().isPublic())) {
+            final NodeImpl node = getNodeFromCurrentOrHistorized(receiverId, oid);
+            if (node == null) {
+                throw new NodeNotFoundException("Node not found");
+            }
+            final long nodeClassId = node.getNodeSerie().getClassId();
+            final NodeClass nodeClass = this.ncApi.getClassById(nodeClassId);
+            if (!nodeClass.getEdgeClasses().containsKey(labelFilter.get().getPrivateEdgeIndex()))
+                throw new IllegalArgumentException(
+                        "Given (private) label filter is not declared " + "in class.");
+        }
+
         Map<EdgeLabel, Map<EdgeIndex, EdgeImpl>> outEdgesImpl =
                 getOutEdgesImpl(receiverId, senderId, oid, types, queryableOnly);
         Map<EdgeLabel, Map<EdgeIndex, Edge>> outEdges = new HashMap<>();
@@ -99,10 +128,15 @@ public class DataReadApi {
         for (final Map.Entry<EdgeLabel, Map<EdgeIndex, EdgeImpl>> outEdgesImplEntry : outEdgesImpl
                 .entrySet()) {
             final Map<EdgeIndex, Edge> singleEntry = new HashMap<>();
+            final EdgeLabel edgeLabel = outEdgesImplEntry.getKey();
+            if (labelFilter.isPresent() && (!labelFilter.get().equals(edgeLabel))) {
+                /* Wrong label */
+                continue;
+            }
             outEdges.put(outEdgesImplEntry.getKey(), singleEntry);
             for (final Map.Entry<EdgeIndex, EdgeImpl> entry : outEdgesImplEntry.getValue()
                     .entrySet()) {
-                final Edge edge = this.edgeUtil.toEdgeWithSource(entry.getValue()).getEdge();
+                final Edge edge = this.edgeUtil.toEdge(entry.getValue());
                 singleEntry.put(entry.getKey(), edge);
             }
         }
@@ -143,9 +177,10 @@ public class DataReadApi {
         return new NidVer(nidWithoutVersion, nodeSerie.getLatestVersionBeforeDeletion());
     }
 
-    private void addToEdges(final Map<EdgeLabel, Multimap<EdgeIndex, EdgeWithSource>> combination,
-            Optional<EdgeLabel> label, boolean queryableOnly, NodeClass nodeClass,
-            Map<EdgeLabel, Multimap<EdgeIndex, EdgeImpl>> edgeImpls) {
+    private void addToEdges(final Map<EdgeLabel, Multimap<EdgeIndex, IEdgeTarget>> combination,
+            Optional<EdgeLabel> label, Optional<EdgeIndexRange> indexRange, boolean queryableOnly,
+            NodeClass nodeClass, Map<EdgeLabel, Multimap<EdgeIndex, EdgeImpl>> edgeImpls,
+            EnumSet<HistoryState> sourceHistoryStates) {
         for (Map.Entry<EdgeLabel, Multimap<EdgeIndex, EdgeImpl>> verInEdgesByLabel : edgeImpls
                 .entrySet()) {
             if ((label.isPresent()) && (!label.get().equals(verInEdgesByLabel.getKey()))) {
@@ -155,8 +190,7 @@ public class DataReadApi {
       /* Is queryable? */
             final boolean isQueryable;
             if (verInEdgesByLabel.getKey().isPublic()) {
-                PublicEdgeClass pec = PublicEdgeClass.parse(verInEdgesByLabel.getKey());
-                isQueryable = pec.isQueryable();
+                isQueryable = verInEdgesByLabel.getKey().isPublicQueryable();
             } else {
                 /*
                 PrivateEdgeClass pec = nodeClass.getEdgeClasses().get(verInEdgesByLabel.getKey());
@@ -175,25 +209,37 @@ public class DataReadApi {
             }
             for (Map.Entry<EdgeIndex, EdgeImpl> verInEdgeEntry : verInEdgesByLabel.getValue()
                     .entries()) {
-                Multimap<EdgeIndex, EdgeWithSource> edgeImplsByLabel =
+                /* Is in range?*/
+                if (indexRange.isPresent()) {
+                    if (!indexRange.get().contains(verInEdgeEntry.getKey())) {
+                        /* Skip */
+                        continue;
+                    }
+                }
+
+                Multimap<EdgeIndex, IEdgeTarget> edgeImplsByLabel =
                         combination.get(verInEdgesByLabel.getKey());
                 if (edgeImplsByLabel == null) {
                     edgeImplsByLabel = HashMultimap.create();
                     combination.put(verInEdgesByLabel.getKey(), edgeImplsByLabel);
                 }
-                final EdgeWithSource edgeWithSource =
-                        this.edgeUtil.toEdgeWithSource(verInEdgeEntry.getValue());
-
-                edgeImplsByLabel.put(verInEdgeEntry.getKey(), edgeWithSource);
+                edgeImplsByLabel.put(verInEdgeEntry.getKey(),
+                        this.edgeUtil.toEdgeTarget(verInEdgeEntry.getValue().getSource()));
             }
         }
     }
 
-    public Map<EdgeLabel, Multimap<EdgeIndex, EdgeWithSource>> getInEdges(long receiverId,
-            long senderId, NidVer oid, EnumSet<EdgeType> types, Optional<EdgeLabel> label,
-            boolean queryablesOnly) throws NodeNotFoundException {
+    public Map<EdgeLabel, Multimap<EdgeIndex, IEdgeTarget>> getInEdges(long receiverId,
+            long senderId, NidVer oid, EnumSet<HistoryState> sourceHistoryStates,
+            Optional<ClassId> sourceClassId, EnumSet<EdgeType> types,
+            Optional<EdgeIndexRange> indexRange, Optional<EdgeLabel> label, boolean queryablesOnly)
+            throws NodeNotFoundException {
+        /*
+        if ((label.isPresent() && label.get().isPrivate()) && (!sourceClassId.isPresent())) {
+            throw new ExpectableException("Need the source class if a private label is given.");
+        } ist nicht mehr notwendig, da im label neu die classID drinn ist. */
         if (types.isEmpty()) {
-            throw new ExpectableException("Types cannot be empty");
+            throw new ExpectableException("types.isEmpty()");
         }
         final NodeImpl node = getNodeFromCurrentOrHistorized(receiverId, oid);
         if (node == null) {
@@ -201,25 +247,21 @@ public class DataReadApi {
         }
 
         final NodeClass nodeClass = this.ncApi.getClassById(node.getNodeSerie().getClassId());
-        //TODO: Da stimmt wohl was noch nicht
-       /* if (queryablesOnly) {
-            nodeClass = this.ncApi.getClassById(node.getNodeSerie().getClassId());
-        } else {
-            nodeClass = null;
-        }*/
 
         final Map<EdgeLabel, Multimap<EdgeIndex, EdgeImpl>> verInEdges =
                 node.getVersionedInEdgeds();
         final Map<EdgeLabel, Multimap<EdgeIndex, EdgeImpl>> unverInEdges =
                 node.getNodeSerie().getInEdges();
 
-        final Map<EdgeLabel, Multimap<EdgeIndex, EdgeWithSource>> combination = new HashMap<>();
+        final Map<EdgeLabel, Multimap<EdgeIndex, IEdgeTarget>> combination = new HashMap<>();
 
-          /* Add versioned edges */
-        addToEdges(combination, label, queryablesOnly, nodeClass, verInEdges);
+          /* Add versioned edge */
+        addToEdges(combination, label, indexRange, queryablesOnly, nodeClass, verInEdges,
+                sourceHistoryStates);
 
-          /* Add unversioned edges */
-        addToEdges(combination, label, queryablesOnly, nodeClass, unverInEdges);
+          /* Add unversioned edge */
+        addToEdges(combination, label, indexRange, queryablesOnly, nodeClass, unverInEdges,
+                sourceHistoryStates);
 
         return combination;
     }

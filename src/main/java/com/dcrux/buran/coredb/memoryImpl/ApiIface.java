@@ -6,6 +6,11 @@ import com.dcrux.buran.coredb.iface.api.exceptions.*;
 import com.dcrux.buran.coredb.iface.domains.DomainHash;
 import com.dcrux.buran.coredb.iface.domains.DomainHashCreator;
 import com.dcrux.buran.coredb.iface.domains.DomainId;
+import com.dcrux.buran.coredb.iface.edge.Edge;
+import com.dcrux.buran.coredb.iface.edge.EdgeIndex;
+import com.dcrux.buran.coredb.iface.edge.EdgeLabel;
+import com.dcrux.buran.coredb.iface.edge.EdgeType;
+import com.dcrux.buran.coredb.iface.edgeTargets.IEdgeTarget;
 import com.dcrux.buran.coredb.iface.edgeTargets.IIncEdgeTarget;
 import com.dcrux.buran.coredb.iface.nodeClass.*;
 import com.dcrux.buran.coredb.iface.query.IQuery;
@@ -13,16 +18,12 @@ import com.dcrux.buran.coredb.iface.subscription.Subscription;
 import com.dcrux.buran.coredb.iface.subscription.SubscriptionId;
 import com.dcrux.buran.coredb.memoryImpl.data.NodeImpl;
 import com.dcrux.buran.coredb.memoryImpl.data.SerPersistentData;
-import com.dcrux.buran.coredb.memoryImpl.typeImpls.TypesRegistry;
 import com.google.common.base.Optional;
 import com.google.common.collect.Multimap;
 
 import javax.annotation.Nullable;
 import java.io.*;
-import java.util.EnumSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * @author caelis
@@ -32,7 +33,6 @@ public class ApiIface implements IApi {
     private final DmApi dataManipulationApi;
     private final DataReadApi dataReadApi;
     private final NodeClassesApi nodeClassesApi;
-    private final TypesRegistry typesRegistry;
     private final MiApi metaApi;
     private final QueryApi queryApi;
     private final DomApi domainApi;
@@ -42,16 +42,18 @@ public class ApiIface implements IApi {
 
     private File serFile;
 
-    public ApiIface(File file) {
+    public ApiIface(@Nullable File file) {
         this.serFile = file;
-        this.serPersistentData = deserialize(file);
+        if ((file != null) && (!file.exists())) {
+            this.serPersistentData = deserialize(null);
+        } else {
+            this.serPersistentData = deserialize(file);
+        }
 
-        this.typesRegistry = new TypesRegistry();
         this.nodeClassesApi = new NodeClassesApi(this.serPersistentData.getNodeClasses());
         this.dataManipulationApi =
-                new DmApi(this.serPersistentData.getNodes(), this.nodeClassesApi, typesRegistry);
-        this.dataReadApi = new DataReadApi(this.serPersistentData.getNodes(), this.nodeClassesApi,
-                typesRegistry);
+                new DmApi(this.serPersistentData.getNodes(), this.nodeClassesApi);
+        this.dataReadApi = new DataReadApi(this.serPersistentData.getNodes(), this.nodeClassesApi);
         this.subscriptionApi = new SubscriptionApi(this.serPersistentData.getSubscriptions(),
                 this.serPersistentData.getNodes(), this.nodeClassesApi, this.dataReadApi);
         this.commitApi = new CommitApi(this.serPersistentData.getNodes(), this.dataReadApi,
@@ -59,38 +61,40 @@ public class ApiIface implements IApi {
         this.domainApi = new DomApi(this.serPersistentData.getDomains());
         this.metaApi = new MiApi(this.dataReadApi, this.dataManipulationApi, this.domainApi);
         this.queryApi = new QueryApi(this.serPersistentData.getNodes(), getNodeClassesApi(),
-                this.dataReadApi, typesRegistry);
+                this.dataReadApi);
     }
 
     public void persist() {
         serialize(this.serFile);
     }
 
-    private SerPersistentData deserialize(File file) {
+    private SerPersistentData deserialize(@Nullable File file) {
         SerPersistentData data = null;
-        FileInputStream fis = null;
-        ObjectInputStream os = null;
-        try {
-            fis = new FileInputStream(file);
-            os = new ObjectInputStream(fis);
-            data = (SerPersistentData) os.readObject();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } finally {
-            if (os != null) {
-                try {
-                    os.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
+        if (file != null) {
+            FileInputStream fis = null;
+            ObjectInputStream os = null;
+            try {
+                fis = new FileInputStream(file);
+                os = new ObjectInputStream(fis);
+                data = (SerPersistentData) os.readObject();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            } finally {
+                if (os != null) {
+                    try {
+                        os.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
-            }
-            if (fis != null) {
-                try {
-                    fis.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                if (fis != null) {
+                    try {
+                        fis.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }
@@ -285,19 +289,34 @@ public class ApiIface implements IApi {
     }
 
     @Override
-    public Map<EdgeLabel, Map<EdgeIndex, Edge>> getOutEdges(UserId receiver, UserId sender,
+    public Map<EdgeLabel, Map<EdgeIndex, IEdgeTarget>> getOutEdges(UserId receiver, UserId sender,
             NidVer nid, EnumSet<EdgeType> types, Optional<EdgeLabel> label)
             throws NodeNotFoundException, InformationUnavailableException,
-            PermissionDeniedException {
-        return getDrApi().getOutEdges(receiver.getId(), sender.getId(), nid, types, false);
+            PermissionDeniedException, QuotaExceededException {
+        final Map<EdgeLabel, Map<EdgeIndex, Edge>> intResult = getDrApi()
+                .getOutEdges(receiver.getId(), sender.getId(), nid, types, false, label, true);
+        final Map<EdgeLabel, Map<EdgeIndex, IEdgeTarget>> result = new HashMap<>();
+        for (final Map.Entry<EdgeLabel, Map<EdgeIndex, Edge>> intResultEntry : intResult
+                .entrySet()) {
+            final Map<EdgeIndex, IEdgeTarget> innerResult = new HashMap<>();
+            for (final Map.Entry<EdgeIndex, Edge> innerInnerResult : intResultEntry.getValue()
+                    .entrySet()) {
+                innerResult.put(innerInnerResult.getKey(), innerInnerResult.getValue().getTarget());
+            }
+            result.put(intResultEntry.getKey(), innerResult);
+        }
+        return result;
     }
 
     @Override
-    public Map<EdgeLabel, Multimap<EdgeIndex, EdgeWithSource>> getInEdges(UserId receiver,
-            UserId sender, NidVer nid, EnumSet<EdgeType> types, Optional<EdgeLabel> label)
+    public Map<EdgeLabel, Multimap<EdgeIndex, IEdgeTarget>> getInEdges(UserId receiver,
+            UserId sender, NidVer nid, EnumSet<HistoryState> sourceHistoryStates,
+            Optional<ClassId> sourceClassId, EnumSet<EdgeType> types,
+            Optional<EdgeIndexRange> indexRange, Optional<EdgeLabel> label)
             throws NodeNotFoundException, InformationUnavailableException,
-            PermissionDeniedException {
-        return getDrApi().getInEdges(receiver.getId(), sender.getId(), nid, types, label, false);
+            PermissionDeniedException, QuotaExceededException {
+        return getDrApi().getInEdges(receiver.getId(), sender.getId(), nid, sourceHistoryStates,
+                sourceClassId, types, indexRange, label, false);
     }
 
     @Override

@@ -1,12 +1,12 @@
 package com.dcrux.buran.coredb.memoryImpl.data;
 
-import com.dcrux.buran.coredb.iface.EdgeIndex;
-import com.dcrux.buran.coredb.iface.EdgeLabel;
 import com.dcrux.buran.coredb.iface.IncNid;
 import com.dcrux.buran.coredb.iface.NidVer;
 import com.dcrux.buran.coredb.iface.api.exceptions.ExpectableException;
 import com.dcrux.buran.coredb.iface.api.exceptions.OptimisticLockingException;
-import com.dcrux.buran.coredb.iface.edgeClass.PrivateEdgeClass;
+import com.dcrux.buran.coredb.iface.edge.EdgeIndex;
+import com.dcrux.buran.coredb.iface.edge.EdgeLabel;
+import com.dcrux.buran.coredb.iface.edgeClass.EdgeClass;
 import com.dcrux.buran.coredb.iface.edgeClass.PrivateEdgeConstraints;
 import com.dcrux.buran.coredb.iface.edgeTargets.*;
 import com.dcrux.buran.coredb.iface.nodeClass.NodeClass;
@@ -148,8 +148,8 @@ public class CommitUtil {
             }
         }
 
-    /* Check private edges */
-        for (Map.Entry<EdgeLabel, PrivateEdgeClass> edgeEntry : nc.getEdgeClasses().entrySet()) {
+    /* Check private edge */
+        for (Map.Entry<Short, EdgeClass> edgeEntry : nc.getEdgeClasses().entrySet()) {
             final PrivateEdgeConstraints constraints = edgeEntry.getValue().getOutNodeConstraints();
             int numberOfEdges = 0;
             boolean zeroIsSet = false;
@@ -157,7 +157,7 @@ public class CommitUtil {
 
 
                     .getIncubationEdges().entrySet()) {
-                if (edgeInstance.getKey().getLabel().equals(edgeEntry.getKey())) {
+                if (edgeInstance.getKey().getLabel().getPrivateEdgeIndex() == edgeEntry.getKey()) {
            /* Label is correct */
                     if (edgeInstance.getKey().getIndex().getId() == 0) {
                         zeroIsSet = true;
@@ -187,13 +187,15 @@ public class CommitUtil {
             //TODO: Check target node class
         }
 
-    /* Private edges have to be declared */
+    /* Private edge have to be declared */
         for (final Map.Entry<IncNode.EdgeIndexLabel, IncubationEdge> incEdge : pci.getIncNode()
                 .getIncubationEdges().entrySet()) {
             final EdgeLabel label = incEdge.getKey().getLabel();
-            if (!label.isPublic()) {
+            if (label.isPrivate()) {
         /* Label has to be declared */
-                final boolean declared = nc.getEdgeClasses().containsKey(label);
+                final boolean declared =
+                        nc.getEdgeClasses().containsKey(label.getPrivateEdgeIndex()) &&
+                                pci.getClassId() == label.getPrivateClassId().getId();
                 if (!declared) {
                     throw new ExpectableException(MessageFormat
                             .format("Private label {0} is not declared in class", label));
