@@ -41,7 +41,7 @@ public class VersioningTest extends TestsBase {
         /* Populate the node in incubation with data */
 
         /* Integer */
-        int intValue = 3320033;
+        Integer intValue = 3320033;
         api.setData(getReceiver(), getSender(), iNidOne, NodeClassSimple.PROPERTY_INT,
                 PrimSet.integer(intValue));
         String strValue = "I'm a text...";
@@ -63,7 +63,7 @@ public class VersioningTest extends TestsBase {
 
         /* Populate node version 1 with some data */
 
-        int intValueV1 = 555543;
+        Integer intValueV1 = 555543;
         api.setData(getReceiver(), getSender(), iNidOneV2, NodeClassSimple.PROPERTY_INT,
                 PrimSet.integer(intValueV1));
 
@@ -88,20 +88,20 @@ public class VersioningTest extends TestsBase {
         /* Check properties of node v0 */
         /* Checking is only possible if history information is still available */
         if (v0State == NodeState.historizedAvailable) {
-            int rV0Int = (int) api
-                    .getData(getReceiver(), getSender(), nidVer0, NodeClassSimple.PROPERTY_INT,
-                            PrimGet.SINGLETON);
+            Integer rV0Int =
+                    api.getData(getReceiver(), getSender(), nidVer0, NodeClassSimple.PROPERTY_INT,
+                            PrimGet.INTEGER);
             Assert.assertEquals(rV0Int, intValue);
             String rV0Str = (String) api
                     .getData(getReceiver(), getSender(), nidVer0, NodeClassSimple.PROPERTY_STRING,
-                            PrimGet.SINGLETON);
+                            PrimGet.STRING);
             Assert.assertEquals(rV0Str, strValue);
         }
 
         /* Check properties of node v1 */
-        int rV1Int = (int) api
-                .getData(getReceiver(), getSender(), nidVer1, NodeClassSimple.PROPERTY_INT,
-                        PrimGet.SINGLETON);
+        Integer rV1Int =
+                api.getData(getReceiver(), getSender(), nidVer1, NodeClassSimple.PROPERTY_INT,
+                        PrimGet.INTEGER);
         Assert.assertEquals(rV1Int, intValueV1);
     }
 

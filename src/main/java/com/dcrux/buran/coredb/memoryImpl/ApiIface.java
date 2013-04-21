@@ -280,11 +280,11 @@ public class ApiIface implements IApi {
 
     @Nullable
     @Override
-    public Object getData(UserId receiver, UserId sender, NidVer nidVersion, short typeIndex,
-            IDataGetter dataGetter)
+    public <TData> TData getData(UserId receiver, UserId sender, NidVer nidVersion, short typeIndex,
+            IDataGetter<TData> dataGetter)
             throws InformationUnavailableException, PermissionDeniedException,
             NodeNotFoundException {
-        return getDrApi()
+        return (TData) getDrApi()
                 .getData(receiver.getId(), sender.getId(), nidVersion, typeIndex, dataGetter);
     }
 

@@ -112,28 +112,27 @@ public class PropertyReadAndWriteTest extends TestsBase {
         /* Read the integer */
         int rIntValue = (int) api
                 .getData(getReceiver(), getSender(), nid, NodeClassSimple.PROPERTY_INT,
-                        PrimGet.SINGLETON);
+                        PrimGet.INTEGER);
         Assert.assertEquals(intValue, rIntValue);
 
         /* Read the string */
         String rStringValue = (String) api
                 .getData(getReceiver(), getSender(), nid, NodeClassSimple.PROPERTY_STRING,
-                        PrimGet.SINGLETON);
+                        PrimGet.STRING);
         Assert.assertEquals(stringValue, rStringValue);
 
         /* Read the set */
         Set<ByteContainer> rSetValue = (Set<ByteContainer>) api
                 .getData(getReceiver(), getSender(), nid, NodeClassSimple.PROPERTY_SET,
-                        PrimGet.SINGLETON);
+                        PrimGet.SET);
         Assert.assertTrue(rSetValue.size() == byteContainerSet.size() + 1);
         Assert.assertTrue(rSetValue.containsAll(byteContainerSet));
         Assert.assertTrue(rSetValue.contains(new ByteContainer(setEntry3.getBytes())));
 
         /* Read binary length & data */
-        long rLength = (Long) api
-                .getData(getReceiver(), getSender(), nid, NodeClassSimple.PROPERTY_BLOB,
-                        LengthGet.SINGLETON);
-        int expectedLength = binaryData.length + binaryData2.length;
+        Long rLength = api.getData(getReceiver(), getSender(), nid, NodeClassSimple.PROPERTY_BLOB,
+                LengthGet.SINGLETON);
+        Long expectedLength = (long) (binaryData.length + binaryData2.length);
         Assert.assertEquals(expectedLength, rLength);
         byte[] rData1 = (byte[]) api
                 .getData(getReceiver(), getSender(), nid, NodeClassSimple.PROPERTY_BLOB,

@@ -140,11 +140,11 @@ public class PartialUpdateTest extends TestsBase {
         /* The int-value should now be 16 */
         Assert.assertEquals(newIntValue1, (int) api
                 .getData(getReceiver(), getSender(), newNode1, NodeClassSimple.PROPERTY_INT,
-                        PrimGet.SINGLETON));
+                        PrimGet.INTEGER));
         /* The string-value should still be the same as in the old node. */
         Assert.assertEquals(this.stringValue, (String) api
                 .getData(getReceiver(), getSender(), newNode1, NodeClassSimple.PROPERTY_STRING,
-                        PrimGet.SINGLETON));
+                        PrimGet.STRING));
         /* The edge should still be there */
         final Map<EdgeLabel, Map<EdgeIndex, IEdgeTarget>> edges =
                 api.getOutEdges(getReceiver(), getSender(), newNode1, EnumSet.allOf(EdgeType.class),

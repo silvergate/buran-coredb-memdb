@@ -215,7 +215,7 @@ public class QueryTest extends TestsBase {
         for (NidVer found : resultNot.getNodes()) {
             Object value =
                     api.getData(getReceiver(), getSender(), found, NodeClassSimple.PROPERTY_STRING,
-                            PrimGet.SINGLETON);
+                            PrimGet.STRING);
             if (value != null) {
                 final String valueAsString = (String) value;
                 Assert.assertTrue("Must not be stringValue1", !stringValue1.equals(valueAsString));

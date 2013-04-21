@@ -152,10 +152,10 @@ public class Main {
     /* Von der commiteten node 1 daten lesen */
 
         final Object value =
-                api.getData(receiver, sender, cr.getNid(nodeOneInc), (short) 0, PrimGet.SINGLETON);
+                api.getData(receiver, sender, cr.getNid(nodeOneInc), (short) 0, PrimGet.STRING);
         System.out.println("Value (NodeImpl 1) = " + value);
         /* Lesen der anzahl bytes im blob */
-        final int blobLength = (int) api
+        final Long blobLength = (Long) api
                 .getData(receiver, sender, cr.getNid(nodeOneInc), (short) 2, LengthGet.SINGLETON);
         System.out.println("Value (NodeImpl 1): Länge des blobs: = " + blobLength);
         /* Lesen des blobs und daraus wieder einen string konstruieren */
@@ -170,7 +170,7 @@ public class Main {
         /* Von der commiteten node 2 daten lesen */
 
         final Object value2 =
-                api.getData(receiver, sender, cr.getNid(nodeTwoInc), (short) 0, PrimGet.SINGLETON);
+                api.getData(receiver, sender, cr.getNid(nodeTwoInc), (short) 0, PrimGet.STRING);
         System.out.println("Value (NodeImpl 2) = " + value2);
 
     /* Query: Bedingung: muss eine node mit "Ich bin eine Welt" und einer "hallo"-edge im index 0

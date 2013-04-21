@@ -33,7 +33,7 @@ public class SortTest extends TestsBase {
         public void setValue(int row, short typeIndex, IDataSetter dataSetter) {
             Map<Short, IDataSetter> rowValues = this.values.get(row);
             if (rowValues == null) {
-                rowValues = new HashMap<Short, IDataSetter>();
+                rowValues = new HashMap<>();
                 this.values.put(row, rowValues);
             }
             rowValues.put(typeIndex, dataSetter);
@@ -192,6 +192,6 @@ public class SortTest extends TestsBase {
                 PropertySort.c(typeIndex, this.sortRef, sortDir));
         final QueryResult result = api.query(getReceiver(), getSender(), query, true);
         NidVer nidVer = result.getNodes().get(index);
-        return api.getData(getReceiver(), getSender(), nidVer, typeIndex, PrimGet.SINGLETON);
+        return api.getData(getReceiver(), getSender(), nidVer, typeIndex, PrimGet.ANY);
     }
 }
