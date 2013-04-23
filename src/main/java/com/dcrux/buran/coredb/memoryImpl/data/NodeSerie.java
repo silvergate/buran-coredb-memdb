@@ -16,10 +16,10 @@ import java.util.Map;
  */
 public class NodeSerie implements Serializable {
     /**
-	 * 
-	 */
-	private static final long serialVersionUID = -7443880879598278485L;
-	private final long oid;
+     *
+     */
+    private static final long serialVersionUID = -7443880879598278485L;
+    private final long oid;
     private final long classId;
     private final long receiverId;
     private int currentVersion = Integer.MIN_VALUE;
@@ -112,6 +112,22 @@ public class NodeSerie implements Serializable {
 
     public boolean hasBeenDeleted() {
         return this.hasBeenDeleted;
+    }
+
+    /**
+     * Liefert die momentane version, falls eine version vorhanden ist (commited und nicht
+     * gelöscht). Liefert <code>null</code> in allen anderen fällen.
+     *
+     * @return
+     */
+    public Integer tryGetCurrentVersion() {
+        if (hasNoVersion()) {
+            return null;
+        }
+        if (hasBeenDeleted()) {
+            return null;
+        }
+        return this.currentVersion;
     }
 
     public int getCurrentVersion() {

@@ -148,6 +148,7 @@ public class PartialUpdateTest extends TestsBase {
         /* The edge should still be there */
         final Map<EdgeLabel, Map<EdgeIndex, IEdgeTarget>> edges =
                 api.getOutEdges(getReceiver(), getSender(), newNode1, EnumSet.allOf(EdgeType.class),
+                        Optional.<EdgeIndexRange>absent(),
                         Optional.of(EdgeLabel.privateEdge(this.classId, NodeClassSimple.EDGE_ONE)));
         Assert.assertEquals("Should have one entry.", 1, edges.size());
         Assert.assertTrue("The edge with label EDGE_ONE at index 0 must be available.",

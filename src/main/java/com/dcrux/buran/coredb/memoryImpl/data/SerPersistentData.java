@@ -10,10 +10,10 @@ import java.io.Serializable;
 public class SerPersistentData implements Serializable {
 
     /**
-	 * 
-	 */
-	private static final long serialVersionUID = 8829152284253213818L;
-	private Nodes nodes;
+     *
+     */
+    private static final long serialVersionUID = 8829152284253213818L;
+    private Nodes nodes;
     private NodeClasses nodeClasses;
     private Domains domains;
     private Subscriptions subscriptions;

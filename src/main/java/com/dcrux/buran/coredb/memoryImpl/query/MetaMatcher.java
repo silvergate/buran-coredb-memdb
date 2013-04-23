@@ -8,7 +8,6 @@ import com.dcrux.buran.coredb.iface.api.exceptions.NodeNotFoundException;
 import com.dcrux.buran.coredb.iface.edge.Edge;
 import com.dcrux.buran.coredb.iface.edge.EdgeIndex;
 import com.dcrux.buran.coredb.iface.edge.EdgeLabel;
-import com.dcrux.buran.coredb.iface.edgeTargets.IEdgeTarget;
 import com.dcrux.buran.coredb.iface.nodeClass.ClassId;
 import com.dcrux.buran.coredb.iface.nodeClass.NodeClass;
 import com.dcrux.buran.coredb.iface.permissions.UserNodePermission;
@@ -121,9 +120,9 @@ public class MetaMatcher {
         }
 
         @Override
-        public Multimap<EdgeIndex, IEdgeTarget> getQueryableInEdges(EdgeLabel label) {
+        public Multimap<EdgeIndex, NidVer> getQueryableInEdges(EdgeLabel label) {
             try {
-                final Map<EdgeLabel, Multimap<EdgeIndex, IEdgeTarget>> inEdges =
+                final Map<EdgeLabel, Multimap<EdgeIndex, NidVer>> inEdges =
                         drApi.getInEdges(getReceiver(), getSender(),
                                 new NidVer(node.getNodeSerie().getOid(), node.getVersion()),
                                 EnumSet.of(HistoryState.active), Optional.<ClassId>absent(),

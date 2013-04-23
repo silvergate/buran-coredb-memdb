@@ -9,10 +9,10 @@ import java.io.Serializable;
  */
 public class EdgeImpl implements Serializable {
     /**
-	 * 
-	 */
-	private static final long serialVersionUID = 8167724352831721242L;
-	private final EdgeLabel label;
+     *
+     */
+    private static final long serialVersionUID = 8167724352831721242L;
+    private final EdgeLabel label;
     private final IEdgeImplTarget source;
     private final IEdgeImplTarget target;
 

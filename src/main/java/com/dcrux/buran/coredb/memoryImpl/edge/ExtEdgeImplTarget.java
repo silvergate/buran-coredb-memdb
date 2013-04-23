@@ -7,10 +7,10 @@ import javax.annotation.Nullable;
  */
 public class ExtEdgeImplTarget implements IEdgeImplTarget {
     /**
-	 * 
-	 */
-	private static final long serialVersionUID = -3286036567180943701L;
-	private final long userId;
+     *
+     */
+    private static final long serialVersionUID = -3286036567180943701L;
+    private final long userId;
     private final long oid;
     @Nullable
     private final Integer version;

@@ -14,10 +14,10 @@ import java.util.Random;
  */
 public class NodeClasses implements Serializable {
     /**
-	 * 
-	 */
-	private static final long serialVersionUID = -7202873807884721763L;
-	private Map<Long, NodeClass> classes = new HashMap<>();
+     *
+     */
+    private static final long serialVersionUID = -7202873807884721763L;
+    private Map<Long, NodeClass> classes = new HashMap<>();
     private Map<String, NodeClass> hashesToClasses = new HashMap<>();
     private Map<String, Long> hashesToClassIds = new HashMap<>();
 

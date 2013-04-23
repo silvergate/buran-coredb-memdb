@@ -157,6 +157,12 @@ public class CommitUtil {
 
 
                     .getIncubationEdges().entrySet()) {
+                if (edgeInstance.getKey().getLabel().isPublic()) {
+                    /* Public edges have no constraints, so continue. */
+                    continue;
+                }
+
+
                 if (edgeInstance.getKey().getLabel().getPrivateEdgeIndex() == edgeEntry.getKey()) {
            /* Label is correct */
                     if (edgeInstance.getKey().getIndex().getId() == 0) {

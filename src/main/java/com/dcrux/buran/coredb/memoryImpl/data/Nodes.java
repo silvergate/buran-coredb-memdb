@@ -9,10 +9,10 @@ import java.util.Map;
  */
 public class Nodes implements Serializable {
     /**
-	 * 
-	 */
-	private static final long serialVersionUID = -2012814362373736392L;
-	private Map<Long, AccountNodes> receiverIdToNodes = new HashMap<>();
+     *
+     */
+    private static final long serialVersionUID = -2012814362373736392L;
+    private Map<Long, AccountNodes> receiverIdToNodes = new HashMap<>();
 
     public AccountNodes getByUserId(final long userId) {
         AccountNodes an = this.receiverIdToNodes.get(userId);

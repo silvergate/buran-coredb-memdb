@@ -16,11 +16,11 @@ import java.security.NoSuchAlgorithmException;
 public class NodeClassesApi implements Serializable {
 
     /**
-	 * 
-	 */
-	private static final long serialVersionUID = -4616040291213810392L;
+     *
+     */
+    private static final long serialVersionUID = -4616040291213810392L;
 
-	public NodeClassesApi(NodeClasses classes) {
+    public NodeClassesApi(NodeClasses classes) {
         this.classes = classes;
     }
 

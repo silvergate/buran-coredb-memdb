@@ -10,7 +10,6 @@ import com.dcrux.buran.coredb.iface.edge.EdgeIndex;
 import com.dcrux.buran.coredb.iface.edge.EdgeLabel;
 import com.dcrux.buran.coredb.iface.edge.EdgeType;
 import com.dcrux.buran.coredb.iface.edgeClass.EdgeClass;
-import com.dcrux.buran.coredb.iface.edgeTargets.IEdgeTarget;
 import com.dcrux.buran.coredb.iface.nodeClass.ClassId;
 import com.dcrux.buran.coredb.iface.nodeClass.IDataGetter;
 import com.dcrux.buran.coredb.iface.nodeClass.IType;
@@ -20,6 +19,7 @@ import com.dcrux.buran.coredb.memoryImpl.data.NodeSerie;
 import com.dcrux.buran.coredb.memoryImpl.data.Nodes;
 import com.dcrux.buran.coredb.memoryImpl.edge.EdgeImpl;
 import com.dcrux.buran.coredb.memoryImpl.edge.EdgeUtil;
+import com.dcrux.buran.coredb.memoryImpl.edge.VersionedEdgeImplTarget;
 import com.google.common.base.Optional;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -177,13 +177,22 @@ public class DataReadApi {
         return new NidVer(nidWithoutVersion, nodeSerie.getLatestVersionBeforeDeletion());
     }
 
-    private void addToEdges(final Map<EdgeLabel, Multimap<EdgeIndex, IEdgeTarget>> combination,
+    private void addToEdges(final Map<EdgeLabel, Multimap<EdgeIndex, NidVer>> combination,
             Optional<EdgeLabel> label, Optional<EdgeIndexRange> indexRange, boolean queryableOnly,
             NodeClass nodeClass, Map<EdgeLabel, Multimap<EdgeIndex, EdgeImpl>> edgeImpls,
-            EnumSet<HistoryState> sourceHistoryStates) {
+            EnumSet<HistoryState> sourceHistoryStates, EnumSet<EdgeType> types,
+            long requiredSourceUserId) {
         for (Map.Entry<EdgeLabel, Multimap<EdgeIndex, EdgeImpl>> verInEdgesByLabel : edgeImpls
                 .entrySet()) {
             if ((label.isPresent()) && (!label.get().equals(verInEdgesByLabel.getKey()))) {
+                continue;
+            }
+
+            /* Right type? */
+            boolean typeCorrect = ((types.contains(EdgeType.privateMod) &&
+                    verInEdgesByLabel.getKey().isPrivate()) ||
+                    (types.contains(EdgeType.publicMod) && verInEdgesByLabel.getKey().isPublic()));
+            if (!typeCorrect) {
                 continue;
             }
 
@@ -217,27 +226,38 @@ public class DataReadApi {
                     }
                 }
 
-                Multimap<EdgeIndex, IEdgeTarget> edgeImplsByLabel =
+                Multimap<EdgeIndex, NidVer> edgeImplsByLabel =
                         combination.get(verInEdgesByLabel.getKey());
                 if (edgeImplsByLabel == null) {
                     edgeImplsByLabel = HashMultimap.create();
                     combination.put(verInEdgesByLabel.getKey(), edgeImplsByLabel);
                 }
-                edgeImplsByLabel.put(verInEdgeEntry.getKey(),
-                        this.edgeUtil.toEdgeTarget(verInEdgeEntry.getValue().getSource()));
+                /* Die Source-Node ist immer vom typ VersionedEdgeImplTarget */
+                final VersionedEdgeImplTarget sourceNode =
+                        (VersionedEdgeImplTarget) verInEdgeEntry.getValue().getSource();
+
+                Integer currentVersion =
+                        sourceNode.getTarget().getNodeSerie().tryGetCurrentVersion();
+                boolean correctHistoryState = (currentVersion != null &&
+                        currentVersion == sourceNode.getTarget().getVersion() &&
+                        sourceHistoryStates.contains(HistoryState.active)) ||
+                        (sourceHistoryStates.contains(HistoryState.historized));
+
+                if ((sourceNode.getTarget().getNodeSerie().getReceiverId() ==
+                        requiredSourceUserId) && (correctHistoryState)) {
+                    /* Source-ID is correct */
+                    /* History state is correct */
+                    edgeImplsByLabel
+                            .put(verInEdgeEntry.getKey(), sourceNode.getTarget().createNidVer());
+                }
             }
         }
     }
 
-    public Map<EdgeLabel, Multimap<EdgeIndex, IEdgeTarget>> getInEdges(long receiverId,
-            long senderId, NidVer oid, EnumSet<HistoryState> sourceHistoryStates,
-            Optional<ClassId> sourceClassId, EnumSet<EdgeType> types,
-            Optional<EdgeIndexRange> indexRange, Optional<EdgeLabel> label, boolean queryablesOnly)
-            throws NodeNotFoundException {
-        /*
-        if ((label.isPresent() && label.get().isPrivate()) && (!sourceClassId.isPresent())) {
-            throw new ExpectableException("Need the source class if a private label is given.");
-        } ist nicht mehr notwendig, da im label neu die classID drinn ist. */
+    public Map<EdgeLabel, Multimap<EdgeIndex, NidVer>> getInEdges(long receiverId, long senderId,
+            NidVer oid, EnumSet<HistoryState> sourceHistoryStates, Optional<ClassId> sourceClassId,
+            EnumSet<EdgeType> types, Optional<EdgeIndexRange> indexRange, Optional<EdgeLabel> label,
+            boolean queryablesOnly) throws NodeNotFoundException {
         if (types.isEmpty()) {
             throw new ExpectableException("types.isEmpty()");
         }
@@ -253,15 +273,15 @@ public class DataReadApi {
         final Map<EdgeLabel, Multimap<EdgeIndex, EdgeImpl>> unverInEdges =
                 node.getNodeSerie().getInEdges();
 
-        final Map<EdgeLabel, Multimap<EdgeIndex, IEdgeTarget>> combination = new HashMap<>();
+        final Map<EdgeLabel, Multimap<EdgeIndex, NidVer>> combination = new HashMap<>();
 
           /* Add versioned edge */
         addToEdges(combination, label, indexRange, queryablesOnly, nodeClass, verInEdges,
-                sourceHistoryStates);
+                sourceHistoryStates, types, receiverId);
 
           /* Add unversioned edge */
         addToEdges(combination, label, indexRange, queryablesOnly, nodeClass, unverInEdges,
-                sourceHistoryStates);
+                sourceHistoryStates, types, receiverId);
 
         return combination;
     }

@@ -292,7 +292,8 @@ public class ApiIface implements IApi {
 
     @Override
     public Map<EdgeLabel, Map<EdgeIndex, IEdgeTarget>> getOutEdges(UserId receiver, UserId sender,
-            NidVer nid, EnumSet<EdgeType> types, Optional<EdgeLabel> label)
+            NidVer nid, EnumSet<EdgeType> types, Optional<EdgeIndexRange> indexRange,
+            Optional<EdgeLabel> label)
             throws NodeNotFoundException, InformationUnavailableException,
             PermissionDeniedException, QuotaExceededException {
         final Map<EdgeLabel, Map<EdgeIndex, Edge>> intResult = getDrApi()
@@ -303,6 +304,12 @@ public class ApiIface implements IApi {
             final Map<EdgeIndex, IEdgeTarget> innerResult = new HashMap<>();
             for (final Map.Entry<EdgeIndex, Edge> innerInnerResult : intResultEntry.getValue()
                     .entrySet()) {
+                if (indexRange.isPresent()) {
+                    if (!indexRange.get().contains(innerInnerResult.getKey())) {
+                        /* Index-range-limit? */
+                        continue;
+                    }
+                }
                 innerResult.put(innerInnerResult.getKey(), innerInnerResult.getValue().getTarget());
             }
             result.put(intResultEntry.getKey(), innerResult);
@@ -311,10 +318,9 @@ public class ApiIface implements IApi {
     }
 
     @Override
-    public Map<EdgeLabel, Multimap<EdgeIndex, IEdgeTarget>> getInEdges(UserId receiver,
-            UserId sender, NidVer nid, EnumSet<HistoryState> sourceHistoryStates,
-            Optional<ClassId> sourceClassId, EnumSet<EdgeType> types,
-            Optional<EdgeIndexRange> indexRange, Optional<EdgeLabel> label)
+    public Map<EdgeLabel, Multimap<EdgeIndex, NidVer>> getInEdges(UserId receiver, UserId sender,
+            NidVer nid, EnumSet<HistoryState> sourceHistoryStates, Optional<ClassId> sourceClassId,
+            EnumSet<EdgeType> types, Optional<EdgeIndexRange> indexRange, Optional<EdgeLabel> label)
             throws NodeNotFoundException, InformationUnavailableException,
             PermissionDeniedException, QuotaExceededException {
         return getDrApi().getInEdges(receiver.getId(), sender.getId(), nid, sourceHistoryStates,

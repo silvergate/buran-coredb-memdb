@@ -17,6 +17,7 @@ public class TestsBase {
     private IApi buran;
     private final Random random = new Random();
     private UserId sender;
+    private UserId receiver2;
     private UserId receiver;
 
     public TestsBase() {
@@ -48,5 +49,9 @@ public class TestsBase {
         return this.sender;
     }
 
+    protected UserId getReceiver2() {
+        if (this.receiver2 == null) this.receiver2 = UserId.c(this.random.nextLong());
+        return this.receiver2;
+    }
 
 }

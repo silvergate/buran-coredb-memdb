@@ -11,10 +11,10 @@ import java.util.Map;
  */
 public class Subscriptions implements Serializable {
     /**
-	 * 
-	 */
-	private static final long serialVersionUID = 8619259023036487903L;
-	private transient Map<Long, AccountSubscriptions> receiverIdToSubscriptions = new HashMap<>();
+     *
+     */
+    private static final long serialVersionUID = 8619259023036487903L;
+    private transient Map<Long, AccountSubscriptions> receiverIdToSubscriptions = new HashMap<>();
 
     public AccountSubscriptions getByUserId(final long userId) {
         AccountSubscriptions as = this.receiverIdToSubscriptions.get(userId);

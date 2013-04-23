@@ -1,5 +1,6 @@
 package com.dcrux.buran.coredb.memoryImpl.data;
 
+import com.dcrux.buran.coredb.iface.NidVer;
 import com.dcrux.buran.coredb.iface.edge.EdgeIndex;
 import com.dcrux.buran.coredb.iface.edge.EdgeLabel;
 import com.dcrux.buran.coredb.memoryImpl.edge.EdgeImpl;
@@ -18,11 +19,11 @@ import java.util.Set;
 public class NodeImpl implements Serializable {
 
     /**
-	 * 
-	 */
-	private static final long serialVersionUID = -4936515447721013089L;
+     *
+     */
+    private static final long serialVersionUID = -4936515447721013089L;
 
-	public long getSenderId() {
+    public long getSenderId() {
         return senderId;
     }
 
@@ -60,6 +61,10 @@ public class NodeImpl implements Serializable {
 
     public int getVersion() {
         return version;
+    }
+
+    public NidVer createNidVer() {
+        return new NidVer(this.nodeSerie.getOid(), this.version);
     }
 
     public void setNodeSerie(NodeSerie nodeSerie) {

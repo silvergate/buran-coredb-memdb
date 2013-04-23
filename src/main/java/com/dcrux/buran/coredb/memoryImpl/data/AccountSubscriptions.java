@@ -17,10 +17,10 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class AccountSubscriptions implements Serializable {
     /**
-	 * 
-	 */
-	private static final long serialVersionUID = 3778490215059336614L;
-	private final long receiverId;
+     *
+     */
+    private static final long serialVersionUID = 3778490215059336614L;
+    private final long receiverId;
 
     public AccountSubscriptions(long receiverId) {
         this.receiverId = receiverId;
