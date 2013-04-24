@@ -1,19 +1,19 @@
 package com.dcrux.buran.coredb.memoryImpl;
 
-import com.dcrux.buran.coredb.iface.*;
-import com.dcrux.buran.coredb.iface.api.*;
+import com.dcrux.buran.coredb.iface.UserId;
+import com.dcrux.buran.coredb.iface.api.IApi;
+import com.dcrux.buran.coredb.iface.api.apiData.*;
 import com.dcrux.buran.coredb.iface.api.exceptions.*;
 import com.dcrux.buran.coredb.iface.domains.DomainHash;
 import com.dcrux.buran.coredb.iface.domains.DomainHashCreator;
 import com.dcrux.buran.coredb.iface.domains.DomainId;
-import com.dcrux.buran.coredb.iface.edge.Edge;
-import com.dcrux.buran.coredb.iface.edge.EdgeIndex;
-import com.dcrux.buran.coredb.iface.edge.EdgeLabel;
-import com.dcrux.buran.coredb.iface.edge.EdgeType;
+import com.dcrux.buran.coredb.iface.edge.*;
 import com.dcrux.buran.coredb.iface.edgeTargets.IEdgeTarget;
 import com.dcrux.buran.coredb.iface.edgeTargets.IIncEdgeTarget;
+import com.dcrux.buran.coredb.iface.node.*;
 import com.dcrux.buran.coredb.iface.nodeClass.*;
 import com.dcrux.buran.coredb.iface.query.IQuery;
+import com.dcrux.buran.coredb.iface.query.QueryResult;
 import com.dcrux.buran.coredb.iface.subscription.Subscription;
 import com.dcrux.buran.coredb.iface.subscription.SubscriptionId;
 import com.dcrux.buran.coredb.memoryImpl.data.NodeImpl;
@@ -356,6 +356,14 @@ public class ApiIface implements IApi {
             throw new NodeNotFoundException("Node not found");
         }
         return state;
+    }
+
+    @Override
+    public NodeMetadata getNodeMeta(UserId receiver, UserId sender, NidVer nid)
+            throws NodeNotFoundException, PermissionDeniedException, QuotaExceededException {
+        final NodeMetadata meta =
+                this.getMetaApi().getNodeMeta(receiver.getId(), sender.getId(), nid);
+        return meta;
     }
 
     @Override

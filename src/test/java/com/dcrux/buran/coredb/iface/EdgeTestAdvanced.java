@@ -1,13 +1,17 @@
 package com.dcrux.buran.coredb.iface;
 
-import com.dcrux.buran.coredb.iface.api.*;
+import com.dcrux.buran.coredb.iface.api.IApi;
+import com.dcrux.buran.coredb.iface.api.apiData.*;
 import com.dcrux.buran.coredb.iface.api.exceptions.*;
 import com.dcrux.buran.coredb.iface.base.TestsBase;
 import com.dcrux.buran.coredb.iface.common.NodeClassSimple;
 import com.dcrux.buran.coredb.iface.edge.EdgeIndex;
+import com.dcrux.buran.coredb.iface.edge.EdgeIndexRange;
 import com.dcrux.buran.coredb.iface.edge.EdgeLabel;
 import com.dcrux.buran.coredb.iface.edge.EdgeType;
 import com.dcrux.buran.coredb.iface.edgeTargets.*;
+import com.dcrux.buran.coredb.iface.node.IncNid;
+import com.dcrux.buran.coredb.iface.node.NidVer;
 import com.dcrux.buran.coredb.iface.nodeClass.ClassId;
 import com.google.common.base.Optional;
 import com.google.common.collect.Multimap;

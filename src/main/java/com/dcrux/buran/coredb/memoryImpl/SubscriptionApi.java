@@ -1,7 +1,7 @@
 package com.dcrux.buran.coredb.memoryImpl;
 
-import com.dcrux.buran.coredb.iface.NidVer;
 import com.dcrux.buran.coredb.iface.api.exceptions.PermissionDeniedException;
+import com.dcrux.buran.coredb.iface.node.NidVer;
 import com.dcrux.buran.coredb.iface.query.ICondNode;
 import com.dcrux.buran.coredb.iface.subscription.Subscription;
 import com.dcrux.buran.coredb.iface.subscription.SubscriptionEventType;

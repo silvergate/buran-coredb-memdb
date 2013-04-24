@@ -1,13 +1,13 @@
 package com.dcrux.buran.coredb.memoryImpl.query;
 
-import com.dcrux.buran.coredb.iface.NidVer;
-import com.dcrux.buran.coredb.iface.api.EdgeIndexRange;
-import com.dcrux.buran.coredb.iface.api.HistoryState;
+import com.dcrux.buran.coredb.iface.api.apiData.HistoryState;
 import com.dcrux.buran.coredb.iface.api.exceptions.ExpectableException;
 import com.dcrux.buran.coredb.iface.api.exceptions.NodeNotFoundException;
 import com.dcrux.buran.coredb.iface.edge.Edge;
 import com.dcrux.buran.coredb.iface.edge.EdgeIndex;
+import com.dcrux.buran.coredb.iface.edge.EdgeIndexRange;
 import com.dcrux.buran.coredb.iface.edge.EdgeLabel;
+import com.dcrux.buran.coredb.iface.node.NidVer;
 import com.dcrux.buran.coredb.iface.nodeClass.ClassId;
 import com.dcrux.buran.coredb.iface.nodeClass.NodeClass;
 import com.dcrux.buran.coredb.iface.permissions.UserNodePermission;

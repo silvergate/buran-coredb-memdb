@@ -1,10 +1,10 @@
 package com.dcrux.buran.coredb.memoryImpl.data;
 
-import com.dcrux.buran.coredb.iface.IncNid;
-import com.dcrux.buran.coredb.iface.NidVer;
-import com.dcrux.buran.coredb.iface.api.CommitResult;
+import com.dcrux.buran.coredb.iface.api.apiData.CommitResult;
 import com.dcrux.buran.coredb.iface.api.exceptions.ExpectableException;
 import com.dcrux.buran.coredb.iface.api.exceptions.OptimisticLockingException;
+import com.dcrux.buran.coredb.iface.node.IncNid;
+import com.dcrux.buran.coredb.iface.node.NidVer;
 import com.dcrux.buran.coredb.iface.nodeClass.NodeClass;
 import com.dcrux.buran.coredb.iface.subscription.SubscriptionEventType;
 import com.dcrux.buran.coredb.memoryImpl.DataReadApi;

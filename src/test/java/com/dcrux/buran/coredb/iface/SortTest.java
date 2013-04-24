@@ -1,12 +1,13 @@
 package com.dcrux.buran.coredb.iface;
 
-import com.dcrux.buran.coredb.iface.api.CreateInfo;
 import com.dcrux.buran.coredb.iface.api.IApi;
-import com.dcrux.buran.coredb.iface.api.KeepAliveHint;
-import com.dcrux.buran.coredb.iface.api.QueryResult;
+import com.dcrux.buran.coredb.iface.api.apiData.CreateInfo;
+import com.dcrux.buran.coredb.iface.api.apiData.KeepAliveHint;
 import com.dcrux.buran.coredb.iface.api.exceptions.*;
 import com.dcrux.buran.coredb.iface.base.TestsBase;
 import com.dcrux.buran.coredb.iface.common.NodeClassSimple;
+import com.dcrux.buran.coredb.iface.node.IncNid;
+import com.dcrux.buran.coredb.iface.node.NidVer;
 import com.dcrux.buran.coredb.iface.nodeClass.ClassId;
 import com.dcrux.buran.coredb.iface.nodeClass.FieldIndex;
 import com.dcrux.buran.coredb.iface.nodeClass.IDataSetter;
@@ -14,10 +15,7 @@ import com.dcrux.buran.coredb.iface.nodeClass.SorterRef;
 import com.dcrux.buran.coredb.iface.propertyTypes.PrimGet;
 import com.dcrux.buran.coredb.iface.propertyTypes.PrimSet;
 import com.dcrux.buran.coredb.iface.propertyTypes.SorterRefs;
-import com.dcrux.buran.coredb.iface.query.CondCdNode;
-import com.dcrux.buran.coredb.iface.query.PropertySort;
-import com.dcrux.buran.coredb.iface.query.QueryCdNode;
-import com.dcrux.buran.coredb.iface.query.SortDirection;
+import com.dcrux.buran.coredb.iface.query.*;
 import com.google.common.base.Optional;
 import org.junit.Assert;
 import org.junit.Before;

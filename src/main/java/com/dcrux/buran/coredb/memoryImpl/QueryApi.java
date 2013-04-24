@@ -1,8 +1,7 @@
 package com.dcrux.buran.coredb.memoryImpl;
 
-import com.dcrux.buran.coredb.iface.NidVer;
-import com.dcrux.buran.coredb.iface.api.QueryResult;
 import com.dcrux.buran.coredb.iface.api.exceptions.ExpectableException;
+import com.dcrux.buran.coredb.iface.node.NidVer;
 import com.dcrux.buran.coredb.iface.nodeClass.ISorter;
 import com.dcrux.buran.coredb.iface.nodeClass.NodeClass;
 import com.dcrux.buran.coredb.iface.nodeClass.SorterRef;

@@ -1,12 +1,14 @@
 package com.dcrux.buran.coredb.iface;
 
-import com.dcrux.buran.coredb.iface.api.CommitResult;
-import com.dcrux.buran.coredb.iface.api.CreateInfo;
 import com.dcrux.buran.coredb.iface.api.IApi;
-import com.dcrux.buran.coredb.iface.api.KeepAliveHint;
+import com.dcrux.buran.coredb.iface.api.apiData.CommitResult;
+import com.dcrux.buran.coredb.iface.api.apiData.CreateInfo;
+import com.dcrux.buran.coredb.iface.api.apiData.KeepAliveHint;
 import com.dcrux.buran.coredb.iface.api.exceptions.*;
 import com.dcrux.buran.coredb.iface.base.TestsBase;
 import com.dcrux.buran.coredb.iface.common.NodeClassSimple;
+import com.dcrux.buran.coredb.iface.node.IncNid;
+import com.dcrux.buran.coredb.iface.node.NidVer;
 import com.dcrux.buran.coredb.iface.nodeClass.ClassId;
 import com.dcrux.buran.coredb.iface.nodeClass.NodeClassHash;
 import com.dcrux.buran.coredb.iface.propertyTypes.PrimGet;

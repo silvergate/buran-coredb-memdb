@@ -1,9 +1,13 @@
 package com.dcrux.buran.coredb.iface;
 
-import com.dcrux.buran.coredb.iface.api.*;
+import com.dcrux.buran.coredb.iface.api.IApi;
+import com.dcrux.buran.coredb.iface.api.apiData.*;
 import com.dcrux.buran.coredb.iface.api.exceptions.*;
 import com.dcrux.buran.coredb.iface.base.TestsBase;
 import com.dcrux.buran.coredb.iface.common.NodeClassSimple;
+import com.dcrux.buran.coredb.iface.node.IncNid;
+import com.dcrux.buran.coredb.iface.node.NidVer;
+import com.dcrux.buran.coredb.iface.node.NodeState;
 import com.dcrux.buran.coredb.iface.nodeClass.ClassId;
 import com.dcrux.buran.coredb.iface.propertyTypes.PrimGet;
 import com.dcrux.buran.coredb.iface.propertyTypes.PrimSet;

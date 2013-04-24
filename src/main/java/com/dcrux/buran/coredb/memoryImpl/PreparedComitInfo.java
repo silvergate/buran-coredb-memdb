@@ -1,7 +1,7 @@
 package com.dcrux.buran.coredb.memoryImpl;
 
-import com.dcrux.buran.coredb.iface.IncNid;
-import com.dcrux.buran.coredb.iface.NidVer;
+import com.dcrux.buran.coredb.iface.node.IncNid;
+import com.dcrux.buran.coredb.iface.node.NidVer;
 import com.dcrux.buran.coredb.memoryImpl.data.IncNode;
 import com.dcrux.buran.coredb.memoryImpl.data.NodeSerie;
 

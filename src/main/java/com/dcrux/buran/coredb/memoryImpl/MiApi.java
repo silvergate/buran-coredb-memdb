@@ -1,17 +1,20 @@
 package com.dcrux.buran.coredb.memoryImpl;
 
-import com.dcrux.buran.coredb.iface.IncNid;
-import com.dcrux.buran.coredb.iface.NidVer;
-import com.dcrux.buran.coredb.iface.NodeState;
+import com.dcrux.buran.coredb.iface.UserId;
 import com.dcrux.buran.coredb.iface.api.exceptions.DomainNotFoundException;
 import com.dcrux.buran.coredb.iface.api.exceptions.IncubationNodeNotFound;
 import com.dcrux.buran.coredb.iface.api.exceptions.NodeNotFoundException;
 import com.dcrux.buran.coredb.iface.domains.DomainId;
+import com.dcrux.buran.coredb.iface.node.IncNid;
+import com.dcrux.buran.coredb.iface.node.NidVer;
+import com.dcrux.buran.coredb.iface.node.NodeMetadata;
+import com.dcrux.buran.coredb.iface.node.NodeState;
 import com.dcrux.buran.coredb.memoryImpl.data.IncNode;
 import com.dcrux.buran.coredb.memoryImpl.data.NodeImpl;
 
 import javax.annotation.Nullable;
 import java.text.MessageFormat;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -42,6 +45,38 @@ public class MiApi {
             return NodeState.historizedAvailable;
         }
         return null;
+    }
+
+    public NodeMetadata getNodeMeta(long receiverId, long senderId, NidVer nidVer)
+            throws NodeNotFoundException {
+        final NodeImpl inCurrent =
+                this.dataReadApi.getNodeFromCurrentOrHistorized(receiverId, nidVer);
+        if (inCurrent == null) {
+            throw new NodeNotFoundException("Node not found");
+        }
+        boolean deleted = inCurrent.getNodeSerie().hasBeenDeleted();
+        if (deleted) {
+            if (inCurrent.getNodeSerie().getLatestVersionBeforeDeletion() ==
+                    inCurrent.getVersion()) {
+                /* It's the current version and deleted */
+                return NodeMetadata.markedAsDeleted(UserId.c(inCurrent.getSenderId()),
+                        new Date(inCurrent.getValidFrom()), new Date(inCurrent.getValidTo()));
+            } else {
+                /* Historized version */
+                return NodeMetadata.historizedVersion(UserId.c(inCurrent.getSenderId()),
+                        new Date(inCurrent.getValidFrom()), new Date(inCurrent.getValidTo()));
+            }
+        } else {
+            if (inCurrent.getNodeSerie().getCurrentVersion() == inCurrent.getVersion()) {
+                /* Current version */
+                return NodeMetadata.currentVersion(UserId.c(inCurrent.getSenderId()),
+                        new Date(inCurrent.getValidFrom()));
+            } else {
+                /* Historized but there's a current version */
+                return NodeMetadata.historizedVersion(UserId.c(inCurrent.getSenderId()),
+                        new Date(inCurrent.getValidFrom()), new Date(inCurrent.getValidTo()));
+            }
+        }
     }
 
     public long getClassId(long receiverId, long senderId, NidVer nidVer)

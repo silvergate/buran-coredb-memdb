@@ -1,8 +1,10 @@
 package com.gmail.at.silvergate.buran.coredb.memoryImpl.test;
 
-import com.dcrux.buran.coredb.iface.IncNid;
 import com.dcrux.buran.coredb.iface.UserId;
-import com.dcrux.buran.coredb.iface.api.*;
+import com.dcrux.buran.coredb.iface.api.IApi;
+import com.dcrux.buran.coredb.iface.api.apiData.CommitResult;
+import com.dcrux.buran.coredb.iface.api.apiData.CreateInfo;
+import com.dcrux.buran.coredb.iface.api.apiData.KeepAliveHint;
 import com.dcrux.buran.coredb.iface.api.exceptions.*;
 import com.dcrux.buran.coredb.iface.domains.DomainHashCreator;
 import com.dcrux.buran.coredb.iface.edge.EdgeIndex;
@@ -10,6 +12,7 @@ import com.dcrux.buran.coredb.iface.edge.EdgeLabel;
 import com.dcrux.buran.coredb.iface.edge.EdgeLabelIndex;
 import com.dcrux.buran.coredb.iface.edgeClass.EdgeClass;
 import com.dcrux.buran.coredb.iface.edgeTargets.IncVersionedEdTarget;
+import com.dcrux.buran.coredb.iface.node.IncNid;
 import com.dcrux.buran.coredb.iface.nodeClass.ClassId;
 import com.dcrux.buran.coredb.iface.nodeClass.FieldIndex;
 import com.dcrux.buran.coredb.iface.nodeClass.NodeClass;
@@ -25,6 +28,7 @@ import com.dcrux.buran.coredb.iface.propertyTypes.string.StringEq;
 import com.dcrux.buran.coredb.iface.propertyTypes.string.StringType;
 import com.dcrux.buran.coredb.iface.query.CondCdNode;
 import com.dcrux.buran.coredb.iface.query.QueryCdNode;
+import com.dcrux.buran.coredb.iface.query.QueryResult;
 import com.dcrux.buran.coredb.iface.query.edgeCondition.OutEdgeCondition;
 import com.dcrux.buran.coredb.iface.query.nodeMeta.INodeMetaCondition;
 import com.dcrux.buran.coredb.iface.query.propertyCondition.IPropertyCondition;

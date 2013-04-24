@@ -1,8 +1,8 @@
 package com.dcrux.buran.coredb.memoryImpl.data;
 
-import com.dcrux.buran.coredb.iface.NidVer;
 import com.dcrux.buran.coredb.iface.edge.EdgeIndex;
 import com.dcrux.buran.coredb.iface.edge.EdgeLabel;
+import com.dcrux.buran.coredb.iface.node.NidVer;
 import com.dcrux.buran.coredb.memoryImpl.edge.EdgeImpl;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;

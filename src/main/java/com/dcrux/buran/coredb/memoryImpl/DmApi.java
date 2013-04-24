@@ -1,13 +1,13 @@
 package com.dcrux.buran.coredb.memoryImpl;
 
-import com.dcrux.buran.coredb.iface.IncNid;
-import com.dcrux.buran.coredb.iface.NidVer;
-import com.dcrux.buran.coredb.iface.api.TransferExclusion;
+import com.dcrux.buran.coredb.iface.api.apiData.TransferExclusion;
 import com.dcrux.buran.coredb.iface.api.exceptions.*;
 import com.dcrux.buran.coredb.iface.edge.EdgeIndex;
 import com.dcrux.buran.coredb.iface.edge.EdgeLabel;
 import com.dcrux.buran.coredb.iface.edgeTargets.IEdgeTarget;
 import com.dcrux.buran.coredb.iface.edgeTargets.IIncEdgeTarget;
+import com.dcrux.buran.coredb.iface.node.IncNid;
+import com.dcrux.buran.coredb.iface.node.NidVer;
 import com.dcrux.buran.coredb.iface.nodeClass.IDataSetter;
 import com.dcrux.buran.coredb.iface.nodeClass.IType;
 import com.dcrux.buran.coredb.iface.nodeClass.NodeClass;
