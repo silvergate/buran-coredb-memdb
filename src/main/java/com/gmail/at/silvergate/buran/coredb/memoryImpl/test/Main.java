@@ -90,7 +90,7 @@ public class Main {
     public static void main(String[] args)
             throws OptimisticLockingException, IncubationNodeNotFound, EdgeIndexAlreadySet,
             NodeNotFoundException, PermissionDeniedException, InformationUnavailableException,
-            QuotaExceededException, IOException {
+            QuotaExceededException, IOException, VersionNotFoundException {
         testBinary();
 
         ApiIface apiImpl = new ApiIface(getPersistenceFile());

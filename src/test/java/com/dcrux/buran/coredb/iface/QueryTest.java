@@ -47,7 +47,7 @@ public class QueryTest extends TestsBase {
     public void queryMainTest()
             throws PermissionDeniedException, IncubationNodeNotFound, OptimisticLockingException,
             InformationUnavailableException, NodeNotFoundException, EdgeIndexAlreadySet,
-            DomainNotFoundException, QuotaExceededException {
+            DomainNotFoundException, QuotaExceededException, VersionNotFoundException {
         assureNodeDeclared();
         IApi api = getBuran();
 
@@ -190,7 +190,7 @@ public class QueryTest extends TestsBase {
 
     private void andOrNotQuery(int intValue1, int intValue2, String stringValue1,
             String stringValue2) throws PermissionDeniedException, InformationUnavailableException,
-            NodeNotFoundException, QuotaExceededException {
+            NodeNotFoundException, QuotaExceededException, VersionNotFoundException {
         IApi api = getBuran();
 
         /* Or-Query: We should find two nodes */

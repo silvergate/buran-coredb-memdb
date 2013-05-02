@@ -48,7 +48,8 @@ public class PartialUpdateTest extends TestsBase {
 
     private NidVer createNodeAndPopulateWithTestData()
             throws IncubationNodeNotFound, OptimisticLockingException, PermissionDeniedException,
-            EdgeIndexAlreadySet, DomainNotFoundException, QuotaExceededException {
+            EdgeIndexAlreadySet, DomainNotFoundException, QuotaExceededException,
+            NodeNotFoundException {
         IApi api = getBuran();
 
          /* Create a node in incubation - don't update an existing node */
@@ -116,7 +117,7 @@ public class PartialUpdateTest extends TestsBase {
             throws PermissionDeniedException, IncubationNodeNotFound, OptimisticLockingException,
             InformationUnavailableException, NodeNotFoundException, EdgeIndexAlreadySet,
             NodeNotUpdatable, HistoryHintNotFulfillable, IncompatibleClassException,
-            DomainNotFoundException, QuotaExceededException {
+            DomainNotFoundException, QuotaExceededException, VersionNotFoundException {
         IApi api = getBuran();
 
         final NidVer originalNode1 = createNodeAndPopulateWithTestData();

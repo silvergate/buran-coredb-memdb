@@ -23,6 +23,7 @@ import com.google.common.collect.Multimap;
 
 import javax.annotation.Nullable;
 import java.io.*;
+import java.text.MessageFormat;
 import java.util.*;
 
 /**
@@ -182,7 +183,8 @@ public class ApiIface implements IApi {
     public CreateInfoUpdate createNewUpdate(UserId receiver, UserId sender,
             Optional<KeepAliveHint> keepAliveHint, NidVer nodeToUpdate,
             Optional<HistoryHint> historyHint)
-            throws NodeNotUpdatable, PermissionDeniedException, HistoryHintNotFulfillable {
+            throws NodeNotUpdatable, PermissionDeniedException, HistoryHintNotFulfillable,
+            NodeNotFoundException {
         final NodeImpl nodeImpl = getDrApi().getNodeFromCurrent(receiver.getId(), nodeToUpdate);
         if (nodeImpl == null) {
             throw new NodeNotUpdatable();
@@ -284,7 +286,7 @@ public class ApiIface implements IApi {
     public <TData> TData getData(UserId receiver, UserId sender, NidVer nidVersion,
             FieldIndex fieldIndex, IDataGetter<TData> dataGetter)
             throws InformationUnavailableException, PermissionDeniedException,
-            NodeNotFoundException {
+            NodeNotFoundException, VersionNotFoundException {
         return (TData) getDrApi()
                 .getData(receiver.getId(), sender.getId(), nidVersion, fieldIndex.getIndex(),
                         dataGetter);
@@ -344,23 +346,28 @@ public class ApiIface implements IApi {
 
     @Override
     public CommitResult commit(UserId receiver, UserId sender, IncNid... incNid)
-            throws OptimisticLockingException, PermissionDeniedException, IncubationNodeNotFound {
+            throws OptimisticLockingException, PermissionDeniedException, IncubationNodeNotFound,
+            NodeNotFoundException {
         return getCommitApi().commit(receiver.getId(), sender.getId(), incNid);
     }
 
     @Override
     public NodeState getNodeState(UserId receiver, UserId sender, NidVer nid)
-            throws NodeNotFoundException, PermissionDeniedException {
+            throws NodeNotFoundException, PermissionDeniedException, VersionNotFoundException {
         final NodeState state = this.getMetaApi().getState(receiver.getId(), sender.getId(), nid);
         if (state == null) {
-            throw new NodeNotFoundException("Node not found");
+            throw new VersionNotFoundException(
+                    MessageFormat.format("The given node exists but not the" +
+                            " given version " +
+                            "{0}.", nid.getVersion()));
         }
         return state;
     }
 
     @Override
     public NodeMetadata getNodeMeta(UserId receiver, UserId sender, NidVer nid)
-            throws NodeNotFoundException, PermissionDeniedException, QuotaExceededException {
+            throws NodeNotFoundException, PermissionDeniedException, QuotaExceededException,
+            VersionNotFoundException {
         final NodeMetadata meta =
                 this.getMetaApi().getNodeMeta(receiver.getId(), sender.getId(), nid);
         return meta;

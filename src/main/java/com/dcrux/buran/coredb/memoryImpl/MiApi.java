@@ -4,6 +4,7 @@ import com.dcrux.buran.coredb.iface.UserId;
 import com.dcrux.buran.coredb.iface.api.exceptions.DomainNotFoundException;
 import com.dcrux.buran.coredb.iface.api.exceptions.IncubationNodeNotFound;
 import com.dcrux.buran.coredb.iface.api.exceptions.NodeNotFoundException;
+import com.dcrux.buran.coredb.iface.api.exceptions.VersionNotFoundException;
 import com.dcrux.buran.coredb.iface.domains.DomainId;
 import com.dcrux.buran.coredb.iface.node.IncNid;
 import com.dcrux.buran.coredb.iface.node.NidVer;
@@ -34,7 +35,8 @@ public class MiApi {
     }
 
     @Nullable
-    public NodeState getState(long receiverId, long senderId, NidVer nidVer) {
+    public NodeState getState(long receiverId, long senderId, NidVer nidVer)
+            throws NodeNotFoundException {
         final NodeImpl inCurrent = this.dataReadApi.getNodeFromCurrent(receiverId, nidVer);
         if (inCurrent != null) {
             return NodeState.available;
@@ -48,34 +50,32 @@ public class MiApi {
     }
 
     public NodeMetadata getNodeMeta(long receiverId, long senderId, NidVer nidVer)
-            throws NodeNotFoundException {
+            throws NodeNotFoundException, VersionNotFoundException {
         final NodeImpl inCurrent =
                 this.dataReadApi.getNodeFromCurrentOrHistorized(receiverId, nidVer);
         if (inCurrent == null) {
-            throw new NodeNotFoundException("Node not found");
+            throw new VersionNotFoundException(
+                    MessageFormat.format("Node found but version {0} does " +
+                            "not " +
+                            "exist " +
+                            "(deleted node?)", nidVer.getVersion()));
         }
         boolean deleted = inCurrent.getNodeSerie().hasBeenDeleted();
-        if (deleted) {
-            if (inCurrent.getNodeSerie().getLatestVersionBeforeDeletion() ==
-                    inCurrent.getVersion()) {
-                /* It's the current version and deleted */
-                return NodeMetadata.markedAsDeleted(UserId.c(inCurrent.getSenderId()),
-                        new Date(inCurrent.getValidFrom()), new Date(inCurrent.getValidTo()));
-            } else {
-                /* Historized version */
-                return NodeMetadata.historizedVersion(UserId.c(inCurrent.getSenderId()),
-                        new Date(inCurrent.getValidFrom()), new Date(inCurrent.getValidTo()));
-            }
+        boolean current = (!deleted) &&
+                (inCurrent.getNodeSerie().getCurrentVersion() == inCurrent.getVersion());
+        if (current) {
+            return NodeMetadata.currentVersion(UserId.c(inCurrent.getSenderId()),
+                    new Date(inCurrent.getValidFrom()));
         } else {
-            if (inCurrent.getNodeSerie().getCurrentVersion() == inCurrent.getVersion()) {
-                /* Current version */
-                return NodeMetadata.currentVersion(UserId.c(inCurrent.getSenderId()),
-                        new Date(inCurrent.getValidFrom()));
+            final int version;
+            if (deleted) {
+                version = inCurrent.getNodeSerie().getLatestVersionBeforeDeletion();
             } else {
-                /* Historized but there's a current version */
-                return NodeMetadata.historizedVersion(UserId.c(inCurrent.getSenderId()),
-                        new Date(inCurrent.getValidFrom()), new Date(inCurrent.getValidTo()));
+                version = inCurrent.getNodeSerie().getCurrentVersion();
             }
+            return NodeMetadata.historizedVersion(UserId.c(inCurrent.getSenderId()),
+                    new Date(inCurrent.getValidFrom()), new Date(inCurrent.getValidTo()), deleted,
+                    version);
         }
     }
 

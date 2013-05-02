@@ -7,16 +7,16 @@ import com.dcrux.buran.coredb.iface.base.TestsBase;
 import com.dcrux.buran.coredb.iface.common.NodeClassSimple;
 import com.dcrux.buran.coredb.iface.node.IncNid;
 import com.dcrux.buran.coredb.iface.node.NidVer;
+import com.dcrux.buran.coredb.iface.node.NodeMetadata;
 import com.dcrux.buran.coredb.iface.node.NodeState;
 import com.dcrux.buran.coredb.iface.nodeClass.ClassId;
-import com.dcrux.buran.coredb.iface.propertyTypes.PrimGet;
 import com.dcrux.buran.coredb.iface.propertyTypes.PrimSet;
 import com.google.common.base.Optional;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class VersioningTest extends TestsBase {
+public class MetadataTest extends TestsBase {
 
     private ClassId classId;
     private NidVer nodeOneId;
@@ -28,6 +28,56 @@ public class VersioningTest extends TestsBase {
     @Before
     public void setup() throws PermissionDeniedException, QuotaExceededException {
         assureNodeDeclared();
+    }
+
+    private void checkOne(NidVer node)
+            throws PermissionDeniedException, NodeNotFoundException, QuotaExceededException,
+            VersionNotFoundException {
+        IApi api = getBuran();
+        NodeMetadata metadata = api.getNodeMeta(getReceiver(), getSender(), node);
+
+        Assert.assertEquals("Should be current version", metadata.isCurrent(), true);
+        Assert.assertFalse("Schould not have a valid to time",
+                metadata.getValidToTime().isPresent());
+    }
+
+    private void checkTwo(NidVer node0, NidVer node1)
+            throws PermissionDeniedException, NodeNotFoundException, QuotaExceededException,
+            VersionNotFoundException {
+        IApi api = getBuran();
+        NodeMetadata metadata0 = api.getNodeMeta(getReceiver(), getSender(), node0);
+        NodeMetadata metadata1 = api.getNodeMeta(getReceiver(), getSender(), node1);
+
+        Assert.assertTrue("Should have a valid-to-time", metadata0.getValidToTime().isPresent());
+        Assert.assertFalse("must not be current", metadata0.isCurrent());
+        Assert.assertEquals("Wrong latest version", metadata0.getLatestVersion(),
+                node1.getVersion());
+
+        Assert.assertEquals("Should be current version", metadata1.isCurrent(), true);
+        Assert.assertFalse("Should not have a valid to time",
+                metadata1.getValidToTime().isPresent());
+    }
+
+    private void checkThree(NidVer versionBeforeDeletion, NidVer deletedNode)
+            throws PermissionDeniedException, NodeNotFoundException, QuotaExceededException,
+            VersionNotFoundException {
+        IApi api = getBuran();
+
+        boolean versionNotFound = false;
+        NodeMetadata metadata0 = api.getNodeMeta(getReceiver(), getSender(), versionBeforeDeletion);
+        try {
+            NodeMetadata metadata1 = api.getNodeMeta(getReceiver(), getSender(), deletedNode);
+        } catch (VersionNotFoundException vnfe) {
+            versionNotFound = true;
+        }
+
+        Assert.assertTrue("Wrong version",
+                versionBeforeDeletion.getVersion() + 1 == deletedNode.getVersion());
+        Assert.assertTrue("The deleted node must not exist as version.", versionNotFound);
+        Assert.assertFalse(metadata0.isCurrent());
+        Assert.assertEquals("Deleted node should be latest version.",
+                metadata0.getLatestVersionBeforeDeletion(), versionBeforeDeletion.getVersion());
+        Assert.assertTrue("Should be marked as deleted.", metadata0.isMarkedAsDeleted());
     }
 
     @Test
@@ -57,6 +107,8 @@ public class VersioningTest extends TestsBase {
         CommitResult commitResultOne = api.commit(getReceiver(), getSender(), iNidOne);
         NidVer nidVer0 = commitResultOne.getNid(iNidOne);
         Assert.assertEquals("Should be first version", NidVer.FIRST_VERSION, nidVer0.getVersion());
+
+        checkOne(nidVer0);
 
         /* Create a new node in incubation and update 'nidVer0' node */
 
@@ -89,66 +141,7 @@ public class VersioningTest extends TestsBase {
         Assert.assertEquals("Version 1 Node must be in state 'active'", NodeState.available,
                 v1State);
 
-        /* Check properties of node v0 */
-        /* Checking is only possible if history information is still available */
-        if (v0State == NodeState.historizedAvailable) {
-            Integer rV0Int =
-                    api.getData(getReceiver(), getSender(), nidVer0, NodeClassSimple.PROPERTY_INT,
-                            PrimGet.INTEGER);
-            Assert.assertEquals(rV0Int, intValue);
-            String rV0Str = (String) api
-                    .getData(getReceiver(), getSender(), nidVer0, NodeClassSimple.PROPERTY_STRING,
-                            PrimGet.STRING);
-            Assert.assertEquals(rV0Str, strValue);
-        }
-
-        /* Check properties of node v1 */
-        Integer rV1Int =
-                api.getData(getReceiver(), getSender(), nidVer1, NodeClassSimple.PROPERTY_INT,
-                        PrimGet.INTEGER);
-        Assert.assertEquals(rV1Int, intValueV1);
-    }
-
-    @Test
-    public void optimisticLockingExceptionTest()
-            throws PermissionDeniedException, OptimisticLockingException, IncubationNodeNotFound,
-            NodeNotUpdatable, HistoryHintNotFulfillable, QuotaExceededException,
-            NodeNotFoundException {
-        IApi api = getBuran();
-
-        /* Create a node in incubation */
-        CreateInfo createInfo = api.createNew(getReceiver(), getSender(), this.classId,
-                Optional.<KeepAliveHint>absent());
-        IncNid iNidOne = createInfo.getIncNid();
-
-        /* Commit node */
-
-        CommitResult commitResultOne = api.commit(getReceiver(), getSender(), iNidOne);
-        NidVer nidVer0 = commitResultOne.getNid(iNidOne);
-        Assert.assertEquals("Should be first version", NidVer.FIRST_VERSION, nidVer0.getVersion());
-
-        /* Try to update node v0 twice. This should work until we try to commit. */
-        final CreateInfoUpdate createInfoUpdate11 =
-                api.createNewUpdate(getReceiver(), getSender(), Optional.<KeepAliveHint>absent(),
-                        nidVer0, Optional.<HistoryHint>absent());
-        final CreateInfoUpdate createInfoUpdate12 =
-                api.createNewUpdate(getReceiver(), getSender(), Optional.<KeepAliveHint>absent(),
-                        nidVer0, Optional.<HistoryHint>absent());
-        final IncNid iNidOneV11 = createInfoUpdate11.getIncNid();
-        final IncNid iNidOneV12 = createInfoUpdate12.getIncNid();
-
-        /* Commit first update node - this should work */
-        CommitResult commitResultTwo1 = api.commit(getReceiver(), getSender(), iNidOneV11);
-
-        boolean exceptionRaised = false;
-        try {
-        /* Commit second update node - this should raise an OptimisticLockingException */
-            CommitResult commitResultTwo2 = api.commit(getReceiver(), getSender(), iNidOneV12);
-        } catch (OptimisticLockingException ole) {
-            exceptionRaised = true;
-        }
-        Assert.assertTrue("The second commit must raise an OptimisticLockingException.",
-                exceptionRaised);
+        checkTwo(nidVer0, nidVer1);
     }
 
     @Test
@@ -198,5 +191,7 @@ public class VersioningTest extends TestsBase {
                 api.getLatestVersionBeforeDeletion(getReceiver(), getSender(), this.nodeOneId);
         Assert.assertEquals("The latest version should be the version marked as deleted.",
                 this.nodeOneId, currentVersionOk);
+
+        checkThree(this.nodeOneId, nidVer);
     }
 }

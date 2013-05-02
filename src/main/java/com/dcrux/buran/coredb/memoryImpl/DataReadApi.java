@@ -3,6 +3,7 @@ package com.dcrux.buran.coredb.memoryImpl;
 import com.dcrux.buran.coredb.iface.api.apiData.HistoryState;
 import com.dcrux.buran.coredb.iface.api.exceptions.ExpectableException;
 import com.dcrux.buran.coredb.iface.api.exceptions.NodeNotFoundException;
+import com.dcrux.buran.coredb.iface.api.exceptions.VersionNotFoundException;
 import com.dcrux.buran.coredb.iface.edge.*;
 import com.dcrux.buran.coredb.iface.edgeClass.EdgeClass;
 import com.dcrux.buran.coredb.iface.node.NidVer;
@@ -21,6 +22,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
 import javax.annotation.Nullable;
+import java.text.MessageFormat;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,13 +41,16 @@ public class DataReadApi {
     }
 
     @Nullable
-    NodeImpl getNodeFromCurrent(long receiverId, NidVer oid) {
-        return this.nodes.getByUserId(receiverId).getNode(oid.getNid(), oid.getVersion(), true);
+    NodeImpl getNodeFromCurrent(long receiverId, NidVer oid) throws NodeNotFoundException {
+        return this.nodes.getByUserId(receiverId)
+                .getNodeThhrowIfNodeSerieNotFound(oid.getNid(), oid.getVersion(), true);
     }
 
     @Nullable
-    NodeImpl getNodeFromCurrentOrHistorized(long receiverId, NidVer oid) {
-        return this.nodes.getByUserId(receiverId).getNode(oid.getNid(), oid.getVersion(), false);
+    NodeImpl getNodeFromCurrentOrHistorized(long receiverId, NidVer oid)
+            throws NodeNotFoundException {
+        return this.nodes.getByUserId(receiverId)
+                .getNodeThhrowIfNodeSerieNotFound(oid.getNid(), oid.getVersion(), false);
     }
 
     public Map<EdgeLabel, Map<EdgeIndex, EdgeImpl>> getOutEdgesImpl(long receiverId, long senderId,
@@ -294,18 +299,20 @@ public class DataReadApi {
         return ns != null;
     }
 
-    public boolean existsInCurrent(long receiverId, NidVer nidVer) {
+    public boolean existsInCurrent(long receiverId, NidVer nidVer) throws NodeNotFoundException {
         // TODO: Das muss nicht ins public api, da gibts schon das getState
         return getNodeFromCurrent(receiverId, nidVer) != null;
     }
 
     @Nullable
     public Object getData(long receiverId, long senderId, NidVer nidVer, short typeIndex,
-            IDataGetter dataGetter) throws NodeNotFoundException {
+            IDataGetter dataGetter) throws NodeNotFoundException, VersionNotFoundException {
         final NodeImpl node = this.nodes.getByUserId(receiverId)
                 .getNode(nidVer.getNid(), nidVer.getVersion(), false);
         if (node == null) {
-            throw new NodeNotFoundException("Node not found");
+            throw new VersionNotFoundException(MessageFormat.format("Node found but given version" +
+                    " {0} does not exists" +
+                    ". Node deleted?", nidVer.getVersion()));
         }
         final long classId = node.getNodeSerie().getClassId();
 

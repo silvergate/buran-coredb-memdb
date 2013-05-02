@@ -1,6 +1,7 @@
 package com.dcrux.buran.coredb.memoryImpl;
 
 import com.dcrux.buran.coredb.iface.api.apiData.CommitResult;
+import com.dcrux.buran.coredb.iface.api.exceptions.NodeNotFoundException;
 import com.dcrux.buran.coredb.iface.api.exceptions.OptimisticLockingException;
 import com.dcrux.buran.coredb.iface.node.IncNid;
 import com.dcrux.buran.coredb.memoryImpl.data.Nodes;
@@ -27,7 +28,7 @@ public class CommitApi {
     }
 
     public CommitResult commit(long receiverId, long senderId, IncNid... incNid)
-            throws OptimisticLockingException {
+            throws OptimisticLockingException, NodeNotFoundException {
         Set<IncNid> incNids = new HashSet<>();
         incNids.addAll(Arrays.asList(incNid));
         return this.nodes.getByUserId(receiverId)
@@ -35,7 +36,7 @@ public class CommitApi {
     }
 
     public CommitResult commit(long receiverId, long senderId, Set<IncNid> incNids)
-            throws OptimisticLockingException {
+            throws OptimisticLockingException, NodeNotFoundException {
         return this.nodes.getByUserId(receiverId)
                 .commit(senderId, incNids, this.drApi, this.ncApi, this.subscriptionApi);
     }

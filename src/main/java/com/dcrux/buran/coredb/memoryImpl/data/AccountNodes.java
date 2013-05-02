@@ -2,6 +2,7 @@ package com.dcrux.buran.coredb.memoryImpl.data;
 
 import com.dcrux.buran.coredb.iface.api.apiData.CommitResult;
 import com.dcrux.buran.coredb.iface.api.exceptions.ExpectableException;
+import com.dcrux.buran.coredb.iface.api.exceptions.NodeNotFoundException;
 import com.dcrux.buran.coredb.iface.api.exceptions.OptimisticLockingException;
 import com.dcrux.buran.coredb.iface.node.IncNid;
 import com.dcrux.buran.coredb.iface.node.NidVer;
@@ -16,6 +17,7 @@ import com.google.common.collect.Multimap;
 
 import javax.annotation.Nullable;
 import java.io.Serializable;
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -148,10 +150,12 @@ public class AccountNodes implements Serializable {
     }
 
     @Nullable
-    public NodeImpl getNode(long oid, int version, boolean currentOnly) {
+    public NodeImpl getNodeThhrowIfNodeSerieNotFound(long oid, int version, boolean currentOnly)
+            throws NodeNotFoundException {
         final NodeSerie ns = getNodeSerieByOid(oid, false);
         if (ns == null) {
-            return null;
+            throw new NodeNotFoundException(
+                    MessageFormat.format("Node with id {0} does not " + "exist in system", oid));
         }
         if (currentOnly) {
             /* Check whether it's the current version */
@@ -163,6 +167,16 @@ public class AccountNodes implements Serializable {
 
         if (!ns.hasVersion(version)) return null;
         return ns.getNode(version);
+    }
+
+    @Nullable
+    public NodeImpl getNode(long oid, int version, boolean currentOnly) {
+        try {
+            NodeImpl nodeImpl = getNodeThhrowIfNodeSerieNotFound(oid, version, currentOnly);
+            return nodeImpl;
+        } catch (NodeNotFoundException e) {
+            return null;
+        }
     }
 
     @Nullable
@@ -215,7 +229,7 @@ public class AccountNodes implements Serializable {
 
     public CommitResult commit(long senderId, Set<IncNid> incNids, DataReadApi drApi,
             NodeClassesApi ncApi, SubscriptionApi subscriptionApi)
-            throws OptimisticLockingException {
+            throws OptimisticLockingException, NodeNotFoundException {
         // TODO: Missing write lock
       /* OIDs von allen extrahieren */
         final Set<PreparedComitInfo> prepComInfo =
@@ -246,7 +260,8 @@ public class AccountNodes implements Serializable {
     }
 
     private void commitNodeAndEdges(Set<PreparedComitInfo> pci, final long senderId,
-            PreparedComitInfo pciEntry, final Set<SubscriptionTask> subscriptionTasks) {
+            PreparedComitInfo pciEntry, final Set<SubscriptionTask> subscriptionTasks)
+            throws NodeNotFoundException {
         final IncNid incNid = pciEntry.getIoid();
         final long classId = pciEntry.getClassId();
 

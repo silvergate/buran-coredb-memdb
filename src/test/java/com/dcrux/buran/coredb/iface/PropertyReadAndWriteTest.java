@@ -56,7 +56,8 @@ public class PropertyReadAndWriteTest extends TestsBase {
     @Test
     public void createIncubationNode()
             throws PermissionDeniedException, IncubationNodeNotFound, OptimisticLockingException,
-            InformationUnavailableException, NodeNotFoundException, QuotaExceededException {
+            InformationUnavailableException, NodeNotFoundException, QuotaExceededException,
+            VersionNotFoundException {
         assureNodeDeclared();
         IApi api = getBuran();
 

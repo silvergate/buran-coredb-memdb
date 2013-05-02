@@ -143,7 +143,7 @@ public class SubscriptionTest extends TestsBase {
 
     private NidVer addNodeWithIntValue(IApi api, int intValue)
             throws PermissionDeniedException, IncubationNodeNotFound, OptimisticLockingException,
-            QuotaExceededException {
+            QuotaExceededException, NodeNotFoundException {
         /* Create a node in incubation - don't update an existing node */
         CreateInfo createInfo = api.createNew(getReceiver(), getSender(), this.classId,
                 Optional.<KeepAliveHint>absent());
@@ -157,7 +157,7 @@ public class SubscriptionTest extends TestsBase {
     private NidVer deleteNode(IApi api, NidVer toUpdate)
             throws PermissionDeniedException, IncubationNodeNotFound, OptimisticLockingException,
             NodeNotUpdatable, HistoryHintNotFulfillable, NotUpdatingException,
-            QuotaExceededException {
+            QuotaExceededException, NodeNotFoundException {
         /* Create a node in incubation - don't update an existing node */
         CreateInfoUpdate createInfo =
                 api.createNewUpdate(getReceiver(), getSender(), Optional.<KeepAliveHint>absent(),
@@ -170,7 +170,8 @@ public class SubscriptionTest extends TestsBase {
 
     private NidVer updateNodeWithIntValue(IApi api, NidVer toUpdate, int intValue)
             throws PermissionDeniedException, IncubationNodeNotFound, OptimisticLockingException,
-            NodeNotUpdatable, HistoryHintNotFulfillable, QuotaExceededException {
+            NodeNotUpdatable, HistoryHintNotFulfillable, QuotaExceededException,
+            NodeNotFoundException {
         /* Create a node in incubation - don't update an existing node */
         CreateInfoUpdate createInfo =
                 api.createNewUpdate(getReceiver(), getSender(), Optional.<KeepAliveHint>absent(),
@@ -184,7 +185,8 @@ public class SubscriptionTest extends TestsBase {
 
     private NidVer updateNodeWithStringValue(IApi api, NidVer toUpdate, String strValue)
             throws PermissionDeniedException, IncubationNodeNotFound, OptimisticLockingException,
-            NodeNotUpdatable, HistoryHintNotFulfillable, QuotaExceededException {
+            NodeNotUpdatable, HistoryHintNotFulfillable, QuotaExceededException,
+            NodeNotFoundException {
         /* Create a node in incubation - don't update an existing node */
         CreateInfoUpdate createInfo =
                 api.createNewUpdate(getReceiver(), getSender(), Optional.<KeepAliveHint>absent(),

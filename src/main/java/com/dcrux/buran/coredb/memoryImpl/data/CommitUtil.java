@@ -1,6 +1,7 @@
 package com.dcrux.buran.coredb.memoryImpl.data;
 
 import com.dcrux.buran.coredb.iface.api.exceptions.ExpectableException;
+import com.dcrux.buran.coredb.iface.api.exceptions.NodeNotFoundException;
 import com.dcrux.buran.coredb.iface.api.exceptions.OptimisticLockingException;
 import com.dcrux.buran.coredb.iface.edge.EdgeIndex;
 import com.dcrux.buran.coredb.iface.edge.EdgeLabel;
@@ -213,7 +214,7 @@ public class CommitUtil {
     }
 
     public void validate(Set<PreparedComitInfo> prepComInfo, DataReadApi drApi,
-            NodeClassesApi ncApi) throws OptimisticLockingException {
+            NodeClassesApi ncApi) throws OptimisticLockingException, NodeNotFoundException {
     /* No duplicate target oids*/
         final Set<Long> givenOids = new HashSet<>();
         for (final PreparedComitInfo pciEntry : prepComInfo) {
@@ -250,7 +251,8 @@ public class CommitUtil {
     }
 
     public void addEdge(Set<PreparedComitInfo> prepComInfo, final NodeImpl sourceNode,
-            final IncubationEdge incEdge, EdgeIndex index, AccountNodes accountNodes) {
+            final IncubationEdge incEdge, EdgeIndex index, AccountNodes accountNodes)
+            throws NodeNotFoundException {
         NodeSerie inNodeSerie = null;
         NodeImpl inNode = null;
 
@@ -276,11 +278,11 @@ public class CommitUtil {
             case versioned:
                 final VersionedEdTarget versionedEdTarget = (VersionedEdTarget) target;
                 finalTarget = new VersionedEdgeImplTarget(accountNodes
-                        .getNode(versionedEdTarget.getNid(), versionedEdTarget.getVersion(),
-                                false));
+                        .getNodeThhrowIfNodeSerieNotFound(versionedEdTarget.getNid(),
+                                versionedEdTarget.getVersion(), false));
         /* Add to in node */
-                inNode = accountNodes
-                        .getNode(versionedEdTarget.getNid(), versionedEdTarget.getVersion(), false);
+                inNode = accountNodes.getNodeThhrowIfNodeSerieNotFound(versionedEdTarget.getNid(),
+                        versionedEdTarget.getVersion(), false);
                 break;
             case unversionedInc:
                 final IncUnversionedEdTarget incUnversionedEdTarget =
